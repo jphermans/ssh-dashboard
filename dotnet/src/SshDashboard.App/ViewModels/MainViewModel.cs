@@ -226,6 +226,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 $"User       {(string.IsNullOrEmpty(SelectedHost.User) ? "—" : SelectedHost.User)}",
                 $"Port       {SelectedHost.Port}",
                 $"Keys       {(string.IsNullOrEmpty(SelectedHost.KeyTypes) ? "—" : SelectedHost.KeyTypes)}",
+                $"Identity   {(string.IsNullOrEmpty(SelectedHost.IdentityFile) ? "—" : SelectedHost.IdentityFile)}",
                 $"Source     {SelectedHost.Source}",
             };
             if (SelectedHost.ConfigStarts.Count > 0)

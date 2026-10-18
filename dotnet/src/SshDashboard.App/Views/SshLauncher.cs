@@ -28,6 +28,16 @@ public static class SshLauncher
         return args;
     }
 
+    public static string? ResolvePpkPath(HostRow host)
+    {
+        var identity = host.IdentityFile.Trim().Trim('"');
+        if (string.IsNullOrWhiteSpace(identity)) return null;
+        if (identity.StartsWith("~/", StringComparison.Ordinal))
+            identity = Path.Combine(PlatformInfo.Home, identity[2..]);
+        if (!Path.IsPathRooted(identity)) identity = Path.Combine(PlatformInfo.SshDir, identity);
+        return PpkFile.LooksLikePpk(identity) ? identity : null;
+    }
+
     public static string CommandLine(HostRow host) =>
         "ssh " + string.Join(" ", BuildArguments(host).Select(ShellQuote));
 

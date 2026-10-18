@@ -128,6 +128,7 @@ public sealed class HostRow : System.ComponentModel.INotifyPropertyChanged
     public string User { get; set; } = "";
     public int Port { get; set; } = 22;
     public string KeyTypes { get; set; } = "";
+    public string IdentityFile { get; set; } = "";
     public string Source { get; set; } = "";
     public bool InKnownHosts { get; set; }
     public bool InConfig { get; set; }

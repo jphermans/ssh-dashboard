@@ -12,6 +12,7 @@ public partial class SshSessionWindow : Window
     private readonly HostRow _host;
     private readonly CancellationTokenSource _cts = new();
     private Process? _process;
+    private string? _tempKey;
 
     public SshSessionWindow(HostRow host)
     {
@@ -45,6 +46,24 @@ public partial class SshSessionWindow : Window
             };
             psi.ArgumentList.Add("-tt");
             foreach (var arg in SshLauncher.BuildArguments(_host)) psi.ArgumentList.Add(arg);
+            var ppkPath = SshLauncher.ResolvePpkPath(_host);
+            if (ppkPath is not null)
+            {
+                try
+                {
+                    var ppk = PpkFile.Load(ppkPath);
+                    _tempKey = ppk.WriteTemporaryOpenSsh();
+                    psi.ArgumentList.Add("-i");
+                    psi.ArgumentList.Add(_tempKey);
+                    Terminal.WriteSystem($"Using PuTTY key {Path.GetFileName(ppkPath)} ({ppk.Kind}).");
+                }
+                catch (Exception ex)
+                {
+                    SetStatus("PuTTY key error", false);
+                    Terminal.WriteSystem("PuTTY key: " + ex.Message);
+                    return;
+                }
+            }
             var rows = Math.Max(12, Terminal.Rows);
             var cols = Math.Max(40, Terminal.Columns);
             psi.ArgumentList.Add($"stty rows {rows} cols {cols} 2>/dev/null; exec $SHELL -l");
@@ -105,6 +124,13 @@ public partial class SshSessionWindow : Window
         catch { }
     }
 
+    private void CleanupKey()
+    {
+        if (_tempKey is null) return;
+        try { File.Delete(_tempKey); } catch { }
+        _tempKey = null;
+    }
+
     private void OnExited()
     {
         var code = -1;
@@ -113,6 +139,7 @@ public partial class SshSessionWindow : Window
         Terminal.WriteSystem(code == 0
             ? "Session ended."
             : $"ssh exited with code {code}.");
+        CleanupKey();
         DispatcherTimer.RunOnce(() =>
         {
             if (IsVisible) Close();
@@ -129,6 +156,7 @@ public partial class SshSessionWindow : Window
 
     private void Stop()
     {
+        CleanupKey();
         _cts.Cancel();
         try
         {

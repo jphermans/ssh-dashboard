@@ -87,6 +87,7 @@ public sealed class SshStore
             row.InConfig = true;
             row.Source = row.InKnownHosts ? "both" : "config";
             if (string.IsNullOrWhiteSpace(row.User)) row.User = block.User;
+            if (string.IsNullOrWhiteSpace(row.IdentityFile)) row.IdentityFile = block.IdentityFile;
             if (!row.ConfigStarts.Contains(block.StartLine)) row.ConfigStarts.Add(block.StartLine);
         }
 

@@ -174,6 +174,17 @@ public static class KeyScanner
         {
             var name = Path.GetFileName(path);
             if (Skip.Contains(name, StringComparer.OrdinalIgnoreCase)) continue;
+            if (name.EndsWith(".ppk", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    var ppk = PpkFile.Load(path);
+                    keys.Add(new KeyInfo(path, name, $"PuTTY PPK · {ppk.Kind}", ppk.Fingerprint,
+                        new FileInfo(path).Length, true, ppk.Access));
+                }
+                catch { }
+                continue;
+            }
             if (name.StartsWith('.') || name.EndsWith(".bak", StringComparison.OrdinalIgnoreCase)) continue;
 
             string first;
