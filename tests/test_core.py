@@ -102,7 +102,7 @@ class ConfigParserTests(TempSsh):
             "Host *\n"
             "    ServerAliveInterval 60\n"
             "\n"
-            "Host pi5 nas_lab\n"
+            "Host pi5 nas-lab\n"
             "    HostName 192.0.2.1.10\n"
             "    User root\n"
             "    Port 2222\n"
