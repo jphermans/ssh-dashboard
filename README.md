@@ -15,7 +15,7 @@ Built with **.NET 10** and **Avalonia** for macOS, Windows and Linux.
 ![Avalonia](https://img.shields.io/badge/Avalonia-11.3-8B44AC)
 ![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Windows%20%7C%20Linux-11171F)
 ![Tests](https://img.shields.io/badge/tests-8%20passing-3FCF8E)
-![Version](https://img.shields.io/badge/version-2.0.7-4C8DFF)
+![Version](https://img.shields.io/badge/version-2.0.8-4C8DFF)
 
 ![Hosts view](docs/screenshots/hosts-dark.png)
 
@@ -66,12 +66,12 @@ All builds are self-contained — no .NET runtime required on the target.
 
 | Platform | File |
 | --- | --- |
-| macOS Apple Silicon | [`SSH-Dashboard-2.0.7-macOS-arm64.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.7/SSH-Dashboard-2.0.7-macOS-arm64.dmg) |
-| macOS Intel | [`SSH-Dashboard-2.0.7-macOS-x64.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.7/SSH-Dashboard-2.0.7-macOS-x64.dmg) |
-| Windows 10/11 x64 | [`SSH-Dashboard-2.0.7-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.7/SSH-Dashboard-2.0.7-windows-x64.zip) |
-| Linux x64 | [`SSH-Dashboard-2.0.7-linux-x64.tar.gz`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.7/SSH-Dashboard-2.0.7-linux-x64.tar.gz) |
+| macOS Apple Silicon | [`SSH-Dashboard-2.0.8-macOS-arm64.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.8/SSH-Dashboard-2.0.8-macOS-arm64.dmg) |
+| macOS Intel | [`SSH-Dashboard-2.0.8-macOS-x64.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.8/SSH-Dashboard-2.0.8-macOS-x64.dmg) |
+| Windows 10/11 x64 | [`SSH-Dashboard-2.0.8-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.8/SSH-Dashboard-2.0.8-windows-x64.zip) |
+| Linux x64 | [`SSH-Dashboard-2.0.8-linux-x64.tar.gz`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.8/SSH-Dashboard-2.0.8-linux-x64.tar.gz) |
 
-Checksums: [`SHA256SUMS-2.0.7.txt`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.7/SHA256SUMS-2.0.7.txt).
+Checksums: [`SHA256SUMS-2.0.8.txt`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.8/SHA256SUMS-2.0.8.txt).
 
 ### macOS
 

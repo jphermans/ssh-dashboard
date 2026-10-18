@@ -494,6 +494,9 @@ public partial class MainWindow : Window
 
     private async void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        // Never steal editing keys from the search box or any other text field.
+        if (FocusManager?.GetFocusedElement() is TextBox) return;
+
         var mod = OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
         var command = (e.KeyModifiers & mod) == mod;
 
