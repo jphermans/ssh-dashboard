@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SshDashboard.App/SshDashboard.App.csproj" />
+    <Project Path="src/SshDashboard.Core/SshDashboard.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SshDashboard.Core.Tests/SshDashboard.Core.Tests.csproj" />
+  </Folder>
+</Solution>

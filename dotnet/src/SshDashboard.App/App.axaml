@@ -1,0 +1,181 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SshDashboard.App.App"
+             RequestedThemeVariant="Dark">
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+          <Color x:Key="SystemAccentColor">#4C8DFF</Color>
+          <Color x:Key="SystemAccentColorDark1">#3D7BE8</Color>
+          <SolidColorBrush x:Key="AppBg" Color="#11171F" />
+          <SolidColorBrush x:Key="SidebarBg" Color="#0C1219" />
+          <SolidColorBrush x:Key="PanelBg" Color="#161E28" />
+          <SolidColorBrush x:Key="ElevatedBg" Color="#1B2531" />
+          <SolidColorBrush x:Key="CardBg" Color="#141B24" />
+          <SolidColorBrush x:Key="BorderSoft" Color="#26313F" />
+          <SolidColorBrush x:Key="TextPrimary" Color="#E9EFF7" />
+          <SolidColorBrush x:Key="TextMuted" Color="#93A4B8" />
+          <SolidColorBrush x:Key="TextFaint" Color="#6B7D92" />
+          <SolidColorBrush x:Key="AccentBrush" Color="#4C8DFF" />
+          <SolidColorBrush x:Key="AccentSoft" Color="#1E3A66" />
+          <SolidColorBrush x:Key="DangerBrush" Color="#F26D6D" />
+          <SolidColorBrush x:Key="DangerSoft" Color="#3A1D22" />
+          <SolidColorBrush x:Key="SuccessBrush" Color="#3FCF8E" />
+          <SolidColorBrush x:Key="HoverBg" Color="#1E2835" />
+          <SolidColorBrush x:Key="SelectedBg" Color="#24344A" />
+          <SolidColorBrush x:Key="InputBg" Color="#0F151D" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+          <Color x:Key="SystemAccentColor">#2F6FE4</Color>
+          <Color x:Key="SystemAccentColorDark1">#2459BE</Color>
+          <SolidColorBrush x:Key="AppBg" Color="#EBF0F7" />
+          <SolidColorBrush x:Key="SidebarBg" Color="#F7FAFD" />
+          <SolidColorBrush x:Key="PanelBg" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="ElevatedBg" Color="#F2F6FB" />
+          <SolidColorBrush x:Key="CardBg" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="BorderSoft" Color="#D6E0EC" />
+          <SolidColorBrush x:Key="TextPrimary" Color="#16202B" />
+          <SolidColorBrush x:Key="TextMuted" Color="#5A6B7D" />
+          <SolidColorBrush x:Key="TextFaint" Color="#8092A6" />
+          <SolidColorBrush x:Key="AccentBrush" Color="#2F6FE4" />
+          <SolidColorBrush x:Key="AccentSoft" Color="#DCE8FB" />
+          <SolidColorBrush x:Key="DangerBrush" Color="#C93A3F" />
+          <SolidColorBrush x:Key="DangerSoft" Color="#FBE3E4" />
+          <SolidColorBrush x:Key="SuccessBrush" Color="#178B5C" />
+          <SolidColorBrush x:Key="HoverBg" Color="#E4EBF4" />
+          <SolidColorBrush x:Key="SelectedBg" Color="#D9E6FA" />
+          <SolidColorBrush x:Key="InputBg" Color="#F4F8FC" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+    <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+
+    <Style Selector="Window">
+      <Setter Property="FontFamily" Value="Inter, -apple-system, SF Pro Text, Segoe UI, Ubuntu, sans-serif" />
+    </Style>
+
+    <Style Selector="TextBlock.h1">
+      <Setter Property="FontSize" Value="24" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+    </Style>
+    <Style Selector="TextBlock.h2">
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+    </Style>
+    <Style Selector="TextBlock.muted">
+      <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+      <Setter Property="FontSize" Value="12.5" />
+    </Style>
+
+    <Style Selector="Button">
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="14,8" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Background" Value="{DynamicResource ElevatedBg}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Button:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource HoverBg}" />
+    </Style>
+
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
+    </Style>
+
+    <Style Selector="Button.danger">
+      <Setter Property="Background" Value="{DynamicResource DangerBrush}" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="Button.ghost">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+    </Style>
+    <Style Selector="Button.ghost:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource HoverBg}" />
+    </Style>
+
+    <Style Selector="TextBox">
+      <Setter Property="Background" Value="{DynamicResource InputBg}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="10,7" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="MinHeight" Value="34" />
+    </Style>
+
+    <Style Selector="GridSplitter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="GridSplitter:pointerover">
+      <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+    </Style>
+
+    <Style Selector="DataGrid">
+      <Setter Property="Background" Value="{DynamicResource PanelBg}" />
+      <Setter Property="RowBackground" Value="{DynamicResource PanelBg}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="GridLinesVisibility" Value="Horizontal" />
+      <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource BorderSoft}" />
+      <Setter Property="VerticalGridLinesBrush" Value="Transparent" />
+      <Setter Property="HeadersVisibility" Value="Column" />
+      <Setter Property="RowHeight" Value="40" />
+      <Setter Property="ColumnHeaderHeight" Value="40" />
+      <Setter Property="SelectionMode" Value="Single" />
+    </Style>
+    <Style Selector="DataGridColumnHeader">
+      <Setter Property="Background" Value="{DynamicResource PanelBg}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextFaint}" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Padding" Value="12,0" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+    <Style Selector="DataGridCell">
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="Padding" Value="12,0" />
+    </Style>
+    <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill" Value="{DynamicResource SelectedBg}" />
+    </Style>
+
+    <Style Selector="ListBox.nav">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
+    <Style Selector="ListBox.nav ListBoxItem">
+      <Setter Property="Padding" Value="12,9" />
+      <Setter Property="Margin" Value="0,2" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Foreground" Value="{DynamicResource TextMuted}" />
+    </Style>
+    <Style Selector="ListBox.nav ListBoxItem:selected /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource SelectedBg}" />
+      <Setter Property="TextElement.Foreground" Value="{DynamicResource TextPrimary}" />
+    </Style>
+    <Style Selector="ListBox.nav ListBoxItem:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource HoverBg}" />
+    </Style>
+  </Application.Styles>
+</Application>

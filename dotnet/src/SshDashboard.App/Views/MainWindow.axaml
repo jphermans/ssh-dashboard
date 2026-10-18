@@ -1,0 +1,315 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:core="using:SshDashboard.Core"
+        x:Class="SshDashboard.App.Views.MainWindow"
+        Title="SSH Dashboard"
+        Width="1360" Height="860" MinWidth="1040" MinHeight="640"
+        Background="{DynamicResource AppBg}"
+        WindowStartupLocation="CenterScreen">
+
+  <Grid RowDefinitions="Auto,*">
+    <!-- Application menu -->
+    <Menu Grid.Row="0" Background="{DynamicResource PanelBg}" Padding="12,4"
+          BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,0,0,1">
+      <MenuItem Header="File">
+        <MenuItem Header="Rescan" Click="Refresh_Click" />
+        <Separator />
+        <MenuItem Header="Open SSH Folder" Click="OpenSshFolder_Click" />
+        <MenuItem Header="Open Backups Folder" Click="OpenBackupsFolder_Click" />
+        <Separator />
+        <MenuItem Header="Export Current View to CSV…" Click="Export_Click" />
+        <Separator />
+        <MenuItem Header="Quit" Click="Quit_Click" />
+      </MenuItem>
+      <MenuItem Header="Edit">
+        <MenuItem Header="Select All Hosts" Click="SelectAll_Click" />
+        <MenuItem Header="Clear Selection" Click="ClearSelection_Click" />
+        <Separator />
+        <MenuItem Header="Delete Selected…" Click="Delete_Click" />
+        <MenuItem Header="Undo Last Change" Click="Undo_Click" />
+      </MenuItem>
+      <MenuItem Header="View">
+        <MenuItem Header="Hosts" Click="ViewHosts_Click" />
+        <MenuItem Header="Configuration" Click="ViewConfig_Click" />
+        <MenuItem Header="Keys" Click="ViewKeys_Click" />
+        <MenuItem Header="Activity" Click="ViewActivity_Click" />
+        <Separator />
+        <MenuItem Header="System Theme" Click="ThemeSystem_Click" />
+        <MenuItem Header="Dark Theme" Click="ThemeDark_Click" />
+        <MenuItem Header="Light Theme" Click="ThemeLight_Click" />
+      </MenuItem>
+      <MenuItem Header="Tools">
+        <MenuItem Header="Open SSH Session" Click="Ssh_Click" />
+        <MenuItem Header="Test Connection" Click="Test_Click" />
+        <MenuItem Header="Edit Selected Block…" Click="EditBlock_Click" />
+        <Separator />
+        <MenuItem Header="Settings…" Click="Settings_Click" />
+      </MenuItem>
+      <MenuItem Header="Help">
+        <MenuItem Header="Keyboard Shortcuts" Click="Shortcuts_Click" />
+        <MenuItem Header="About SSH Dashboard" Click="About_Click" />
+      </MenuItem>
+    </Menu>
+
+    <Grid Grid.Row="1" ColumnDefinitions="252,6,*">
+      <!-- Sidebar -->
+      <Border Grid.Column="0" Background="{DynamicResource SidebarBg}"
+              MinWidth="200" MaxWidth="340"
+              BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,0,1,0">
+        <Grid RowDefinitions="Auto,*,Auto" Margin="16,20,16,16">
+          <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="4,0,0,22">
+            <Border Width="36" Height="36" CornerRadius="10" Background="{DynamicResource AccentBrush}">
+              <Path Data="M7,14A2,2 0 0,1 5,12A2,2 0 0,1 7,10A2,2 0 0,1 9,12A2,2 0 0,1 7,14M12.65,10C11.83,7.67 9.61,6 7,6A6,6 0 0,0 1,12A6,6 0 0,0 7,18C9.61,18 11.83,16.33 12.65,14H17V18H21V14H23V10H12.65Z"
+                    Fill="White" Width="20" Height="20" Stretch="Uniform"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="SSH Dashboard" FontSize="14" FontWeight="SemiBold"
+                         Foreground="{DynamicResource TextPrimary}" />
+              <TextBlock Text="~/.ssh control" FontSize="11" Foreground="{DynamicResource TextFaint}" />
+            </StackPanel>
+          </StackPanel>
+
+          <ListBox x:Name="Nav" Grid.Row="1" Classes="nav"
+                   SelectionChanged="Nav_SelectionChanged">
+            <ListBoxItem Tag="hosts">
+              <Grid ColumnDefinitions="20,*,Auto">
+                <Path Data="M4,1H20A1,1 0 0,1 21,2V6A1,1 0 0,1 20,7H4A1,1 0 0,1 3,6V2A1,1 0 0,1 4,1M4,9H20A1,1 0 0,1 21,10V14A1,1 0 0,1 20,15H4A1,1 0 0,1 3,14V10A1,1 0 0,1 4,9M4,17H20A1,1 0 0,1 21,18V22A1,1 0 0,1 20,23H4A1,1 0 0,1 3,22V18A1,1 0 0,1 4,17M9,5H10V3H9V5M9,13H10V11H9V13M9,21H10V19H9V21M5,3V5H7V3H5M5,11V13H7V11H5M5,19V21H7V19H5Z"
+                      Fill="{DynamicResource TextMuted}" Width="16" Height="16" Stretch="Uniform"
+                      VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="Hosts" Margin="10,0,0,0" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="{Binding HostCount}" FontSize="11"
+                           Foreground="{DynamicResource TextFaint}" VerticalAlignment="Center" />
+              </Grid>
+            </ListBoxItem>
+            <ListBoxItem Tag="config">
+              <Grid ColumnDefinitions="20,*,Auto">
+                <Path Data="M3,17V19H9V17H3M3,5V7H13V5H3M13,21V19H21V17H13V15H11V21H13M7,9V11H3V13H7V15H9V9H7M21,13V11H11V13H21M15,9H17V7H21V5H17V3H15V9Z"
+                      Fill="{DynamicResource TextMuted}" Width="16" Height="16" Stretch="Uniform"
+                      VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="Configuration" Margin="10,0,0,0" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="{Binding ConfigCount}" FontSize="11"
+                           Foreground="{DynamicResource TextFaint}" VerticalAlignment="Center" />
+              </Grid>
+            </ListBoxItem>
+            <ListBoxItem Tag="keys">
+              <Grid ColumnDefinitions="20,*,Auto">
+                <Path Data="M7,14A2,2 0 0,1 5,12A2,2 0 0,1 7,10A2,2 0 0,1 9,12A2,2 0 0,1 7,14M12.65,10C11.83,7.67 9.61,6 7,6A6,6 0 0,0 1,12A6,6 0 0,0 7,18C9.61,18 11.83,16.33 12.65,14H17V18H21V14H23V10H12.65Z"
+                      Fill="{DynamicResource TextMuted}" Width="16" Height="16" Stretch="Uniform"
+                      VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="Keys" Margin="10,0,0,0" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="{Binding KeyCount}" FontSize="11"
+                           Foreground="{DynamicResource TextFaint}" VerticalAlignment="Center" />
+              </Grid>
+            </ListBoxItem>
+            <ListBoxItem Tag="activity">
+              <Grid ColumnDefinitions="20,*,Auto">
+                <Path Data="M13.5,8H12V13L16.28,15.54L17,14.33L13.5,12.25V8M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3Z"
+                      Fill="{DynamicResource TextMuted}" Width="16" Height="16" Stretch="Uniform"
+                      VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="Activity" Margin="10,0,0,0" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Text="{Binding ActivityCount}" FontSize="11"
+                           Foreground="{DynamicResource TextFaint}" VerticalAlignment="Center" />
+              </Grid>
+            </ListBoxItem>
+          </ListBox>
+
+          <StackPanel Grid.Row="2" Spacing="6">
+            <Button Click="Theme_Click" Classes="ghost" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="◐" FontSize="15" Foreground="{DynamicResource TextMuted}" />
+                <TextBlock Text="{Binding ThemeLabel}" FontSize="12"
+                           Foreground="{DynamicResource TextMuted}" />
+              </StackPanel>
+            </Button>
+            <TextBlock x:Name="VersionText" Text="Version 2.0.0" FontSize="10.5"
+                       Foreground="{DynamicResource TextFaint}" Margin="12,4,0,0" />
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Transparent" />
+
+      <!-- Main column -->
+      <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="28,22,28,16">
+          <StackPanel>
+            <TextBlock x:Name="ViewTitle" Text="Hosts" FontSize="24" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextPrimary}" />
+            <TextBlock x:Name="ViewSubtitle" Text="Every server listed in known_hosts or ssh_config."
+                       FontSize="12.5" Foreground="{DynamicResource TextMuted}" Margin="0,3,0,0" />
+          </StackPanel>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+            <TextBox x:Name="SearchBox" Width="230" MinWidth="160" Watermark="Search hosts, users, keys…"
+                     TextChanged="Search_Changed" />
+            <Button Content="Rescan" Click="Refresh_Click" />
+            <Button Content="Export CSV" Click="Export_Click" />
+            <Button Content="Settings" Click="Settings_Click" Classes="ghost" />
+          </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,6,360">
+          <Border Grid.Column="0" Background="{DynamicResource PanelBg}"
+                  BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1"
+                  CornerRadius="12" Margin="28,0,0,16" ClipToBounds="True">
+            <Grid>
+              <!-- Hosts -->
+              <Grid x:Name="HostsView">
+                <DataGrid x:Name="HostsGrid" ItemsSource="{Binding FilteredHosts}"
+                          SelectedItem="{Binding SelectedHost}" IsReadOnly="True"
+                          AutoGenerateColumns="False" CanUserReorderColumns="False"
+                          SelectionChanged="Hosts_SelectionChanged"
+                          DoubleTapped="Hosts_DoubleTapped">
+                  <DataGrid.Columns>
+                    <DataGridCheckBoxColumn Width="44" Binding="{Binding IsSelected, Mode=TwoWay}" />
+                    <DataGridTextColumn Header="Host" Width="1.3*" Binding="{Binding Label}" />
+                    <DataGridTextColumn Header="Address" Width="1.4*" Binding="{Binding Address}" />
+                    <DataGridTextColumn Header="User" Width="0.9*" Binding="{Binding User}" />
+                    <DataGridTextColumn Header="Port" Width="80" Binding="{Binding PortText}" />
+                    <DataGridTextColumn Header="Keys" Width="1.1*" Binding="{Binding KeyTypes}" />
+                    <DataGridTextColumn Header="Source" Width="1.2*" Binding="{Binding Source}" />
+                  </DataGrid.Columns>
+                </DataGrid>
+              </Grid>
+
+              <!-- Configuration -->
+              <Grid x:Name="ConfigView" IsVisible="False">
+                <DataGrid x:Name="ConfigGrid" ItemsSource="{Binding FilteredConfig}"
+                          SelectedItem="{Binding SelectedBlock}" IsReadOnly="True"
+                          AutoGenerateColumns="False" CanUserReorderColumns="False"
+                          SelectionChanged="Config_SelectionChanged"
+                          DoubleTapped="Config_DoubleTapped">
+                  <DataGrid.Columns>
+                    <DataGridTextColumn Header="Block" Width="1.2*" Binding="{Binding Label}" />
+                    <DataGridTextColumn Header="HostName" Width="1.5*" Binding="{Binding HostName}" />
+                    <DataGridTextColumn Header="User" Width="0.8*" Binding="{Binding User}" />
+                    <DataGridTextColumn Header="Port" Width="64" Binding="{Binding PortText}" />
+                    <DataGridTextColumn Header="IdentityFile" Width="1.5*" Binding="{Binding IdentityFile}" />
+                    <DataGridTextColumn Header="Lines" Width="60" Binding="{Binding LineCount}" />
+                    <DataGridTextColumn Header="State" Width="90" Binding="{Binding State}" />
+                  </DataGrid.Columns>
+                </DataGrid>
+              </Grid>
+
+              <!-- Keys -->
+              <Grid x:Name="KeysView" IsVisible="False">
+                <DataGrid x:Name="KeysGrid" ItemsSource="{Binding FilteredKeys}"
+                          SelectedItem="{Binding SelectedKey}" IsReadOnly="True"
+                          AutoGenerateColumns="False" CanUserReorderColumns="False"
+                          SelectionChanged="Keys_SelectionChanged"
+                          DoubleTapped="Keys_DoubleTapped">
+                  <DataGrid.Columns>
+                    <DataGridTextColumn Header="Name" Width="1.3*" Binding="{Binding Name}" />
+                    <DataGridTextColumn Header="Type" Width="1.1*" Binding="{Binding Kind}" />
+                    <DataGridTextColumn Header="Fingerprint" Width="2*" Binding="{Binding Fingerprint}" />
+                    <DataGridTextColumn Header="Size" Width="80" Binding="{Binding DisplaySize}" />
+                    <DataGridTextColumn Header="Access" Width="120" Binding="{Binding Access}" />
+                  </DataGrid.Columns>
+                </DataGrid>
+              </Grid>
+
+              <!-- Activity -->
+              <Grid x:Name="ActivityView" IsVisible="False" RowDefinitions="Auto,*">
+                <Border Padding="20,16" BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,0,0,1">
+                  <TextBlock Text="Every removal, edit and restore is logged locally."
+                             FontSize="12.5" Foreground="{DynamicResource TextMuted}" />
+                </Border>
+                <ListBox Grid.Row="1" ItemsSource="{Binding Activity}" Background="Transparent"
+                         BorderThickness="0" Margin="8,8">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="core:ActivityEntry">
+                      <Grid ColumnDefinitions="110,*" Margin="8,9">
+                        <TextBlock Text="{Binding TimeText}" FontSize="11.5"
+                                   Foreground="{DynamicResource TextFaint}" />
+                        <StackPanel Grid.Column="1">
+                          <TextBlock Text="{Binding Action}" FontSize="12.5" FontWeight="SemiBold"
+                                     Foreground="{DynamicResource TextPrimary}" />
+                          <TextBlock Text="{Binding Detail}" FontSize="11.5"
+                                     Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap" />
+                        </StackPanel>
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </Grid>
+            </Grid>
+          </Border>
+
+          <!-- Details rail -->
+          <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Transparent" />
+
+          <Border Grid.Column="2" Background="{DynamicResource PanelBg}"
+                  MinWidth="280" MaxWidth="560"
+                  BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1"
+                  CornerRadius="12" Margin="6,0,28,16">
+            <ScrollViewer>
+              <StackPanel Margin="20" Spacing="12">
+                <TextBlock Text="DETAILS" FontSize="10.5" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextFaint}" />
+                <TextBlock Text="{Binding DetailTitle}" FontSize="18" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextPrimary}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding DetailSubtitle}" FontSize="12"
+                           Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap" />
+                <Border Height="1" Background="{DynamicResource BorderSoft}" Margin="0,4" />
+                <TextBlock Text="{Binding DetailBody}" FontSize="12" TextWrapping="Wrap"
+                           FontFamily="SF Mono, Menlo, Consolas, monospace"
+                           Foreground="{DynamicResource TextMuted}" LineHeight="20" />
+                <Button Content="Open SSH session" Click="Ssh_Click" Classes="primary"
+                        IsVisible="{Binding ShowTestAction}" HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" Margin="0,6,0,0" />
+                <Button Content="Test connection" Click="Test_Click" Classes="ghost"
+                        IsVisible="{Binding ShowTestAction}" HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" />
+                <TextBlock x:Name="TestResult" FontSize="11.5" TextWrapping="Wrap"
+                           Foreground="{DynamicResource TextMuted}" />
+                <Button Content="Edit this block" Click="EditBlock_Click"
+                        IsVisible="{Binding ShowEditAction}" HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" />
+                <Button Content="Reveal key file" Click="RevealKey_Click"
+                        IsVisible="{Binding ShowRevealAction}" HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" />
+              </StackPanel>
+            </ScrollViewer>
+          </Border>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="{DynamicResource PanelBg}"
+                BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,1,0,0"
+                Padding="28,12">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="2" VerticalAlignment="Center">
+              <TextBlock Text="{Binding SelectionSummary}" FontSize="12.5"
+                         Foreground="{DynamicResource TextPrimary}" />
+              <TextBlock Text="{Binding Status}" FontSize="11"
+                         Foreground="{DynamicResource TextFaint}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10"
+                        VerticalAlignment="Center">
+              <Button x:Name="OpenSessionButton" Content="Open SSH session" Click="Ssh_Click"
+                      IsVisible="False" Classes="primary" />
+              <Button x:Name="RevealKeyButton" Content="Reveal key" Click="RevealKey_Click"
+                      IsVisible="False" Classes="ghost" />
+              <Button x:Name="EditBlockButton" Content="Edit block" Click="EditBlock_Click"
+                      IsVisible="False" Classes="ghost" />
+              <Button x:Name="DeleteBlockButton" Content="Delete block" Click="DeleteBlock_Click"
+                      IsVisible="False" Classes="danger" />
+              <Button x:Name="DeleteSelectedButton" Content="Delete selected" Click="Delete_Click"
+                      IsVisible="False" Classes="danger" />
+            </StackPanel>
+          </Grid>
+        </Border>
+      </Grid>
+    </Grid>
+
+    <Border x:Name="Toast" Grid.Row="1" IsVisible="False"
+            Background="{DynamicResource ElevatedBg}"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1"
+            CornerRadius="10" Padding="18,11"
+            HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,28"
+            BoxShadow="0 10 30 0 #55000000">
+      <TextBlock x:Name="ToastText" FontSize="12.5" Foreground="{DynamicResource TextPrimary}" />
+    </Border>
+  </Grid>
+</Window>

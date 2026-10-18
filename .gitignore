@@ -10,3 +10,7 @@ dist/
 # compiled launcher resources
 launcher/windows/*.res
 build/
+
+dotnet/dist/
+dotnet/**/bin/
+dotnet/**/obj/
