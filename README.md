@@ -15,8 +15,8 @@
   <img alt="Linux" src="https://img.shields.io/badge/Linux-supported-11171F?logo=linux&logoColor=white">
   <img alt="Python" src="https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white">
   <img alt="Tk" src="https://img.shields.io/badge/Tk-8.6%2B-4C8DFF">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-49%20passing-3FCF8E">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.0.3-4C8DFF">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-51%20passing-3FCF8E">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.0.4-4C8DFF">
   <a href="https://github.com/jphermans/ssh-dashboard/actions/workflows/build-windows.yml">
     <img alt="Windows build" src="https://github.com/jphermans/ssh-dashboard/actions/workflows/build-windows.yml/badge.svg">
   </a>
@@ -95,7 +95,7 @@ when none is found.
 
 ### macOS (~1 MB)
 
-1. Download `SSH-Dashboard-1.0.3-macOS-lite.dmg` from
+1. Download `SSH-Dashboard-1.0.4-macOS-lite.dmg` from
    [Releases](https://github.com/jphermans/ssh-dashboard/releases/latest).
 2. Open the DMG and drag **SSH Dashboard** into *Applications*.
 3. On first launch (and whenever the Python version changes) the app confirms
@@ -108,7 +108,7 @@ copy, right-click the app → **Open** once.
 
 ### Windows (small native launcher)
 
-1. Download `SSH-Dashboard-1.0.3-windows-x64.zip` from
+1. Download `SSH-Dashboard-1.0.4-windows-x64.zip` from
    [Releases](https://github.com/jphermans/ssh-dashboard/releases/latest).
 2. Extract the whole folder and run **SSH Dashboard.exe**.
 3. If Python is present, the launcher shows the detected version once per
@@ -222,7 +222,7 @@ docs/screenshots/         screenshots used above
 python3 -m unittest discover -s tests -v
 ```
 
-49 tests cover parsers, deletion, config editing, backups, permission, CRLF and appearance
+51 tests cover parsers, deletion, config editing, backups, permission, CRLF and appearance
 preservation, the runtime guard, the menu bar, dialogs, CSV export and a real
 window driven through every view. UI tests are skipped automatically without a
 display. Destructive probes run against a throwaway `HOME`, never your `~/.ssh`.
@@ -272,13 +272,13 @@ python3 tools/make_icon.py                # requires Pillow
 - **Windows launcher** — keep `SSH Dashboard.exe`, `install-python.ps1`,
   `ssh_dashboard.py` and the `sshdash` folder together; the launcher resolves
   the script next to itself.
-- **Internal hosts unreachable / "allow Local Network"** — macOS 15+ blocks
-  connections to private addresses (10.x, 172.16-31.x, 192.0.2.x, link-local,
-  `*.local`) until Local Network access is allowed. Open **System Settings →
-  Privacy & Security → Local Network** and enable **Python** (the small build
-  runs on your installed Python) or **SSH Dashboard** (the self-contained
-  build). The Test connection error offers an *Open Settings* button, and
-  Help → Local Network Access explains it. External hosts are unaffected.
+- **Internal hosts on macOS** — Test connection runs through Apple's built-in
+  `/usr/bin/nc`, which macOS lets reach private addresses (10.x, 172.16-31.x,
+  192.0.2.x, link-local, `*.local`) without a Local Network grant. No System
+  Settings change is needed. A direct Python socket *would* need Python enabled
+  under **Privacy & Security → Local Network**, which is why the app does not
+  use one. If a host still fails, check it from Terminal with
+  `nc -vz <host> <port>`; the app reports the same result.
 - **Windows automatic install** — uses winget, the Windows package manager.
   NuGet's `python` package is not used because it ships without Tcl/Tk, so
   `tkinter` cannot start; winget installs the full build with Tk. Installation

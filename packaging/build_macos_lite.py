@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 APP_NAME = "SSH Dashboard"
-VERSION = "1.0.3"
+VERSION = "1.0.4"
 BUNDLE_ID = "io.jphsystems.sshdashboard"
 APP = DIST / f"{APP_NAME}.app"
 ICNS = ROOT / "sshdash" / "ui" / "assets" / "SSHDashboard.icns"

@@ -7,7 +7,6 @@ through :class:`sshdash.store.SshStore`, which owns backups and atomic saves.
 
 from __future__ import annotations
 
-import ipaddress
 import os
 import socket
 import subprocess
@@ -115,16 +114,30 @@ ACTION_LABELS = {
 }
 
 
-def is_local_target(host: str) -> bool:
-    """True for RFC1918 / link-local / loopback addresses and mDNS names."""
-    name = host.strip().lower()
-    if name in ("localhost", "::1") or name.endswith(".local"):
-        return True
+def probe_port(host: str, port: int, timeout: float = 4.0) -> Tuple[bool, str]:
+    """TCP reachability check that works without Local Network permission.
+
+    macOS gates direct sockets from third-party processes behind Local Network
+    privacy, but Apple's own /usr/bin/nc is exempt. Use it there and fall back
+    to a plain socket elsewhere.
+    """
+    if sys.platform == "darwin" and os.path.exists("/usr/bin/nc"):
+        try:
+            result = subprocess.run(
+                ["/usr/bin/nc", "-z", "-G", str(max(1, int(timeout))), host, str(int(port))],
+                capture_output=True, text=True, timeout=timeout + 2,
+            )
+        except (OSError, subprocess.SubprocessError) as exc:
+            return False, str(exc)
+        if result.returncode == 0:
+            return True, ""
+        detail = (result.stderr or "").strip().splitlines()
+        return False, detail[0] if detail else "connection refused or timed out"
     try:
-        address = ipaddress.ip_address(name)
-    except ValueError:
-        return False
-    return address.is_private or address.is_link_local or address.is_loopback
+        with socket.create_connection((host, int(port)), timeout=timeout):
+            return True, ""
+    except OSError as exc:
+        return False, str(exc)
 
 
 def key_family(key_type: str) -> str:
@@ -1664,13 +1677,7 @@ class DashboardApp(tk.Tk):
         address, port = host.address, host.port or 22
 
         def worker() -> None:
-            error = ""
-            try:
-                with socket.create_connection((address, port), timeout=2.5):
-                    reachable = True
-            except OSError as exc:
-                reachable = False
-                error = str(exc)
+            reachable, error = probe_port(address, port, timeout=2.5)
 
             def finish() -> None:
                 if token != self._test_token:
@@ -1682,25 +1689,10 @@ class DashboardApp(tk.Tk):
                     if reachable:
                         label.configure(text=f"Port {port} reachable", fg=self.palette.success)
                     else:
-                        local = is_local_target(address)
-                        if local:
-                            label.configure(
-                                text="Unreachable \u00b7 allow Local Network in Settings",
-                                fg=self.palette.danger,
-                            )
-                        else:
-                            label.configure(
-                                text=f"Unreachable \u00b7 {error[:60]}", fg=self.palette.danger
-                            )
-                        if local and sys.platform == "darwin":
-                            self.toast.show(
-                                "macOS blocked local network access for this app "
-                                "\u2014 allow Python under Privacy & Security \u2192 Local Network",
-                                tone="danger",
-                                action_label="Open Settings",
-                                action=self._open_local_network_settings,
-                                timeout_ms=15000,
-                            )
+                        label.configure(
+                            text=f"Unreachable \u00b7 {error[:60] or 'no response'}",
+                            fg=self.palette.danger,
+                        )
                 except tk.TclError:
                     pass
 
@@ -2215,35 +2207,24 @@ class DashboardApp(tk.Tk):
             heading="Keyboard shortcuts", message="", details=rows, tone="info",
         ).present()
 
-    def _open_local_network_settings(self) -> None:
-        if sys.platform != "darwin":
-            return
-        url = "x-apple.systempreferences:com.apple.preference.security?Privacy_LocalNetwork"
-        try:
-            subprocess.Popen(["open", url])
-        except OSError as exc:
-            self._error("Could not open System Settings", str(exc))
-
     def _show_local_network(self) -> None:
         MessageDialog(
             self, palette=self.palette, fonts=self.fonts, title="Local network access",
             heading="Testing hosts on your local network",
             message=(
-                "macOS asks for Local Network access the first time an app connects "
-                "to a private address (10.x, 172.16-31.x, 192.168.x, link-local or "
-                "*.local). External hosts keep working even when this is blocked.\n\n"
-                "The small macOS build runs on your installed Python, so macOS lists "
-                "the permission under \u201cPython\u201d. The self-contained build is "
-                "listed as \u201cSSH Dashboard\u201d."
+                "Test connection uses Apple\u2019s built-in /usr/bin/nc on macOS, "
+                "which the system allows without a Local Network prompt. Direct "
+                "sockets from Python are blocked on private addresses (10.x, "
+                "172.16-31.x, 192.168.x, link-local, *.local) unless Python is "
+                "allowed in System Settings, so the app avoids them.\n\n"
+                "External and internal hosts are therefore tested the same way."
             ),
             details=(
-                "System Settings \u2192 Privacy & Security \u2192 Local Network\n"
-                "Enable Python (small build) or SSH Dashboard (fat build), then "
-                "quit and reopen the app."
+                "If a local host still fails, check its address and port, or "
+                "whether the host is reachable from Terminal with:\n"
+                "nc -vz <host> <port>"
             ),
             tone="info",
-            secondary_label="Open Settings",
-            secondary=self._open_local_network_settings,
         ).present()
 
     def _show_safety(self) -> None:
