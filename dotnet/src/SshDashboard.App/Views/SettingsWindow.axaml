@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SshDashboard.App.Views.SettingsWindow"
+        Title="Settings"
+        Width="580" Height="500" MinWidth="480" MinHeight="420"
+        Background="{DynamicResource AppBg}"
+        WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="*,Auto">
+    <ScrollViewer Grid.Row="0">
+      <StackPanel Margin="28,24,28,18" Spacing="14">
+        <TextBlock Text="Settings" FontSize="20" FontWeight="SemiBold"
+                   Foreground="{DynamicResource TextPrimary}" />
+        <TextBlock Text="Preferences for this Mac. Files in ~/.ssh are never changed by these options."
+                   FontSize="12.5" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}" />
+
+        <TextBlock Text="APPEARANCE" FontSize="10.5" FontWeight="SemiBold"
+                   Foreground="{DynamicResource TextFaint}" Margin="0,6,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <RadioButton x:Name="ThemeSystem" Content="System" Tag="system" GroupName="settings-theme"
+                       Checked="Theme_Checked" Padding="12,7" />
+          <RadioButton x:Name="ThemeDark" Content="Dark" Tag="dark" GroupName="settings-theme"
+                       Checked="Theme_Checked" Padding="12,7" />
+          <RadioButton x:Name="ThemeLight" Content="Light" Tag="light" GroupName="settings-theme"
+                       Checked="Theme_Checked" Padding="12,7" />
+        </StackPanel>
+        <TextBlock Text="Changes apply immediately. Save keeps the choice; Cancel restores the previous theme."
+                   FontSize="11.5" TextWrapping="Wrap" Foreground="{DynamicResource TextFaint}" />
+
+        <TextBlock Text="REMOVAL" FontSize="10.5" FontWeight="SemiBold"
+                   Foreground="{DynamicResource TextFaint}" Margin="0,6,0,0" />
+        <CheckBox x:Name="ConfirmCheck" Content="Ask for confirmation before removing entries"
+                  FontSize="13" Foreground="{DynamicResource TextPrimary}" />
+        <CheckBox x:Name="ConfigCheck" Content="Also remove matching ssh_config Host blocks by default"
+                  FontSize="13" Foreground="{DynamicResource TextPrimary}" />
+        <TextBlock Text="A timestamped backup is written before every change, regardless of these options."
+                   FontSize="11.5" TextWrapping="Wrap" Foreground="{DynamicResource TextFaint}" />
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="1" Background="{DynamicResource PanelBg}"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,1,0,0"
+            Padding="24,14">
+      <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+        <Button Content="Cancel" Click="Cancel_Click" Classes="ghost" />
+        <Button Content="Save changes" Click="Save_Click" Classes="primary" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</Window>

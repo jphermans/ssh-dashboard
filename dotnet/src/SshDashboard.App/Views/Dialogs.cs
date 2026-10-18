@@ -54,6 +54,13 @@ public static class Dialogs
     public static async Task<Settings?> SettingsAsync(Window owner, Settings current,
         Action<string>? previewTheme = null)
     {
+        var dialog = new SettingsWindow(current, previewTheme);
+        return await dialog.ShowDialog<Settings?>(owner);
+    }
+
+    private static async Task<Settings?> LegacySettingsAsync(Window owner, Settings current,
+        Action<string>? previewTheme = null)
+    {
         var window = Shell(owner, "Settings", 560, 470);
         var root = new StackPanel { Spacing = 16, Margin = new Avalonia.Thickness(26) };
         root.Children.Add(Text("Settings", 20, FontWeight.SemiBold));

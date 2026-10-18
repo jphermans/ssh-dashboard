@@ -55,6 +55,27 @@ public partial class App : Application
                 && desktop.MainWindow is MainWindow viewWindow)
                 viewWindow.ShowViewForCapture(args[viewIndex + 1]);
 
+            var settingsShot = Array.IndexOf(args, "--settings-shot");
+            if (settingsShot >= 0 && settingsShot + 1 < args.Length && main is not null)
+            {
+                var target = args[settingsShot + 1];
+                var dialog = new SettingsWindow(Settings.Load(), t => ThemeManager.Apply(t));
+                dialog.Show();
+                DispatcherTimer.RunOnce(() =>
+                {
+                    try
+                    {
+                        var bitmap = new RenderTargetBitmap(
+                            new PixelSize((int)dialog.Width, (int)dialog.Height), new Vector(96, 96));
+                        bitmap.Render(dialog);
+                        bitmap.Save(target);
+                        Console.WriteLine("wrote " + target);
+                    }
+                    catch (Exception ex) { Console.Error.WriteLine(ex); }
+                    desktop.Shutdown();
+                }, TimeSpan.FromSeconds(2));
+            }
+
             var shot = Array.IndexOf(args, "--screenshot");
             if (shot >= 0 && shot + 1 < args.Length)
             {
