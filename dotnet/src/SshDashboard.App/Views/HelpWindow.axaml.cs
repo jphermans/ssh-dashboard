@@ -11,7 +11,7 @@ public partial class HelpWindow : Window
         InitializeComponent();
         VersionText.Text = "SSH Dashboard " +
             (typeof(App).Assembly.GetName().Version?.ToString(3) ?? "2.0.2") +
-            " · macOS, Windows and Linux";
+            " · JPHsystems · macOS, Windows and Linux";
     }
 
     private void Close_Click(object? sender, RoutedEventArgs e) => Close();

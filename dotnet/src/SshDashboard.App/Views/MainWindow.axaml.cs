@@ -25,7 +25,7 @@ public partial class MainWindow : Window
         _vm = vm;
         DataContext = vm;
         TryLoadIcon();
-        VersionText.Text = "Version " + (typeof(App).Assembly.GetName().Version?.ToString(3) ?? "2.0.0");
+        VersionText.Text = "Version " + (typeof(App).Assembly.GetName().Version?.ToString(3) ?? "2.0.0") + " · JPHsystems";
 
         _vm.PropertyChanged += (_, e) =>
         {
