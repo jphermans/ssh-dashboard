@@ -6,3 +6,7 @@ dist/
 .venv-build/
 *.spec.bak
 .DS_Store
+
+# compiled launcher resources
+launcher/windows/*.res
+build/
