@@ -59,6 +59,7 @@ public partial class SshSessionWindow : Window
                 }
                 catch (Exception ex)
                 {
+                    CleanupKey();
                     SetStatus("PuTTY key error", false);
                     Terminal.WriteSystem("PuTTY key: " + ex.Message);
                     return;

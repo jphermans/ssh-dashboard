@@ -28,14 +28,22 @@ public static class SshLauncher
         return args;
     }
 
+    public static string SanitizeName(string name) => string.Concat(
+        name.Select(c => char.IsLetterOrDigit(c) || c is '-' or '_' or '.' ? c : '-'));
+
     public static string? ResolvePpkPath(HostRow host)
     {
         var identity = host.IdentityFile.Trim().Trim('"');
-        if (string.IsNullOrWhiteSpace(identity)) return null;
-        if (identity.StartsWith("~/", StringComparison.Ordinal))
-            identity = Path.Combine(PlatformInfo.Home, identity[2..]);
-        if (!Path.IsPathRooted(identity)) identity = Path.Combine(PlatformInfo.SshDir, identity);
-        return PpkFile.LooksLikePpk(identity) ? identity : null;
+        if (!string.IsNullOrWhiteSpace(identity))
+        {
+            if (identity.StartsWith("~/", StringComparison.Ordinal))
+                identity = Path.Combine(PlatformInfo.Home, identity[2..]);
+            if (!Path.IsPathRooted(identity)) identity = Path.Combine(PlatformInfo.SshDir, identity);
+            if (PpkFile.LooksLikePpk(identity)) return identity;
+        }
+        // Keys imported for this host are copied in as <alias>.ppk.
+        var neighbour = Path.Combine(PlatformInfo.SshDir, SanitizeName(host.Label) + ".ppk");
+        return PpkFile.LooksLikePpk(neighbour) ? neighbour : null;
     }
 
     public static string CommandLine(HostRow host) =>

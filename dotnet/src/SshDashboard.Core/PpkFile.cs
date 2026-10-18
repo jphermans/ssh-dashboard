@@ -152,6 +152,14 @@ public sealed class PpkFile
     {
         var directory = System.IO.Path.Combine(PlatformInfo.SupportDir, "keys");
         Directory.CreateDirectory(directory);
+        foreach (var stale in Directory.EnumerateFiles(directory, "ppk-*"))
+        {
+            try
+            {
+                if (File.GetLastWriteTimeUtc(stale) < DateTime.UtcNow.AddHours(-1)) File.Delete(stale);
+            }
+            catch { }
+        }
         var target = System.IO.Path.Combine(directory, "ppk-" + Guid.NewGuid().ToString("N"));
         File.WriteAllText(target, ToOpenSsh(), new UTF8Encoding(false));
         if (!OperatingSystem.IsWindows())

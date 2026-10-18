@@ -125,6 +125,7 @@ public partial class MainWindow : Window
         EditBlockButton.IsVisible = config && _vm.CanEditBlock;
         DeleteBlockButton.IsVisible = config && _vm.SelectedBlock?.IsEditable == true;
         RevealKeyButton.IsVisible = keys && _vm.SelectedKey is not null;
+        ImportPpkButton.IsVisible = keys;
         if (hosts) _vm.Raise(nameof(MainViewModel.SelectionSummary));
     }
 
@@ -368,6 +369,50 @@ public partial class MainWindow : Window
     }
 
     private void RevealKey_Click(object? sender, RoutedEventArgs e) => RevealSelectedKey();
+
+    private async void ImportPpk_Click(object? sender, RoutedEventArgs e)
+    {
+        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Import a PuTTY key",
+            AllowMultiple = false,
+            FileTypeFilter = new[]
+            {
+                new FilePickerFileType("PuTTY private key") { Patterns = new[] { "*.ppk" } },
+            },
+        });
+        if (files.Count == 0) return;
+
+        try
+        {
+            var sshDir = _vm.Store.SshDir;
+            Directory.CreateDirectory(sshDir);
+            var name = _vm.SelectedHost is { } host
+                ? SshLauncher.SanitizeName(host.Label) + ".ppk"
+                : files[0].Name;
+            if (!name.EndsWith(".ppk", StringComparison.OrdinalIgnoreCase)) name += ".ppk";
+            var destination = Path.Combine(sshDir, name);
+            for (var i = 2; File.Exists(destination); i++)
+                destination = Path.Combine(sshDir,
+                    Path.GetFileNameWithoutExtension(name) + $"-{i}.ppk");
+
+            await using (var input = await files[0].OpenReadAsync())
+            await using (var output = File.Create(destination))
+                await input.CopyToAsync(output);
+            if (!OperatingSystem.IsWindows())
+                File.SetUnixFileMode(destination,
+                    UnixFileMode.UserRead | UnixFileMode.UserWrite);
+            new ActivityLog().Append("import-ppk", destination);
+            _vm.Load();
+            ShowView("keys", true);
+            ShowToast($"Imported {Path.GetFileName(destination)} into ~/.ssh");
+        }
+        catch (Exception ex)
+        {
+            await Dialogs.ConfirmAsync(this, "Import failed", "The key was not copied",
+                ex.Message, "", "Close", danger: false);
+        }
+    }
 
     private void RevealSelectedKey()
     {

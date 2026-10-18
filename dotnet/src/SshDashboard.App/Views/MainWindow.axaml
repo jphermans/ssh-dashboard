@@ -40,6 +40,7 @@
       </MenuItem>
       <MenuItem Header="Tools">
         <MenuItem Header="Open SSH Session" Click="Ssh_Click" />
+        <MenuItem Header="Import PuTTY Key…" Click="ImportPpk_Click" />
         <MenuItem Header="Test Connection" Click="Test_Click" />
         <MenuItem Header="Edit Selected Block…" Click="EditBlock_Click" />
         <Separator />
@@ -144,6 +145,7 @@
           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
             <TextBox x:Name="SearchBox" Width="230" MinWidth="160" Watermark="Search hosts, users, keys…"
                      TextChanged="Search_Changed" />
+            <Button x:Name="ImportPpkButton" Content="Import .ppk" Click="ImportPpk_Click" IsVisible="False" />
             <Button Content="Rescan" Click="Refresh_Click" />
             <Button Content="Export CSV" Click="Export_Click" />
             <Button Content="Settings" Click="Settings_Click" Classes="ghost" />
