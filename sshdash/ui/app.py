@@ -41,22 +41,22 @@ from .widgets import (
 VIEWS: Dict[str, Dict[str, str]] = {
     "hosts": {
         "title": "Known hosts",
-        "placeholder": "Search hosts, addresses or users\u2026",
+        "placeholder": "Search hosts or users\u2026",
         "empty": "Tick entries with the first column, then remove them in one go.",
     },
     "config": {
         "title": "Configuration",
-        "placeholder": "Search host blocks, hostnames or users\u2026",
+        "placeholder": "Search host blocks\u2026",
         "empty": "Every Host block in ~/.ssh/config, including global defaults.",
     },
     "keys": {
         "title": "Keys",
-        "placeholder": "Search keys, types or fingerprints\u2026",
+        "placeholder": "Search keys\u2026",
         "empty": "Key pairs found in ~/.ssh. Keys are never modified here.",
     },
     "activity": {
         "title": "Activity",
-        "placeholder": "Search the change journal\u2026",
+        "placeholder": "Search activity\u2026",
         "empty": "Nothing has been removed yet. Every change lands here.",
     },
 }
@@ -72,36 +72,36 @@ NAV_ICONS = {"hosts": "stack", "config": "sliders", "keys": "key", "activity": "
 
 COLUMN_SETS: Dict[str, Tuple[Tuple[str, str, int, int, bool], ...]] = {
     "hosts": (
-        ("select", "\u2713", 40, 40, False),
-        ("label", "Host", 186, 130, True),
-        ("address", "Address", 162, 110, True),
-        ("user", "User", 100, 70, False),
-        ("port", "Port", 62, 52, False),
-        ("keys", "Key types", 148, 100, True),
-        ("source", "Source", 118, 100, False),
+        ("select", "\u2713", 34, 34, False),
+        ("label", "Host", 170, 120, True),
+        ("address", "Address", 210, 120, True),
+        ("user", "User", 84, 70, True),
+        ("port", "Port", 50, 48, False),
+        ("keys", "Key types", 132, 100, True),
+        ("source", "Source", 118, 96, False),
     ),
     "config": (
-        ("select", "\u2713", 40, 40, False),
-        ("label", "Alias", 152, 110, True),
-        ("hostname", "HostName", 158, 110, True),
-        ("user", "User", 84, 60, False),
-        ("port", "Port", 62, 52, False),
-        ("identity", "Identity file", 170, 110, True),
-        ("lines", "Lines", 66, 56, False),
-        ("state", "Type", 88, 70, False),
+        ("select", "\u2713", 34, 34, False),
+        ("label", "Alias", 118, 100, True),
+        ("hostname", "HostName", 200, 120, True),
+        ("user", "User", 72, 60, False),
+        ("port", "Port", 54, 48, False),
+        ("identity", "Identity file", 190, 120, True),
+        ("lines", "Lines", 66, 54, False),
+        ("state", "Type", 68, 62, False),
     ),
     "keys": (
-        ("name", "Key", 150, 100, True),
-        ("type", "Type", 118, 90, False),
-        ("fingerprint", "Fingerprint", 200, 130, True),
-        ("comment", "Comment", 148, 90, True),
-        ("status", "Passphrase", 112, 90, False),
-        ("permissions", "Mode", 60, 50, False),
+        ("name", "Key", 130, 100, True),
+        ("type", "Type", 100, 80, False),
+        ("fingerprint", "Fingerprint", 186, 120, True),
+        ("comment", "Comment", 124, 80, True),
+        ("status", "Passphrase", 100, 86, False),
+        ("permissions", "Mode", 52, 46, False),
     ),
     "activity": (
-        ("time", "When", 132, 110, False),
-        ("action", "Action", 120, 90, False),
-        ("detail", "Detail", 460, 200, True),
+        ("time", "When", 122, 110, False),
+        ("action", "Action", 110, 90, False),
+        ("detail", "Detail", 420, 200, True),
     ),
 }
 
@@ -306,8 +306,8 @@ class DashboardApp(tk.Tk):
             except ValueError:
                 pass
         screen_w, screen_h = self.winfo_screenwidth(), self.winfo_screenheight()
-        width = max(1040, min(1400, screen_w - 80))
-        height = max(660, min(860, screen_h - 120))
+        width = max(1040, min(1500, screen_w - 80))
+        height = max(660, min(900, screen_h - 120))
         x = max(0, (screen_w - width) // 2)
         y = max(0, (screen_h - height) // 2 - 20)
         self.geometry(f"{width}x{height}+{x}+{y}")
@@ -507,10 +507,10 @@ class DashboardApp(tk.Tk):
     def _build_body(self, parent: tk.Misc) -> None:
         p = self.palette
         body = tk.Frame(parent, bg=p.bg)
-        body.pack(fill="both", expand=True, padx=28, pady=(8, 10))
+        body.pack(fill="both", expand=True, padx=24, pady=(8, 10))
         body.rowconfigure(0, weight=1)
         body.columnconfigure(0, weight=1)
-        body.columnconfigure(1, minsize=322)
+        body.columnconfigure(1, minsize=296)
 
         self.card = Card(body, palette=p)
         self.card.grid(row=0, column=0, sticky="nsew")
@@ -630,7 +630,14 @@ class DashboardApp(tk.Tk):
             style="SSH.Vertical.TScrollbar",
         )
         scrollbar.grid(row=0, column=1, sticky="ns", pady=1)
-        tree.configure(yscrollcommand=scrollbar.set)
+        xscrollbar = ttk.Scrollbar(
+            self.table_holder, orient="horizontal", command=tree.xview,
+            style="SSH.Horizontal.TScrollbar",
+        )
+        xscrollbar.grid(row=1, column=0, sticky="ew", padx=(1, 0))
+        tree.configure(yscrollcommand=scrollbar.set, xscrollcommand=xscrollbar.set)
+        self._xscrollbar = xscrollbar
+        tree.bind("<Configure>", lambda _e: self._sync_xscroll(), add="+")
 
         tree.tag_configure("alt", background=p.row_alt)
         tree.tag_configure("checked", background=p.selection)
@@ -840,6 +847,7 @@ class DashboardApp(tk.Tk):
         self._update_status()
         self._update_header_text()
         self._update_empty_state()
+        self._sync_xscroll()
         self._sync_menu()
         if self.detail_key and self.detail_key in self._row_lookup:
             tree.selection_set(self.detail_key)
@@ -863,6 +871,23 @@ class DashboardApp(tk.Tk):
 
     def _selected_keys(self) -> set:
         return self.selected.get(self.view, set())
+
+    def _sync_xscroll(self) -> None:
+        """Show the horizontal scrollbar only when the columns do not fit."""
+        tree = getattr(self, "tree", None)
+        scrollbar = getattr(self, "_xscrollbar", None)
+        if tree is None or scrollbar is None:
+            return
+        try:
+            total = sum(int(tree.column(column, "width")) for column in tree["columns"])
+            # Stretch makes the columns fill the viewport exactly; allow a hair.
+            fits = total <= tree.winfo_width() + 4
+            if fits:
+                scrollbar.grid_remove()
+            elif not scrollbar.winfo_ismapped():
+                scrollbar.grid()
+        except tk.TclError:
+            pass
 
     def _update_headings(self) -> None:
         tree = getattr(self, "tree", None)
@@ -912,8 +937,7 @@ class DashboardApp(tk.Tk):
         if count:
             self.foot_label.configure(text=f"{noun} selected", fg=self.palette.accent)
             self.foot_hint.configure(
-                text="A timestamped backup is written before anything changes",
-                fg=self.palette.faint,
+                text="A backup is written first", fg=self.palette.faint,
             )
         else:
             self.foot_label.configure(text=f"{visible} entr{'y' if visible == 1 else 'ies'}", fg=self.palette.muted)

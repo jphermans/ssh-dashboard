@@ -1,0 +1,28 @@
+#include <windows.h>
+
+101 ICON "../../sshdash/ui/assets/SSHDashboard.ico"
+
+1 VERSIONINFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
+FILEOS 0x40004L
+FILETYPE 0x1L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "JPHsystems"
+            VALUE "FileDescription", "SSH Dashboard launcher"
+            VALUE "FileVersion", "1.0.0"
+            VALUE "InternalName", "SSH Dashboard"
+            VALUE "OriginalFilename", "SSH Dashboard.exe"
+            VALUE "ProductName", "SSH Dashboard"
+            VALUE "ProductVersion", "1.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

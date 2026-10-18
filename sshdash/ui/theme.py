@@ -122,6 +122,7 @@ class Fonts:
     brand: tuple
     mono_body: tuple
     mono_small: tuple
+    table: tuple
 
 
 def _pick(root: tk.Misc, candidates: Iterable[str], fallback: str) -> str:
@@ -156,6 +157,7 @@ def load_fonts(root: tk.Misc) -> Fonts:
         brand=(ui, 14, "bold"),
         mono_body=(mono, 12),
         mono_small=(mono, 11),
+        table=(ui, 12),
     )
 
 
@@ -172,10 +174,10 @@ def apply_ttk_styles(root: tk.Misc, palette: Palette, fonts: Fonts) -> None:
         background=palette.panel,
         fieldbackground=palette.panel,
         foreground=palette.text,
-        rowheight=36,
+        rowheight=34,
         borderwidth=0,
         relief="flat",
-        font=fonts.body,
+        font=fonts.table,
     )
     style.map(
         "SSH.Treeview",
@@ -217,4 +219,24 @@ def apply_ttk_styles(root: tk.Misc, palette: Palette, fonts: Fonts) -> None:
     style.layout(
         "SSH.Vertical.TScrollbar",
         [("Vertical.Scrollbar.trough", {"sticky": "ns"}), ("Vertical.Scrollbar.thumb", {"expand": "1", "sticky": "nswe"})],
+    )
+    style.configure(
+        "SSH.Horizontal.TScrollbar",
+        background=palette.border,
+        troughcolor=palette.panel,
+        bordercolor=palette.panel,
+        darkcolor=palette.border,
+        lightcolor=palette.border,
+        arrowcolor=palette.muted,
+        arrowsize=10,
+        width=11,
+        relief="flat",
+    )
+    style.map(
+        "SSH.Horizontal.TScrollbar",
+        background=[("active", palette.border_strong), ("pressed", palette.accent)],
+    )
+    style.layout(
+        "SSH.Horizontal.TScrollbar",
+        [("Horizontal.Scrollbar.trough", {"sticky": "ew"}), ("Horizontal.Scrollbar.thumb", {"expand": "1", "sticky": "nswe"})],
     )

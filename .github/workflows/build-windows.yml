@@ -18,43 +18,31 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Install build dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pyinstaller
-
       - name: Run test suite
         env:
           SSHDASH_SKIP_UI: "1"
         run: python -m unittest discover -s tests -v
 
-      - name: Build the executable
-        run: python -m PyInstaller --noconfirm --clean packaging/SSHDashboard.spec
+      - name: Verify the app runs on Windows (source)
+        run: python ssh_dashboard.py --check
 
-      - name: Smoke-test the frozen executable
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build the native launcher and package
+        shell: cmd
+        run: packaging\build-windows.bat
+
+      - name: Check the launcher stays small
         shell: pwsh
         run: |
-          # A GUI-subsystem exe is not waited on by `&`, so use Start-Process.
-          $out = Join-Path $PWD "check-output.txt"
-          $err = Join-Path $PWD "check-error.txt"
-          $p = Start-Process -FilePath "dist\SSH Dashboard\SSH Dashboard.exe" `
-            -ArgumentList "--check" -Wait -PassThru `
-            -RedirectStandardOutput $out -RedirectStandardError $err
-          Get-Content $out
-          if ($p.ExitCode -ne 0) {
-            Get-Content $err
-            throw "Frozen --check failed with exit code $($p.ExitCode)"
-          }
-
-      - name: Zip the build
-        shell: pwsh
-        run: |
-          Compress-Archive -Path "dist\SSH Dashboard\*" `
-            -DestinationPath "SSH-Dashboard-1.0.0-windows-x64.zip"
+          $size = (Get-Item "SSH Dashboard.exe").Length
+          Write-Host ("Launcher size: {0:N0} bytes" -f $size)
+          if ($size -gt 300000) { throw "Launcher exceeds 300 KB" }
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: SSH-Dashboard-1.0.0-windows-x64
-          path: SSH-Dashboard-1.0.0-windows-x64.zip
+          path: dist/SSH-Dashboard-1.0.0-windows-x64.zip
           if-no-files-found: error

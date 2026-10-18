@@ -820,11 +820,11 @@ class ConfirmDeleteDialog(Dialog):
         footer = tk.Frame(self._shell, bg=p.bg)
         footer.pack(fill="x", pady=(22, 0))
         CanvasButton(
-            footer, "Cancel", command=self.cancel, palette=p, fonts=f, kind="ghost",
-        ).pack(side="right")
-        CanvasButton(
             footer, confirm_label or f"Remove {target_label}",
             command=self._confirm, palette=p, fonts=f, kind="danger",
+        ).pack(side="right")
+        CanvasButton(
+            footer, "Cancel", command=self.cancel, palette=p, fonts=f, kind="ghost",
         ).pack(side="right", padx=(0, 8))
 
         self.bind("<Return>", lambda _e: self._confirm())
@@ -939,10 +939,10 @@ class ConfigBlockDialog(Dialog):
         footer = tk.Frame(self._shell, bg=p.bg)
         footer.pack(fill="x", pady=(20, 0))
         CanvasButton(
-            footer, "Cancel", command=self.cancel, palette=p, fonts=f, kind="ghost",
+            footer, "Save changes", command=self._save, palette=p, fonts=f, kind="primary",
         ).pack(side="right")
         CanvasButton(
-            footer, "Save changes", command=self._save, palette=p, fonts=f, kind="primary",
+            footer, "Cancel", command=self.cancel, palette=p, fonts=f, kind="ghost",
         ).pack(side="right", padx=(0, 8))
         self.bind("<Return>", lambda _e: self._save())
 
@@ -1079,10 +1079,10 @@ class SettingsDialog(Dialog):
         footer = tk.Frame(self._shell, bg=p.bg)
         footer.pack(fill="x", pady=(22, 0))
         CanvasButton(
-            footer, "Cancel", command=self.cancel, palette=p, fonts=f, kind="ghost",
+            footer, "Save changes", command=self._save, palette=p, fonts=f, kind="primary",
         ).pack(side="right")
         CanvasButton(
-            footer, "Save changes", command=self._save, palette=p, fonts=f, kind="primary",
+            footer, "Cancel", command=self.cancel, palette=p, fonts=f, kind="ghost",
         ).pack(side="right", padx=(0, 8))
         self.bind("<Return>", lambda _e: self._save())
 
