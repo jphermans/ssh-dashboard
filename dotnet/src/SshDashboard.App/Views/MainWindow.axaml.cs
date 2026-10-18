@@ -475,12 +475,7 @@ public partial class MainWindow : Window
 
     private void Help_Click(object? sender, RoutedEventArgs e) => new HelpWindow().Show(this);
 
-    private async void Shortcuts_Click(object? sender, RoutedEventArgs e) =>
-        await Dialogs.ConfirmAsync(this, "Keyboard shortcuts", "Keyboard shortcuts",
-            "F5 rescans. Delete removes the selection. Cmd/Ctrl+A selects all hosts, " +
-            "Cmd/Ctrl+E exports, Cmd/Ctrl+, opens settings, Cmd/Ctrl+Z restores the latest backup. " +
-            "Cmd/Ctrl+1…4 switch views. Cmd/Ctrl+Shift+T opens an SSH session.",
-            "", "Close", danger: false);
+    private void Shortcuts_Click(object? sender, RoutedEventArgs e) => new ShortcutsWindow().Show(this);
 
     // ---------------------------------------------------------------- helpers
 

@@ -1,0 +1,154 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SshDashboard.App.Views.ShortcutsWindow"
+        Title="Keyboard Shortcuts"
+        Width="560" Height="560" MinWidth="460" MinHeight="420"
+        Background="{DynamicResource AppBg}"
+        WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Border Grid.Row="0" Background="{DynamicResource PanelBg}" Padding="26,18"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,0,0,1">
+      <StackPanel Spacing="3">
+        <TextBlock Text="Keyboard shortcuts" FontSize="19" FontWeight="SemiBold"
+                   Foreground="{DynamicResource TextPrimary}" />
+        <TextBlock Text="Global shortcuts work when the table has focus; text fields keep their own keys."
+                   FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer Grid.Row="1">
+      <StackPanel Margin="26,18" Spacing="2">
+        <Grid ColumnDefinitions="*,100,120" Margin="0,0,0,8">
+          <TextBlock Text="ACTION" FontSize="10.5" FontWeight="SemiBold"
+                     Foreground="{DynamicResource TextFaint}" />
+          <TextBlock Grid.Column="1" Text="macOS" FontSize="10.5" FontWeight="SemiBold"
+                     HorizontalAlignment="Center" Foreground="{DynamicResource TextFaint}" />
+          <TextBlock Grid.Column="2" Text="Windows / Linux" FontSize="10.5" FontWeight="SemiBold"
+                     HorizontalAlignment="Center" Foreground="{DynamicResource TextFaint}" />
+        </Grid>
+        <Border Height="1" Background="{DynamicResource BorderSoft}" Margin="0,0,0,6" />
+
+        <Grid ColumnDefinitions="*,100,120" Margin="0,7">
+          <TextBlock Text="Rescan ~/.ssh" FontSize="13" Foreground="{DynamicResource TextPrimary}" />
+          <Border Grid.Column="1" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="F5" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+          <Border Grid.Column="2" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="F5" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,100,120" Margin="0,7">
+          <TextBlock Text="Open SSH session" FontSize="13" Foreground="{DynamicResource TextPrimary}" />
+          <Border Grid.Column="1" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="⌘⇧T" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+          <Border Grid.Column="2" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="Ctrl+Shift+T" FontFamily="SF Mono, Menlo, monospace" FontSize="11"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,100,120" Margin="0,7">
+          <TextBlock Text="Select all hosts" FontSize="13" Foreground="{DynamicResource TextPrimary}" />
+          <Border Grid.Column="1" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="⌘A" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+          <Border Grid.Column="2" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="Ctrl+A" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,100,120" Margin="0,7">
+          <TextBlock Text="Export current view" FontSize="13" Foreground="{DynamicResource TextPrimary}" />
+          <Border Grid.Column="1" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="⌘E" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+          <Border Grid.Column="2" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="Ctrl+E" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,100,120" Margin="0,7">
+          <TextBlock Text="Restore latest backup" FontSize="13" Foreground="{DynamicResource TextPrimary}" />
+          <Border Grid.Column="1" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="⌘Z" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+          <Border Grid.Column="2" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="Ctrl+Z" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,100,120" Margin="0,7">
+          <TextBlock Text="Settings" FontSize="13" Foreground="{DynamicResource TextPrimary}" />
+          <Border Grid.Column="1" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="⌘," FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+          <Border Grid.Column="2" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="Ctrl+," FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,100,120" Margin="0,7">
+          <TextBlock Text="Switch views" FontSize="13" Foreground="{DynamicResource TextPrimary}" />
+          <Border Grid.Column="1" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="⌘1–4" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+          <Border Grid.Column="2" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="Ctrl+1–4" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,100,120" Margin="0,7">
+          <TextBlock Text="Remove selection" FontSize="13" Foreground="{DynamicResource TextPrimary}" />
+          <Border Grid.Column="1" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="Delete" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+          <Border Grid.Column="2" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="Delete" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Border>
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Background="{DynamicResource PanelBg}" Padding="22,12"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,1,0,0">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="© 2026 JPHsystems" FontSize="11" Foreground="{DynamicResource TextFaint}"
+                   VerticalAlignment="Center" />
+        <Button Grid.Column="1" Content="Close" Click="Close_Click" Classes="primary" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
