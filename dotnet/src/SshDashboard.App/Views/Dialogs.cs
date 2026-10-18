@@ -235,9 +235,29 @@ public static class Dialogs
         ShowInTaskbar = false,
     };
 
-    private static IBrush Brush(string key) =>
-        Application.Current?.TryFindResource(key, out var value) == true && value is IBrush brush
-            ? brush : Brushes.Transparent;
+    private static IBrush Brush(string key)
+    {
+        var app = Application.Current;
+        if (app is not null)
+        {
+            if (app.TryFindResource(key, app.ActualThemeVariant, out var themed) && themed is IBrush first)
+                return first;
+            if (app.TryFindResource(key, out var plain) && plain is IBrush second)
+                return second;
+        }
+        return key switch
+        {
+            "AppBg" => new SolidColorBrush(Color.Parse("#11171F")),
+            "TextPrimary" => Brushes.White,
+            "TextMuted" => new SolidColorBrush(Color.Parse("#93A4B8")),
+            "BorderSoft" => new SolidColorBrush(Color.Parse("#26313F")),
+            "ElevatedBg" => new SolidColorBrush(Color.Parse("#1B2531")),
+            "AccentBrush" => new SolidColorBrush(Color.Parse("#4C8DFF")),
+            "DangerBrush" => new SolidColorBrush(Color.Parse("#F26D6D")),
+            "SuccessBrush" => new SolidColorBrush(Color.Parse("#3FCF8E")),
+            _ => Brushes.Transparent,
+        };
+    }
 
     private static TextBlock Text(string text, double size, FontWeight weight,
         string color = "TextPrimary", bool monospace = false) => new()

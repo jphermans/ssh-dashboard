@@ -9,7 +9,10 @@
     <RootNamespace>SshDashboard.App</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
-    <Version>2.0.4</Version>
+    <Version>2.0.5</Version>
+    <AssemblyTitle>SSH Dashboard</AssemblyTitle>
+    <Product>SSH Dashboard</Product>
+    <Company>JPHsystems</Company>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
   </PropertyGroup>
 
