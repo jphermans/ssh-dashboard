@@ -15,7 +15,7 @@ Built with **.NET 10** and **Avalonia** for macOS, Windows and Linux.
 ![Avalonia](https://img.shields.io/badge/Avalonia-11.3-8B44AC)
 ![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Windows%20%7C%20Linux-11171F)
 ![Tests](https://img.shields.io/badge/tests-8%20passing-3FCF8E)
-![Version](https://img.shields.io/badge/version-2.0.0-4C8DFF)
+![Version](https://img.shields.io/badge/version-2.0.1-4C8DFF)
 
 ![Hosts view](docs/screenshots/hosts-dark.png)
 
@@ -29,7 +29,7 @@ Built with **.NET 10** and **Avalonia** for macOS, Windows and Linux.
 - **Open SSH session** — button, Tools menu, footer action or double-click.
   Uses the `ssh_config` alias when there is one, so `ProxyJump`, `IdentityFile`
   and ports behave exactly as on the command line; otherwise
-  `ssh user@address -p port`. The session opens in the platform terminal.
+  `ssh user@address -p port`. The session opens in an in-app terminal window.
 - **Configuration** — every `Host` block with HostName, User, Port and
   IdentityFile. Double-click to edit patterns and options; comments and unknown
   options are preserved. `Match` and `Host *` blocks are read-only.
@@ -63,7 +63,7 @@ edits `Match` or global `Host *` blocks.
 
 ### macOS (Apple Silicon)
 
-Download **`SSH-Dashboard-2.0.0-macOS-arm64.dmg`** from
+Download **`SSH-Dashboard-2.0.1-macOS-arm64.dmg`** from
 [Releases](https://github.com/jphermans/ssh-dashboard/releases/latest), open it
 and drag **SSH Dashboard** into *Applications*. It is ad-hoc signed; if
 Gatekeeper objects, right-click → **Open** once.

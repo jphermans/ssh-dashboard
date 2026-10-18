@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Threading;
 using SshDashboard.Core;
 
 namespace SshDashboard.App;
@@ -21,7 +22,26 @@ internal static class Program
             Console.WriteLine($".NET         {Environment.Version}");
             return;
         }
+        AppDomain.CurrentDomain.UnhandledException += (_, e) => LogCrash(e.ExceptionObject as Exception);
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            LogCrash(e.Exception);
+            e.SetObserved();
+        };
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+    }
+
+    private static void LogCrash(Exception? ex)
+    {
+        if (ex is null) return;
+        try
+        {
+            Directory.CreateDirectory(PlatformInfo.SupportDir);
+            File.AppendAllText(PlatformInfo.ErrorLogPath,
+                $"[{DateTime.Now:u}] {ex}\n\n");
+        }
+        catch { }
+        Console.Error.WriteLine(ex);
     }
 
     public static AppBuilder BuildAvaloniaApp() =>

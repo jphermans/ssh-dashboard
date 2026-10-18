@@ -24,12 +24,36 @@ public partial class App : Application
             desktop.MainWindow = new MainWindow(new MainViewModel(settings));
 
             var args = desktop.Args ?? Array.Empty<string>();
+            var main = desktop.MainWindow as MainWindow;
+
+            if (args.Contains("--self-test")) main?.ProbeFirstForCapture();
+            if (args.Contains("--ssh-first")) main?.OpenFirstSessionForCapture();
+            var sessionShot = Array.IndexOf(args, "--session-shot");
+            if (sessionShot >= 0 && sessionShot + 1 < args.Length)
+            {
+                var target = args[sessionShot + 1];
+                DispatcherTimer.RunOnce(() =>
+                {
+                    try
+                    {
+                        if (SshLauncher.LastWindow is { } session && session.IsVisible)
+                        {
+                            var bitmap = new RenderTargetBitmap(
+                                new PixelSize((int)session.Width, (int)session.Height), new Vector(96, 96));
+                            bitmap.Render(session);
+                            bitmap.Save(target);
+                            Console.WriteLine("wrote " + target);
+                        }
+                    }
+                    catch (Exception ex) { Console.Error.WriteLine(ex); }
+                }, TimeSpan.FromSeconds(3));
+            }
 
             if (Array.IndexOf(args, "--theme") is var themeIndex && themeIndex >= 0 && themeIndex + 1 < args.Length)
                 ThemeManager.Apply(args[themeIndex + 1]);
             if (Array.IndexOf(args, "--view") is var viewIndex && viewIndex >= 0 && viewIndex + 1 < args.Length
-                && desktop.MainWindow is MainWindow main)
-                main.ShowViewForCapture(args[viewIndex + 1]);
+                && desktop.MainWindow is MainWindow viewWindow)
+                viewWindow.ShowViewForCapture(args[viewIndex + 1]);
 
             var shot = Array.IndexOf(args, "--screenshot");
             if (shot >= 0 && shot + 1 < args.Length)

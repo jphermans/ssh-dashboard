@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:SshDashboard.App.Views"
+        x:Class="SshDashboard.App.Views.SshSessionWindow"
+        Title="SSH session"
+        Width="960" Height="640" MinWidth="720" MinHeight="420"
+        Background="#0B0F14"
+        WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Border Grid.Row="0" Background="#131A24" Padding="18,12"
+            BorderBrush="#26313F" BorderThickness="0,0,0,1">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Spacing="2">
+          <TextBlock x:Name="TitleText" Text="SSH session" FontSize="14" FontWeight="SemiBold"
+                     Foreground="#E9EFF7" />
+          <TextBlock x:Name="SubtitleText" Text="" FontSize="11.5" Foreground="#93A4B8" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
+            <Ellipse Width="8" Height="8" Fill="#E0AF68" x:Name="StatusDot" />
+            <TextBlock x:Name="StatusText" Text="Connecting…" FontSize="11.5"
+                       Foreground="#93A4B8" VerticalAlignment="Center" />
+          </StackPanel>
+          <Button Content="Disconnect" Click="Disconnect_Click" Padding="12,6" FontSize="12"
+                  Background="#1E2835" Foreground="#E9EFF7" BorderBrush="#26313F" BorderThickness="1" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <views:TerminalControl x:Name="Terminal" Grid.Row="1" Margin="10,8" />
+
+    <Border Grid.Row="2" Background="#0F151D" Padding="18,8"
+            BorderBrush="#26313F" BorderThickness="0,1,0,0">
+      <TextBlock Text="Type to send input · ⌘V paste · close this window to disconnect"
+                 FontSize="11" Foreground="#5D7085" />
+    </Border>
+  </Grid>
+</Window>

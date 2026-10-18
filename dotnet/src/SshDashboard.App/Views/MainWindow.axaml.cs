@@ -57,6 +57,18 @@ public partial class MainWindow : Window
 
     public void ShowViewForCapture(string key) => ShowView(key, syncNav: true);
 
+    public void ProbeFirstForCapture()
+    {
+        if (_vm.FilteredHosts.FirstOrDefault() is not { } host) return;
+        _vm.SelectedHost = host;
+        Test_Click(null, new RoutedEventArgs());
+    }
+
+    public void OpenFirstSessionForCapture()
+    {
+        if (_vm.FilteredHosts.FirstOrDefault() is { } host) SshLauncher.OpenTerminal(host);
+    }
+
     private void TryLoadIcon()
     {
         try
@@ -136,9 +148,9 @@ public partial class MainWindow : Window
     private void Keys_SelectionChanged(object? sender, SelectionChangedEventArgs e) =>
         _vm.SelectedKey = KeysGrid.SelectedItem as KeyInfo;
 
-    private async void Hosts_DoubleTapped(object? sender, RoutedEventArgs e)
+    private void Hosts_DoubleTapped(object? sender, RoutedEventArgs e)
     {
-        if (_vm.SelectedHost is { } host) await SshLauncher.OpenAsync(host, this, ShowToast);
+        if (_vm.SelectedHost is { } host) SshLauncher.OpenTerminal(host);
     }
 
     private async void Config_DoubleTapped(object? sender, RoutedEventArgs e) =>
@@ -321,22 +333,37 @@ public partial class MainWindow : Window
         }
     }
 
+    private IBrush BrushOr(string key, IBrush fallback) =>
+        Application.Current?.TryFindResource(key, out var value) == true && value is IBrush brush
+            ? brush : fallback;
+
     private async void Test_Click(object? sender, RoutedEventArgs e)
     {
         if (_vm.SelectedHost is not { } host) return;
-        TestResult.Text = "Testing…";
-        TestResult.Foreground = (IBrush?)Application.Current?.FindResource("TextMuted") ?? Brushes.Gray;
-        var (reachable, error) = await PlatformInfo.ProbeAsync(host.Address, host.Port);
-        TestResult.Text = reachable
-            ? $"Port {host.Port} reachable"
-            : $"Unreachable · {error}";
-        TestResult.Foreground = (IBrush?)Application.Current?.FindResource(
-            reachable ? "SuccessBrush" : "DangerBrush") ?? Brushes.Gray;
+        try
+        {
+            TestResult.Text = "Testing…";
+            TestResult.Foreground = BrushOr("TextMuted", Brushes.Gray);
+            var (reachable, error) = await PlatformInfo.ProbeAsync(host.Address, host.Port);
+            TestResult.Text = reachable
+                ? $"Port {host.Port} reachable"
+                : $"Unreachable · {error}";
+            TestResult.Foreground = BrushOr(reachable ? "SuccessBrush" : "DangerBrush", Brushes.Gray);
+        }
+        catch (Exception ex)
+        {
+            TestResult.Text = "Test failed: " + ex.Message;
+            TestResult.Foreground = BrushOr("DangerBrush", Brushes.IndianRed);
+        }
     }
 
-    private async void Ssh_Click(object? sender, RoutedEventArgs e)
+    private void Ssh_Click(object? sender, RoutedEventArgs e)
     {
-        if (_vm.SelectedHost is { } host) await SshLauncher.OpenAsync(host, this, ShowToast);
+        if (_vm.SelectedHost is { } host)
+        {
+            SshLauncher.OpenTerminal(host);
+            ShowToast("Opening SSH session");
+        }
         else ShowToast("Select a host first");
     }
 
