@@ -59,14 +59,23 @@ Every write follows the same path:
 The app never writes outside `~/.ssh`, never follows `Include`d files, and never
 edits `Match` or global `Host *` blocks.
 
-## Install
+## Download
 
-### macOS (Apple Silicon)
+All builds are self-contained — no .NET runtime required on the target.
 
-Download **`SSH-Dashboard-2.0.1-macOS-arm64.dmg`** from
-[Releases](https://github.com/jphermans/ssh-dashboard/releases/latest), open it
-and drag **SSH Dashboard** into *Applications*. It is ad-hoc signed; if
-Gatekeeper objects, right-click → **Open** once.
+| Platform | File |
+| --- | --- |
+| macOS Apple Silicon | [`SSH-Dashboard-2.0.1-macOS-arm64.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.1/SSH-Dashboard-2.0.1-macOS-arm64.dmg) |
+| macOS Intel | [`SSH-Dashboard-2.0.1-macOS-x64.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.1/SSH-Dashboard-2.0.1-macOS-x64.dmg) |
+| Windows 10/11 x64 | [`SSH-Dashboard-2.0.1-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.1/SSH-Dashboard-2.0.1-windows-x64.zip) |
+| Linux x64 | [`SSH-Dashboard-2.0.1-linux-x64.tar.gz`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.1/SSH-Dashboard-2.0.1-linux-x64.tar.gz) |
+
+Checksums: [`SHA256SUMS-2.0.1.txt`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.0.1/SHA256SUMS-2.0.1.txt).
+
+### macOS
+
+Open the DMG and drag **SSH Dashboard** into *Applications*. The builds are
+ad-hoc signed; if Gatekeeper objects, right-click → **Open** once.
 
 ### Windows and Linux
 
