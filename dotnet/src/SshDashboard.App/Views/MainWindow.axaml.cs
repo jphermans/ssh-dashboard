@@ -468,10 +468,9 @@ public partial class MainWindow : Window
 
     private void Quit_Click(object? sender, RoutedEventArgs e) => Close();
 
-    private async void About_Click(object? sender, RoutedEventArgs e) =>
-        await Dialogs.AboutAsync(this,
-            typeof(App).Assembly.GetName().Version?.ToString(3) ?? "2.0.0",
-            _vm.Store.SshDir);
+    private void About_Click(object? sender, RoutedEventArgs e) =>
+        new AboutWindow(typeof(App).Assembly.GetName().Version?.ToString(3) ?? "2.0.0",
+            _vm.Store.SshDir).Show(this);
 
     private void Help_Click(object? sender, RoutedEventArgs e) => new HelpWindow().Show(this);
 

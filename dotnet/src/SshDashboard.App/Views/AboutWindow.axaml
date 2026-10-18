@@ -1,0 +1,105 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SshDashboard.App.Views.AboutWindow"
+        Title="About SSH Dashboard"
+        Width="540" Height="560" MinWidth="460" MinHeight="480"
+        Background="{DynamicResource AppBg}"
+        WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="*,Auto">
+    <ScrollViewer Grid.Row="0">
+      <StackPanel Margin="32,28,32,22" Spacing="20">
+
+        <!-- Identity -->
+        <Grid ColumnDefinitions="Auto,*">
+          <Border Width="84" Height="84" CornerRadius="18" ClipToBounds="True"
+                  Background="{DynamicResource ElevatedBg}">
+            <Image Source="avares://SshDashboard/Assets/appicon.png" Stretch="UniformToFill" />
+          </Border>
+          <StackPanel Grid.Column="1" Margin="18,0,0,0" VerticalAlignment="Center" Spacing="4">
+            <TextBlock Text="SSH Dashboard" FontSize="24" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextPrimary}" />
+            <TextBlock Text="Your ~/.ssh, in one careful place." FontSize="12.5"
+                       Foreground="{DynamicResource TextMuted}" />
+            <Border Background="{DynamicResource AccentSoft}" CornerRadius="5" Padding="8,3"
+                    HorizontalAlignment="Left" Margin="0,4,0,0">
+              <TextBlock x:Name="VersionBadge" Text="Version 2.0.10" FontSize="11"
+                         FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" />
+            </Border>
+          </StackPanel>
+        </Grid>
+
+        <Border Height="1" Background="{DynamicResource BorderSoft}" />
+
+        <!-- Description -->
+        <TextBlock FontSize="13.5" LineHeight="22" TextWrapping="Wrap"
+                   Foreground="{DynamicResource TextMuted}"
+                   Text="A desktop dashboard for known_hosts, ssh_config and the key files beside them. Inspect, edit and remove entries with timestamped backups, and open SSH sessions in an integrated terminal." />
+
+        <!-- Facts -->
+        <StackPanel Spacing="9">
+          <Grid ColumnDefinitions="120,*">
+            <TextBlock Text="Version" FontSize="12" Foreground="{DynamicResource TextFaint}" />
+            <TextBlock x:Name="VersionValue" Grid.Column="1" FontSize="12.5"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </Grid>
+          <Grid ColumnDefinitions="120,*">
+            <TextBlock Text="Built with" FontSize="12" Foreground="{DynamicResource TextFaint}" />
+            <TextBlock Grid.Column="1" FontSize="12.5" Foreground="{DynamicResource TextPrimary}"
+                       Text=".NET 10 · Avalonia 11 · VtNetCore" />
+          </Grid>
+          <Grid ColumnDefinitions="120,*">
+            <TextBlock Text="Platforms" FontSize="12" Foreground="{DynamicResource TextFaint}" />
+            <TextBlock Grid.Column="1" FontSize="12.5" Foreground="{DynamicResource TextPrimary}"
+                       Text="macOS · Windows · Linux" />
+          </Grid>
+          <Grid ColumnDefinitions="120,*">
+            <TextBlock Text="SSH folder" FontSize="12" Foreground="{DynamicResource TextFaint}" />
+            <TextBlock x:Name="SshFolderValue" Grid.Column="1" FontSize="12"
+                       FontFamily="SF Mono, Menlo, monospace"
+                       Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap" />
+          </Grid>
+          <Grid ColumnDefinitions="120,*">
+            <TextBlock Text="License" FontSize="12" Foreground="{DynamicResource TextFaint}" />
+            <TextBlock Grid.Column="1" FontSize="12.5" Foreground="{DynamicResource TextPrimary}"
+                       Text="All rights reserved" />
+          </Grid>
+        </StackPanel>
+
+        <!-- Credits -->
+        <Border Background="{DynamicResource PanelBg}" BorderBrush="{DynamicResource BorderSoft}"
+                BorderThickness="1" CornerRadius="10" Padding="16">
+          <StackPanel Spacing="6">
+            <TextBlock Text="CREDITS" FontSize="10.5" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextFaint}" />
+            <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap"
+                       Foreground="{DynamicResource TextMuted}">
+              <Run Text="Designed and built by " />
+              <Run Text="JPHsystems" FontWeight="SemiBold"
+                   Foreground="{DynamicResource AccentBrush}" />
+              <Run Text=". © 2026 JPHsystems. All rights reserved." />
+            </TextBlock>
+            <TextBlock FontSize="12" LineHeight="19" TextWrapping="Wrap"
+                       Foreground="{DynamicResource TextFaint}"
+                       Text="Open source components: Avalonia UI (MIT), VtNetCore (MIT), .NET (MIT). SSH connections use the system OpenSSH client." />
+          </StackPanel>
+        </Border>
+
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Content="Repository" Click="Repo_Click" Classes="ghost" />
+          <Button Content="Report an issue" Click="Issues_Click" Classes="ghost" />
+          <Button Content="Help" Click="Help_Click" Classes="ghost" />
+        </StackPanel>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="1" Background="{DynamicResource PanelBg}" Padding="22,12"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,1,0,0">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="© 2026 JPHsystems" FontSize="11" VerticalAlignment="Center"
+                   Foreground="{DynamicResource TextFaint}" />
+        <Button Grid.Column="1" Content="Close" Click="Close_Click" Classes="primary" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
