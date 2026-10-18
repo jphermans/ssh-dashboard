@@ -55,6 +55,8 @@ public partial class MainWindow : Window
         AddHandler(KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
     }
 
+    public void ShowViewForCapture(string key) => ShowView(key, syncNav: true);
+
     private void TryLoadIcon()
     {
         try

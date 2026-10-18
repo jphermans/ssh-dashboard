@@ -1,16 +1,7 @@
-__pycache__/
-*.pyc
-.venv/
-build/
-dist/
-.venv-build/
-*.spec.bak
 .DS_Store
 
-# compiled launcher resources
-launcher/windows/*.res
-build/
-
-dotnet/dist/
+# .NET build output
 dotnet/**/bin/
 dotnet/**/obj/
+dotnet/dist/
+out/

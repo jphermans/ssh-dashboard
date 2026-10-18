@@ -24,6 +24,13 @@ public partial class App : Application
             desktop.MainWindow = new MainWindow(new MainViewModel(settings));
 
             var args = desktop.Args ?? Array.Empty<string>();
+
+            if (Array.IndexOf(args, "--theme") is var themeIndex && themeIndex >= 0 && themeIndex + 1 < args.Length)
+                ThemeManager.Apply(args[themeIndex + 1]);
+            if (Array.IndexOf(args, "--view") is var viewIndex && viewIndex >= 0 && viewIndex + 1 < args.Length
+                && desktop.MainWindow is MainWindow main)
+                main.ShowViewForCapture(args[viewIndex + 1]);
+
             var shot = Array.IndexOf(args, "--screenshot");
             if (shot >= 0 && shot + 1 < args.Length)
             {
