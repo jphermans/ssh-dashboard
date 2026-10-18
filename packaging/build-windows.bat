@@ -25,13 +25,14 @@ if exist dist\windows rmdir /s /q dist\windows
 mkdir dist\windows
 copy /y "SSH Dashboard.exe" dist\windows\ >nul
 copy /y ssh_dashboard.py dist\windows\ >nul
+copy /y launcher\windows\install-python.ps1 dist\windows\ >nul
 copy /y README.md dist\windows\ >nul
 xcopy /e /i /q /y sshdash dist\windows\sshdash >nul
 if exist dist\windows\sshdash\__pycache__ rmdir /s /q dist\windows\sshdash\__pycache__
 
-powershell -NoProfile -Command "Compress-Archive -Path 'dist\windows\*' -DestinationPath 'dist\SSH-Dashboard-1.0.0-windows-x64.zip' -Force"
+powershell -NoProfile -Command "Compress-Archive -Path 'dist\windows\*' -DestinationPath 'dist\SSH-Dashboard-1.0.1-windows-x64.zip' -Force"
 
 echo.
 for %%F in ("SSH Dashboard.exe") do echo Launcher: %%~zF bytes
-echo Package:  dist\SSH-Dashboard-1.0.0-windows-x64.zip
+echo Package:  dist\SSH-Dashboard-1.0.1-windows-x64.zip
 echo Note:     Python 3.9+ with Tk 8.6 is required on the target PC.

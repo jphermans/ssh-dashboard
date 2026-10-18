@@ -1813,7 +1813,6 @@ class DashboardApp(tk.Tk):
                 label="Settings\u2026", accelerator=self._accel(","),
                 command=self._open_settings,
             )
-            app_menu.add_command(label="Check Environment\u2026", command=self._check_environment)
             app_menu.add_separator()
             app_menu.add_command(
                 label=f"Hide {__app_name__}", accelerator=self._accel("h"),
@@ -1875,10 +1874,6 @@ class DashboardApp(tk.Tk):
         )
         edit_menu.add_separator()
         edit_menu.add_command(
-            label="Cut", accelerator=self._accel("x"),
-            command=lambda: self._menu_clipboard("<<Cut>>"),
-        )
-        edit_menu.add_command(
             label="Copy", accelerator=self._accel("c"),
             command=lambda: self._menu_clipboard("<<Copy>>"),
         )
@@ -1924,10 +1919,6 @@ class DashboardApp(tk.Tk):
             label="Light", value="light", variable=self._theme_var,
             command=lambda: self._apply_theme("light"),
         )
-        view_menu.add_separator()
-        view_menu.add_command(
-            label="Refresh", accelerator=self._accel("r"), command=lambda: self.refresh(toast=True),
-        )
 
         # -- Tools --------------------------------------------------------
         tools_menu = tk.Menu(bar, tearoff=0)
@@ -1956,7 +1947,7 @@ class DashboardApp(tk.Tk):
             window_menu.add_command(
                 label="Minimize", accelerator=self._accel("m"), command=self.iconify,
             )
-            window_menu.add_command(label="Bring All to Front", command=self._bring_all_to_front)
+            # Single-window app: Minimize is the only window action worth exposing.
 
         # -- Help ---------------------------------------------------------
         help_menu = tk.Menu(bar, tearoff=0, name="help") if mac else tk.Menu(bar, tearoff=0)
@@ -1967,10 +1958,6 @@ class DashboardApp(tk.Tk):
             command=self._show_shortcuts,
         )
         help_menu.add_command(label="Backups & Safety", command=self._show_safety)
-        help_menu.add_separator()
-        help_menu.add_command(
-            label="Open Backups Folder", command=lambda: self._reveal(self.store.backup_dir),
-        )
         if not mac:
             help_menu.add_separator()
             help_menu.add_command(label=f"About {__app_name__}", command=self._about)
@@ -2057,14 +2044,6 @@ class DashboardApp(tk.Tk):
         key = self._selected_key()
         if key is not None:
             self._reveal(key.path)
-
-    def _bring_all_to_front(self) -> None:
-        try:
-            self.deiconify()
-            self.lift()
-            self.focus_force()
-        except tk.TclError:
-            pass
 
     # -- export ----------------------------------------------------------
     def _export_rows(self) -> None:

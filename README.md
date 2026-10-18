@@ -16,7 +16,7 @@
   <img alt="Python" src="https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white">
   <img alt="Tk" src="https://img.shields.io/badge/Tk-8.6%2B-4C8DFF">
   <img alt="Tests" src="https://img.shields.io/badge/tests-43%20passing-3FCF8E">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-4C8DFF">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.0.1-4C8DFF">
   <a href="https://github.com/jphermans/ssh-dashboard/actions/workflows/build-windows.yml">
     <img alt="Windows build" src="https://github.com/jphermans/ssh-dashboard/actions/workflows/build-windows.yml/badge.svg">
   </a>
@@ -93,22 +93,26 @@ when none is found.
 
 ### macOS (~1 MB)
 
-1. Download `SSH-Dashboard-1.0.0-macOS-lite.dmg` from
+1. Download `SSH-Dashboard-1.0.1-macOS-lite.dmg` from
    [Releases](https://github.com/jphermans/ssh-dashboard/releases/latest).
 2. Open the DMG and drag **SSH Dashboard** into *Applications*.
-3. Launch it. If no suitable Python is installed, the app shows a dialog with a
-   link to python.org.
+3. On first launch (and whenever the Python version changes) the app confirms
+   which interpreter it found, e.g. *"Python 3.14.8 with Tk 9.1 detected."*
+   If no suitable Python is installed it explains what is missing and offers the
+   python.org download.
 
 The bundle is ad-hoc signed and not notarized. If macOS quarantines a downloaded
 copy, right-click the app → **Open** once.
 
 ### Windows (~70 KB launcher)
 
-1. Download `SSH-Dashboard-1.0.0-windows-x64.zip` from
+1. Download `SSH-Dashboard-1.0.1-windows-x64.zip` from
    [Releases](https://github.com/jphermans/ssh-dashboard/releases/latest).
 2. Extract the whole folder and run **SSH Dashboard.exe**.
-3. Python 3.9+ with Tk is required. When missing, the launcher offers the
-   python.org download page; install Python with *Add python.exe to PATH*.
+3. If Python is present, the launcher shows the detected version once per
+   version. If it is missing, the launcher offers to install Python 3.13 with
+   winget, verifies that Tk works, then starts the app. Without winget it opens
+   the python.org download page.
 
 ### Linux
 
@@ -263,8 +267,15 @@ python3 tools/make_icon.py                # requires Pillow
 - **Unexpected error dialog** — the traceback is appended to
   `~/Library/Application Support/SSHDashboard/error.log` (macOS) or
   `%APPDATA%\SSHDashboard\error.log` (Windows).
-- **Windows launcher** — keep `SSH Dashboard.exe`, `ssh_dashboard.py` and the
-  `sshdash` folder together; the launcher resolves the script next to itself.
+- **Windows launcher** — keep `SSH Dashboard.exe`, `install-python.ps1`,
+  `ssh_dashboard.py` and the `sshdash` folder together; the launcher resolves
+  the script next to itself.
+- **Windows automatic install** — uses winget, the Windows package manager.
+  NuGet's `python` package is not used because it ships without Tcl/Tk, so
+  `tkinter` cannot start; winget installs the full build with Tk. Installation
+  details are written to `%LOCALAPPDATA%\SSHDashboard\install.log`.
+- **Python confirmed on every machine** — the detection dialog appears once per
+  Python/Tk version and can be dismissed permanently by continuing.
 
 ## Configuration
 

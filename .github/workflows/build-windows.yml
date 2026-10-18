@@ -29,6 +29,12 @@ jobs:
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Validate the Python installer script
+        shell: pwsh
+        run: |
+          $null = [scriptblock]::Create((Get-Content -Raw launcher\windows\install-python.ps1))
+          Write-Host "install-python.ps1 parses"
+
       - name: Build the native launcher and package
         shell: cmd
         run: packaging\build-windows.bat
@@ -43,6 +49,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SSH-Dashboard-1.0.0-windows-x64
-          path: dist/SSH-Dashboard-1.0.0-windows-x64.zip
+          name: SSH-Dashboard-1.0.1-windows-x64
+          path: dist/SSH-Dashboard-1.0.1-windows-x64.zip
           if-no-files-found: error

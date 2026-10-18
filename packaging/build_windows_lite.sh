@@ -24,6 +24,7 @@ mkdir -p "$OUT" build
   -luser32 -lshell32 -ladvapi32
 
 cp ssh_dashboard.py README.md "$OUT/"
+cp launcher/windows/install-python.ps1 "$OUT/"
 cp -R sshdash "$OUT/sshdash"
 find "$OUT" -name '__pycache__' -type d -prune -exec rm -rf {} +
 
