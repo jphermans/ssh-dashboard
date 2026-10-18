@@ -51,7 +51,8 @@ public static class Dialogs
         return await window.ShowDialog<bool>(owner);
     }
 
-    public static async Task<Settings?> SettingsAsync(Window owner, Settings current)
+    public static async Task<Settings?> SettingsAsync(Window owner, Settings current,
+        Action<string>? previewTheme = null)
     {
         var window = Shell(owner, "Settings", 560, 470);
         var root = new StackPanel { Spacing = 16, Margin = new Avalonia.Thickness(26) };
@@ -73,10 +74,11 @@ public static class Dialogs
             {
                 Content = label,
                 GroupName = group,
-                IsChecked = current.Theme == key,
                 Padding = new Avalonia.Thickness(12, 7),
             };
             radio.Tag = key;
+            radio.Checked += (_, _) => previewTheme?.Invoke(key);
+            radio.IsChecked = current.Theme == key;
             radios.Add(radio);
             themes.Children.Add(radio);
         }

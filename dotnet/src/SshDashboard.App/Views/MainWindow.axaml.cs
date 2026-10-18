@@ -377,8 +377,14 @@ public partial class MainWindow : Window
 
     private async void Settings_Click(object? sender, RoutedEventArgs e)
     {
-        var result = await Dialogs.SettingsAsync(this, _vm.Settings);
-        if (result is null) return;
+        var result = await Dialogs.SettingsAsync(this, _vm.Settings,
+            preview => ThemeManager.Apply(preview));
+        if (result is null)
+        {
+            ThemeManager.Apply(_vm.Settings.Theme);
+            _vm.Raise(nameof(MainViewModel.ThemeLabel));
+            return;
+        }
         _vm.Settings.Theme = result.Theme;
         _vm.Settings.ConfirmDelete = result.ConfirmDelete;
         _vm.Settings.RemoveConfigDefault = result.RemoveConfigDefault;
@@ -422,6 +428,8 @@ public partial class MainWindow : Window
             typeof(App).Assembly.GetName().Version?.ToString(3) ?? "2.0.0",
             _vm.Store.SshDir);
 
+    private void Help_Click(object? sender, RoutedEventArgs e) => new HelpWindow().Show(this);
+
     private async void Shortcuts_Click(object? sender, RoutedEventArgs e) =>
         await Dialogs.ConfirmAsync(this, "Keyboard shortcuts", "Keyboard shortcuts",
             "F5 rescans. Delete removes the selection. Cmd/Ctrl+A selects all hosts, " +
@@ -444,7 +452,8 @@ public partial class MainWindow : Window
         var mod = OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
         var command = (e.KeyModifiers & mod) == mod;
 
-        if (e.Key == Key.F5) { Refresh_Click(sender, e); e.Handled = true; }
+        if (e.Key == Key.F1) { Help_Click(sender, e); e.Handled = true; }
+        else if (e.Key == Key.F5) { Refresh_Click(sender, e); e.Handled = true; }
         else if (e.Key == Key.Delete || e.Key == Key.Back)
         {
             Delete_Click(sender, e);

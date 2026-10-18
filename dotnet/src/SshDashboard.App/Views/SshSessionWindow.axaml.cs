@@ -45,6 +45,9 @@ public partial class SshSessionWindow : Window
             };
             psi.ArgumentList.Add("-tt");
             foreach (var arg in SshLauncher.BuildArguments(_host)) psi.ArgumentList.Add(arg);
+            var rows = Math.Max(12, Terminal.Rows);
+            var cols = Math.Max(40, Terminal.Columns);
+            psi.ArgumentList.Add($"stty rows {rows} cols {cols} 2>/dev/null; exec $SHELL -l");
             psi.Environment["TERM"] = "xterm-256color";
             psi.Environment["LANG"] = Environment.GetEnvironmentVariable("LANG") ?? "en_US.UTF-8";
 
@@ -110,6 +113,10 @@ public partial class SshSessionWindow : Window
         Terminal.WriteSystem(code == 0
             ? "Session ended."
             : $"ssh exited with code {code}.");
+        DispatcherTimer.RunOnce(() =>
+        {
+            if (IsVisible) Close();
+        }, TimeSpan.FromMilliseconds(1400));
     }
 
     private void SetStatus(string text, bool connected)

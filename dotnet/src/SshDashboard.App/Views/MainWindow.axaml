@@ -46,6 +46,7 @@
         <MenuItem Header="Settings…" Click="Settings_Click" />
       </MenuItem>
       <MenuItem Header="Help">
+        <MenuItem Header="SSH Dashboard Help" Click="Help_Click" />
         <MenuItem Header="Keyboard Shortcuts" Click="Shortcuts_Click" />
         <MenuItem Header="About SSH Dashboard" Click="About_Click" />
       </MenuItem>

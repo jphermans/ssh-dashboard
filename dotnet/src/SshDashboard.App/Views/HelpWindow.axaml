@@ -1,0 +1,269 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SshDashboard.App.Views.HelpWindow"
+        Title="SSH Dashboard Help"
+        Width="860" Height="780" MinWidth="620" MinHeight="520"
+        Background="{DynamicResource AppBg}"
+        WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="Auto,*">
+    <!-- Header -->
+    <Border Grid.Row="0" Background="{DynamicResource PanelBg}"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,0,0,1"
+            Padding="26,20">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Border Width="46" Height="46" CornerRadius="12" Background="{DynamicResource AccentBrush}">
+          <Path Data="M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z"
+                Fill="White" Width="26" Height="26" Stretch="Uniform"
+                HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,0,0" Spacing="2">
+          <TextBlock Text="SSH Dashboard Help" FontSize="20" FontWeight="SemiBold"
+                     Foreground="{DynamicResource TextPrimary}" />
+          <TextBlock Text="A quick tour of the dashboard, your SSH data and the in-app terminal."
+                     FontSize="12.5" Foreground="{DynamicResource TextMuted}" />
+        </StackPanel>
+        <Button Grid.Column="2" Content="Close" Click="Close_Click" Classes="ghost"
+                VerticalAlignment="Center" />
+      </Grid>
+    </Border>
+
+    <ScrollViewer Grid.Row="1">
+      <StackPanel Margin="28,22,28,30" Spacing="22">
+
+        <!-- Quick start -->
+        <Border Background="{DynamicResource ElevatedBg}" BorderBrush="{DynamicResource BorderSoft}"
+                BorderThickness="1" CornerRadius="12" Padding="18">
+          <StackPanel Spacing="8">
+            <TextBlock Text="Start here" FontSize="11" FontWeight="SemiBold"
+                       Foreground="{DynamicResource AccentBrush}" />
+            <TextBlock TextWrapping="Wrap" FontSize="13.5" Foreground="{DynamicResource TextPrimary}"
+                       LineHeight="21">
+              <Run Text="SSH Dashboard reads " />
+              <Run Text="~/.ssh/known_hosts" FontFamily="SF Mono, Menlo, monospace"
+                   Foreground="{DynamicResource AccentBrush}" />
+              <Run Text=" and " />
+              <Run Text="~/.ssh/config" FontFamily="SF Mono, Menlo, monospace"
+                   Foreground="{DynamicResource AccentBrush}" />
+              <Run Text=". Use the sidebar to switch views, tick the checkboxes to select hosts, and press Delete to remove them. Every change is backed up first." />
+            </TextBlock>
+          </StackPanel>
+        </Border>
+
+        <!-- Views -->
+        <TextBlock Text="THE FOUR VIEWS" FontSize="10.5" FontWeight="SemiBold"
+                   Foreground="{DynamicResource TextFaint}" />
+
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="16" RowDefinitions="Auto,Auto" RowSpacing="16">
+          <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource PanelBg}"
+                  BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" CornerRadius="12"
+                  Padding="16">
+            <StackPanel Spacing="8">
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <Border Width="30" Height="30" CornerRadius="8" Background="#1E3A66">
+                  <Path Data="M4,1H20A1,1 0 0,1 21,2V6A1,1 0 0,1 20,7H4A1,1 0 0,1 3,6V2A1,1 0 0,1 4,1M4,9H20A1,1 0 0,1 21,10V14A1,1 0 0,1 20,15H4A1,1 0 0,1 3,14V10A1,1 0 0,1 4,9M4,17H20A1,1 0 0,1 21,18V22A1,1 0 0,1 20,23H4A1,1 0 0,1 3,22V18A1,1 0 0,1 4,17Z"
+                        Fill="{DynamicResource AccentBrush}" Width="16" Height="16" Stretch="Uniform"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="Hosts" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextPrimary}" />
+              </StackPanel>
+              <TextBlock TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource TextMuted}"
+                         Text="Known hosts and config aliases merged into one list. Tick rows to select, then Delete. Double-click opens a session." />
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Row="0" Grid.Column="1" Background="{DynamicResource PanelBg}"
+                  BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" CornerRadius="12"
+                  Padding="16">
+            <StackPanel Spacing="8">
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <Border Width="30" Height="30" CornerRadius="8" Background="#3A2A55">
+                  <Path Data="M3,17V19H9V17H3M3,5V7H13V5H3M13,21V19H21V17H13V15H11V21H13M7,9V11H3V13H7V15H9V9H7M21,13V11H11V13H21M15,9H17V7H21V5H17V3H15V9Z"
+                        Fill="#BB9AF7" Width="16" Height="16" Stretch="Uniform"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="Configuration" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextPrimary}" />
+              </StackPanel>
+              <TextBlock TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource TextMuted}"
+                         Text="Every Host block. Double-click to edit patterns, HostName, user, port and identity file; comments survive." />
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource PanelBg}"
+                  BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" CornerRadius="12"
+                  Padding="16">
+            <StackPanel Spacing="8">
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <Border Width="30" Height="30" CornerRadius="8" Background="#163A2C">
+                  <Path Data="M7,14A2,2 0 0,1 5,12A2,2 0 0,1 7,10A2,2 0 0,1 9,12A2,2 0 0,1 7,14M12.65,10C11.83,7.67 9.61,6 7,6A6,6 0 0,0 1,12A6,6 0 0,0 7,18C9.61,18 11.83,16.33 12.65,14H17V18H21V14H23V10H12.65Z"
+                        Fill="{DynamicResource SuccessBrush}" Width="16" Height="16" Stretch="Uniform"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="Keys" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextPrimary}" />
+              </StackPanel>
+              <TextBlock TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource TextMuted}"
+                         Text="Private and public keys with type, SHA-256 fingerprint, size and permissions. Keys are never modified." />
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource PanelBg}"
+                  BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" CornerRadius="12"
+                  Padding="16">
+            <StackPanel Spacing="8">
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <Border Width="30" Height="30" CornerRadius="8" Background="#3A2E1A">
+                  <Path Data="M13.5,8H12V13L16.28,15.54L17,14.33L13.5,12.25V8M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3Z"
+                        Fill="#E0AF68" Width="16" Height="16" Stretch="Uniform"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="Activity" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextPrimary}" />
+              </StackPanel>
+              <TextBlock TextWrapping="Wrap" FontSize="12.5" Foreground="{DynamicResource TextMuted}"
+                         Text="A local journal of every removal, config edit and restore, newest first." />
+            </StackPanel>
+          </Border>
+        </Grid>
+
+        <!-- SSH sessions -->
+        <StackPanel Spacing="8">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <Border Width="30" Height="30" CornerRadius="8" Background="#1E3A66">
+              <Path Data="M20,19V7H4V19H20M20,3A2,2 0 0,1 22,5V19A2,2 0 0,1 20,21H4A2,2 0 0,1 2,19V5A2,2 0 0,1 4,3H20M13,17V15H18V17H13M9.58,13L5.57,9H8.4L11.7,12.3C12.45,12.78 13.3,13 14.2,13C15.1,13 15.95,12.78 16.7,12.3L20,9H22.8L18.8,13C18.1,13.55 17.2,13.9 16.2,14C15.2,14.1 14.4,13.9 13.58,14Z"
+                    Fill="{DynamicResource AccentBrush}" Width="16" Height="16" Stretch="Uniform"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <TextBlock Text="SSH sessions" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </StackPanel>
+          <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource TextMuted}" LineHeight="20"
+                     Text="Select a host and press Open SSH session, use Tools → Open SSH Session, or double-click the row. The terminal runs ssh -tt inside the app, so your ssh_config alias, ProxyJump, IdentityFile and agent settings apply. Closing the window disconnects; when the remote session ends the window closes itself." />
+        </StackPanel>
+
+        <!-- Safety -->
+        <Border Background="{DynamicResource PanelBg}" BorderBrush="{DynamicResource BorderSoft}"
+                BorderThickness="1" CornerRadius="12" Padding="18">
+          <StackPanel Spacing="8">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Border Width="30" Height="30" CornerRadius="8" Background="#163A2C">
+                <Path Data="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z"
+                      Fill="{DynamicResource SuccessBrush}" Width="17" Height="17" Stretch="Uniform"
+                      HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <TextBlock Text="Backups and safety" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center"
+                         Foreground="{DynamicResource TextPrimary}" />
+            </StackPanel>
+            <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource TextMuted}" LineHeight="20">
+              <Run Text="Before any write, the target file is copied to " />
+              <Run Text="~/.ssh/.sshdashboard/backups" FontFamily="SF Mono, Menlo, monospace"
+                   Foreground="{DynamicResource AccentBrush}" />
+              <Run Text=". Writes are atomic and keep the original permissions; deletions re-parse the file and remove only entries that still match. Undo restores the latest backup." />
+            </TextBlock>
+          </StackPanel>
+        </Border>
+
+        <!-- Shortcuts -->
+        <StackPanel Spacing="10">
+          <TextBlock Text="KEYBOARD SHORTCUTS" FontSize="10.5" FontWeight="SemiBold"
+                     Foreground="{DynamicResource TextFaint}" />
+          <WrapPanel ItemHeight="34">
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,18,8">
+              <Border Background="{DynamicResource ElevatedBg}" CornerRadius="6" Padding="8,4">
+                <TextBlock Text="F1" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                           Foreground="{DynamicResource TextPrimary}" />
+              </Border>
+              <TextBlock Text="Open this help" Foreground="{DynamicResource TextMuted}" FontSize="12.5"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,18,8">
+              <Border Background="{DynamicResource ElevatedBg}" CornerRadius="6" Padding="8,4">
+                <TextBlock Text="F5" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                           Foreground="{DynamicResource TextPrimary}" />
+              </Border>
+              <TextBlock Text="Rescan ~/.ssh" Foreground="{DynamicResource TextMuted}" FontSize="12.5"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,18,8">
+              <Border Background="{DynamicResource ElevatedBg}" CornerRadius="6" Padding="8,4">
+                <TextBlock Text="⌘1…4" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                           Foreground="{DynamicResource TextPrimary}" />
+              </Border>
+              <TextBlock Text="Switch views" Foreground="{DynamicResource TextMuted}" FontSize="12.5"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,18,8">
+              <Border Background="{DynamicResource ElevatedBg}" CornerRadius="6" Padding="8,4">
+                <TextBlock Text="⌘⇧T" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                           Foreground="{DynamicResource TextPrimary}" />
+              </Border>
+              <TextBlock Text="Open SSH session" Foreground="{DynamicResource TextMuted}" FontSize="12.5"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,18,8">
+              <Border Background="{DynamicResource ElevatedBg}" CornerRadius="6" Padding="8,4">
+                <TextBlock Text="⌘E" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                           Foreground="{DynamicResource TextPrimary}" />
+              </Border>
+              <TextBlock Text="Export CSV" Foreground="{DynamicResource TextMuted}" FontSize="12.5"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,18,8">
+              <Border Background="{DynamicResource ElevatedBg}" CornerRadius="6" Padding="8,4">
+                <TextBlock Text="⌘Z" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5"
+                           Foreground="{DynamicResource TextPrimary}" />
+              </Border>
+              <TextBlock Text="Restore latest backup" Foreground="{DynamicResource TextMuted}" FontSize="12.5"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+          </WrapPanel>
+        </StackPanel>
+
+        <!-- Troubleshooting -->
+        <StackPanel Spacing="8">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <Border Width="30" Height="30" CornerRadius="8" Background="#3A2E1A">
+              <Path Data="M22.61,19L13.53,9.91C14.46,7.57 14,4.81 12.24,3.05C10.42,1.23 7.65,0.81 5.26,1.75L9.13,5.62L6.5,8.25L2.63,4.38C1.69,6.77 2.11,9.54 3.93,11.36C5.69,13.12 8.45,13.56 10.79,12.63L19.88,21.72C20.27,22.11 20.9,22.11 21.29,21.72L22.61,20.4C23,20 23,19.39 22.61,19Z"
+                    Fill="#E0AF68" Width="16" Height="16" Stretch="Uniform"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <TextBlock Text="Troubleshooting" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center"
+                       Foreground="{DynamicResource TextPrimary}" />
+          </StackPanel>
+          <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource TextMuted}" LineHeight="21">
+            <Run Text="• Test connection uses " />
+            <Run Text="/usr/bin/nc" FontFamily="SF Mono, Menlo, monospace"
+                 Foreground="{DynamicResource AccentBrush}" />
+            <Run Text=" on macOS, so local hosts work without Local Network permission." />
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource TextMuted}" LineHeight="21">
+            <Run Text="• If a session fails, run " />
+            <Run Text="ssh -v &lt;host&gt;" FontFamily="SF Mono, Menlo, monospace"
+                 Foreground="{DynamicResource AccentBrush}" />
+            <Run Text=" in the terminal to see the reason; the app uses the same ssh binary and config." />
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource TextMuted}" LineHeight="21">
+            <Run Text="• Errors are written to " />
+            <Run Text="~/Library/Application Support/SshDashboard/error.log" FontFamily="SF Mono, Menlo, monospace"
+                 Foreground="{DynamicResource AccentBrush}" />
+            <Run Text="." />
+          </TextBlock>
+        </StackPanel>
+
+        <!-- Footer -->
+        <Border BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,1,0,0" Padding="0,16,0,0">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock x:Name="VersionText" Text="SSH Dashboard" FontSize="11.5"
+                       Foreground="{DynamicResource TextFaint}" VerticalAlignment="Center" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+              <Button Content="Open repository" Click="Repo_Click" Classes="ghost" />
+              <Button Content="Report an issue" Click="Issues_Click" Classes="ghost" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</Window>
