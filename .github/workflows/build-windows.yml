@@ -34,8 +34,17 @@ jobs:
       - name: Smoke-test the frozen executable
         shell: pwsh
         run: |
-          & "dist\SSH Dashboard\SSH Dashboard.exe" --check
-          if ($LASTEXITCODE -ne 0) { throw "Frozen --check failed with $LASTEXITCODE" }
+          # A GUI-subsystem exe is not waited on by `&`, so use Start-Process.
+          $out = Join-Path $PWD "check-output.txt"
+          $err = Join-Path $PWD "check-error.txt"
+          $p = Start-Process -FilePath "dist\SSH Dashboard\SSH Dashboard.exe" `
+            -ArgumentList "--check" -Wait -PassThru `
+            -RedirectStandardOutput $out -RedirectStandardError $err
+          Get-Content $out
+          if ($p.ExitCode -ne 0) {
+            Get-Content $err
+            throw "Frozen --check failed with exit code $($p.ExitCode)"
+          }
 
       - name: Zip the build
         shell: pwsh
