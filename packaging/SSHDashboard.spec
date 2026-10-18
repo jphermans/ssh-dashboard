@@ -61,9 +61,13 @@ if sys.platform == "darwin":
         info_plist={
             "CFBundleName": "SSH Dashboard",
             "CFBundleDisplayName": "SSH Dashboard",
-            "CFBundleShortVersionString": "1.0.1",
+            "CFBundleShortVersionString": "1.0.2",
             "CFBundleVersion": "1",
             "NSHighResolutionCapable": True,
+            "NSLocalNetworkUsageDescription": (
+                "SSH Dashboard tests TCP connections to hosts from your SSH "
+                "configuration, including servers on your local network."
+            ),
             "LSMinimumSystemVersion": "11.0",
             "NSHumanReadableCopyright": "© 2026 JPHsystems",
         },

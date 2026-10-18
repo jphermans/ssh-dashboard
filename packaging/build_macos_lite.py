@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 APP_NAME = "SSH Dashboard"
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 BUNDLE_ID = "io.jphsystems.sshdashboard"
 APP = DIST / f"{APP_NAME}.app"
 ICNS = ROOT / "sshdash" / "ui" / "assets" / "SSHDashboard.icns"
@@ -172,6 +172,10 @@ def main() -> None:
         "CFBundleInfoDictionaryVersion": "6.0",
         "LSMinimumSystemVersion": "11.0",
         "NSHighResolutionCapable": True,
+        "NSLocalNetworkUsageDescription": (
+            "SSH Dashboard tests TCP connections to hosts from your SSH "
+            "configuration, including servers on your local network."
+        ),
         "NSHumanReadableCopyright": "\u00a9 2026 JPHsystems",
     }
     with (APP / "Contents" / "Info.plist").open("wb") as handle:

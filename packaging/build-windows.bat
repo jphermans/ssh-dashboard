@@ -30,9 +30,9 @@ copy /y README.md dist\windows\ >nul
 xcopy /e /i /q /y sshdash dist\windows\sshdash >nul
 if exist dist\windows\sshdash\__pycache__ rmdir /s /q dist\windows\sshdash\__pycache__
 
-powershell -NoProfile -Command "Compress-Archive -Path 'dist\windows\*' -DestinationPath 'dist\SSH-Dashboard-1.0.1-windows-x64.zip' -Force"
+powershell -NoProfile -Command "Compress-Archive -Path 'dist\windows\*' -DestinationPath 'dist\SSH-Dashboard-1.0.2-windows-x64.zip' -Force"
 
 echo.
 for %%F in ("SSH Dashboard.exe") do echo Launcher: %%~zF bytes
-echo Package:  dist\SSH-Dashboard-1.0.1-windows-x64.zip
+echo Package:  dist\SSH-Dashboard-1.0.2-windows-x64.zip
 echo Note:     Python 3.9+ with Tk 8.6 is required on the target PC.
