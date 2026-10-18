@@ -61,7 +61,7 @@ if sys.platform == "darwin":
         info_plist={
             "CFBundleName": "SSH Dashboard",
             "CFBundleDisplayName": "SSH Dashboard",
-            "CFBundleShortVersionString": "1.0.2",
+            "CFBundleShortVersionString": "1.0.3",
             "CFBundleVersion": "1",
             "NSHighResolutionCapable": True,
             "NSLocalNetworkUsageDescription": (

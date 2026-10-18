@@ -35,7 +35,7 @@ def human_time(timestamp: float) -> str:
 class Settings:
     """User preferences, persisted as JSON."""
 
-    theme: str = "dark"
+    theme: str = "system"  # system | dark | light
     last_view: str = "hosts"
     window: str = ""
     confirm_before_delete: bool = True

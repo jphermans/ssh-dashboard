@@ -3,8 +3,8 @@
 101 ICON "../../sshdash/ui/assets/SSHDashboard.ico"
 
 1 VERSIONINFO
-FILEVERSION 1,0,2,0
-PRODUCTVERSION 1,0,2,0
+FILEVERSION 1,0,3,0
+PRODUCTVERSION 1,0,3,0
 FILEOS 0x40004L
 FILETYPE 0x1L
 BEGIN
@@ -14,11 +14,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "JPHsystems"
             VALUE "FileDescription", "SSH Dashboard launcher"
-            VALUE "FileVersion", "1.0.2"
+            VALUE "FileVersion", "1.0.3"
             VALUE "InternalName", "SSH Dashboard"
             VALUE "OriginalFilename", "SSH Dashboard.exe"
             VALUE "ProductName", "SSH Dashboard"
-            VALUE "ProductVersion", "1.0.2"
+            VALUE "ProductVersion", "1.0.3"
         END
     END
     BLOCK "VarFileInfo"

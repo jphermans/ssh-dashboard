@@ -1038,16 +1038,16 @@ class SettingsDialog(Dialog):
         self._section("Appearance")
         row = tk.Frame(self._shell, bg=p.bg)
         row.pack(fill="x")
-        for key, label in (("dark", "Dark"), ("light", "Light")):
+        for key, label in (("system", "System"), ("dark", "Dark"), ("light", "Light")):
             button = CanvasButton(
                 row, label, command=lambda k=key: self._select_theme(k),
                 palette=p, fonts=f, kind="primary" if key == self._theme else "ghost",
-                height=34, width=104, bg=p.bg,
+                height=34, width=98, bg=p.bg,
             )
             button.pack(side="left", padx=(0, 8))
             self._theme_buttons[key] = button
         tk.Label(
-            row, text="Applies immediately after saving.", bg=p.bg, fg=p.faint,
+            row, text="System follows the OS appearance.", bg=p.bg, fg=p.faint,
             font=f.tiny,
         ).pack(side="left", padx=(6, 0))
 

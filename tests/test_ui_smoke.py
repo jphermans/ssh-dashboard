@@ -110,12 +110,21 @@ class DashboardSmokeTests(unittest.TestCase):
 
     def test_theme_toggle_rebuilds(self) -> None:
         before = self.app.palette.key
-        self.app._toggle_theme()
+        self.app._set_theme("light")
         self.app.update()
-        self.assertNotEqual(self.app.palette.key, before)
-        self.app._toggle_theme()
+        self.assertEqual(self.app.palette.key, "light")
+        self.app._set_theme("dark")
         self.app.update()
-        self.assertEqual(self.app.palette.key, before)
+        self.assertEqual(self.app.palette.key, "dark")
+        self.assertEqual(self.app.settings.theme, "dark")
+
+    def test_system_theme_mode(self) -> None:
+        from sshdash.appearance import system_theme
+
+        self.app._set_theme("system")
+        self.app.update()
+        self.assertEqual(self.app.settings.theme, "system")
+        self.assertEqual(self.app.palette.key, system_theme())
 
     def test_menubar_and_state(self) -> None:
         labels = [

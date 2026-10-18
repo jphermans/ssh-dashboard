@@ -15,8 +15,8 @@
   <img alt="Linux" src="https://img.shields.io/badge/Linux-supported-11171F?logo=linux&logoColor=white">
   <img alt="Python" src="https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white">
   <img alt="Tk" src="https://img.shields.io/badge/Tk-8.6%2B-4C8DFF">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-43%20passing-3FCF8E">
-  <img alt="Version" src="https://img.shields.io/badge/version-1.0.2-4C8DFF">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-49%20passing-3FCF8E">
+  <img alt="Version" src="https://img.shields.io/badge/version-1.0.3-4C8DFF">
   <a href="https://github.com/jphermans/ssh-dashboard/actions/workflows/build-windows.yml">
     <img alt="Windows build" src="https://github.com/jphermans/ssh-dashboard/actions/workflows/build-windows.yml/badge.svg">
   </a>
@@ -80,8 +80,10 @@ Built with the Python standard library only — Tkinter, no third-party runtime.
   Linux the same menus render in-window with `Ctrl` accelerators.
 - **Export** — write the visible rows of any view to CSV.
 - **Activity journal** — every destructive action is logged locally.
-- **Light and dark themes** — a slate dark theme and a grey-blue light theme,
-  both hand-drawn; no native widget colours leak through.
+- **System, light and dark themes** — System follows the macOS/Windows
+  appearance (including changes while the app is open); dark is a slate theme,
+  light a grey-blue one. The choice is stored in settings and restored on the
+  next launch.
 - **Cross-platform** — macOS, Windows and Linux; per-monitor DPI aware on
   Windows with a taskbar icon.
 
@@ -93,7 +95,7 @@ when none is found.
 
 ### macOS (~1 MB)
 
-1. Download `SSH-Dashboard-1.0.2-macOS-lite.dmg` from
+1. Download `SSH-Dashboard-1.0.3-macOS-lite.dmg` from
    [Releases](https://github.com/jphermans/ssh-dashboard/releases/latest).
 2. Open the DMG and drag **SSH Dashboard** into *Applications*.
 3. On first launch (and whenever the Python version changes) the app confirms
@@ -106,7 +108,7 @@ copy, right-click the app → **Open** once.
 
 ### Windows (small native launcher)
 
-1. Download `SSH-Dashboard-1.0.2-windows-x64.zip` from
+1. Download `SSH-Dashboard-1.0.3-windows-x64.zip` from
    [Releases](https://github.com/jphermans/ssh-dashboard/releases/latest).
 2. Extract the whole folder and run **SSH Dashboard.exe**.
 3. If Python is present, the launcher shows the detected version once per
@@ -220,7 +222,7 @@ docs/screenshots/         screenshots used above
 python3 -m unittest discover -s tests -v
 ```
 
-43 tests cover parsers, deletion, config editing, backups, permission and CRLF
+49 tests cover parsers, deletion, config editing, backups, permission, CRLF and appearance
 preservation, the runtime guard, the menu bar, dialogs, CSV export and a real
 window driven through every view. UI tests are skipped automatically without a
 display. Destructive probes run against a throwaway `HOME`, never your `~/.ssh`.

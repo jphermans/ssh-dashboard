@@ -24,6 +24,10 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "screenshots"
 OUT.mkdir(parents=True, exist_ok=True)
 
+# Preserve the developer's real appearance preference across the capture.
+SETTINGS = Path.home() / "Library" / "Application Support" / "SSHDashboard" / "settings.json"
+_ORIGINAL_SETTINGS = SETTINGS.read_bytes() if SETTINGS.exists() else None
+
 DEMO = Path(tempfile.mkdtemp(prefix="sshdash-demo-"))
 SSH = DEMO / ".ssh"
 SSH.mkdir(mode=0o700)
@@ -181,7 +185,7 @@ def dialog_window() -> dict:
 print("capturing…")
 
 # 1 — dark known hosts with a few rows ticked and details showing
-app._apply_theme("dark")
+app._set_theme("dark")
 app._switch_view("hosts")
 ticks = [row["iid"] for row in app.rows if row["values"][1] in ("prod-eu", "gitea")]
 app.selected["hosts"].update(ticks)
@@ -210,7 +214,7 @@ for child in app.winfo_children():
 app.update()
 
 # 4 — keys in the light theme
-app._apply_theme("light")
+app._set_theme("light")
 app._switch_view("keys")
 if app.rows:
     app.tree.selection_set(app.rows[0]["iid"])
@@ -238,5 +242,9 @@ settle()
 capture(main_window(), "activity-light.png")
 
 app._on_close()
+if _ORIGINAL_SETTINGS is not None:
+    SETTINGS.write_bytes(_ORIGINAL_SETTINGS)
+elif SETTINGS.exists():
+    SETTINGS.unlink()
 shutil.rmtree(DEMO, ignore_errors=True)
 print("done")

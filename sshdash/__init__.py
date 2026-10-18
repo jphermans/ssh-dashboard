@@ -13,5 +13,5 @@ The user interface lives in :mod:`sshdash.ui` and never touches the
 filesystem directly.
 """
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 __app_name__ = "SSH Dashboard"

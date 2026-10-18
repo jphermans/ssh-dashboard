@@ -20,6 +20,7 @@ from tkinter import ttk
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 from .. import __app_name__, __version__
+from ..appearance import PREFERENCES, resolve_theme
 from ..config import ActivityLog, Settings, human_time, support_dir
 from ..model import ConfigBlock, HostView, KeyInfo, Snapshot
 from ..store import SshStore, StoreError
@@ -252,7 +253,9 @@ class DashboardApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.settings = Settings.load()
-        self.palette = palette_for(self.settings.theme)
+        if self.settings.theme not in PREFERENCES:
+            self.settings.theme = "system"
+        self.palette = palette_for(resolve_theme(self.settings.theme))
         self.fonts = load_fonts(self)
         self._icon = load_icon(self, 512)
         self._about_icon = load_icon(self, 128)
@@ -304,6 +307,7 @@ class DashboardApp(tk.Tk):
         self._bind_keys()
         self._switch_view(self.view, initial=True)
         self.protocol("WM_DELETE_WINDOW", self._on_close)
+        self.after(5000, self._watch_system_theme)
 
     # ------------------------------------------------------------------
     # Window
@@ -417,9 +421,13 @@ class DashboardApp(tk.Tk):
             bg=p.panel, fg=p.text, font=f.mono_small, anchor="w",
         ).pack(fill="x", padx=12, pady=(1, 10))
 
-        theme_label = "Light mode" if self.settings.theme == "dark" else "Dark mode"
+        theme_label = {
+            "system": "System theme",
+            "dark": "Dark theme",
+            "light": "Light theme",
+        }.get(self.settings.theme, "System theme")
         CanvasButton(
-            footer, theme_label, command=self._toggle_theme,
+            footer, theme_label, command=self._cycle_theme,
             palette=p, fonts=f, kind="ghost", glyph="\u25d0", height=34, bg=p.sidebar,
         ).pack(fill="x")
 
@@ -1785,16 +1793,23 @@ class DashboardApp(tk.Tk):
             image=self._about_icon,
         ).present()
 
-    def _toggle_theme(self) -> None:
-        self._apply_theme("light" if self.settings.theme == "dark" else "dark")
-
-    def _apply_theme(self, theme: str) -> None:
-        if theme not in ("dark", "light"):
+    def _set_theme(self, preference: str) -> None:
+        """Store System/Dark/Light and rebuild with the resolved palette."""
+        if preference not in PREFERENCES:
             return
-        self.settings.theme = theme
+        self.settings.theme = preference
         self.settings.save()
-        self._theme_var.set(theme)
-        self.palette = palette_for(theme)
+        self._theme_var.set(preference)
+        self._rebuild_palette(resolve_theme(preference))
+
+    def _cycle_theme(self) -> None:
+        current = self.settings.theme if self.settings.theme in PREFERENCES else "system"
+        self._set_theme(PREFERENCES[(PREFERENCES.index(current) + 1) % len(PREFERENCES)])
+
+    def _rebuild_palette(self, resolved: str) -> None:
+        if resolved not in ("dark", "light"):
+            resolved = "light"
+        self.palette = palette_for(resolved)
         self.fonts = load_fonts(self)
         apply_ttk_styles(self, self.palette, self.fonts)
         query = self.query
@@ -1802,12 +1817,25 @@ class DashboardApp(tk.Tk):
         self._build_ui()
         self.search.set(query)
         self._switch_view(self.view)
-        self._theme_var.set(theme)
+        self._theme_var.set(self.settings.theme)
         if detail_key and detail_key in self._row_lookup:
             self.detail_key = detail_key
             self.tree.selection_set(detail_key)
             self.tree.focus(detail_key)
             self._show_detail(self._row_lookup[detail_key])
+
+    def _watch_system_theme(self) -> None:
+        """Follow macOS/Windows appearance changes while the app is open."""
+        try:
+            if self.settings.theme == "system":
+                modal_open = any(
+                    isinstance(child, tk.Toplevel) for child in self.winfo_children()
+                )
+                if not modal_open and resolve_theme("system") != self.palette.key:
+                    self._rebuild_palette(resolve_theme("system"))
+        except tk.TclError:
+            return
+        self.after(5000, self._watch_system_theme)
 
     # ------------------------------------------------------------------
     # Menu bar
@@ -1943,12 +1971,16 @@ class DashboardApp(tk.Tk):
         appearance = tk.Menu(view_menu, tearoff=0)
         view_menu.add_cascade(menu=appearance, label="Appearance")
         appearance.add_radiobutton(
+            label="System", value="system", variable=self._theme_var,
+            command=lambda: self._set_theme("system"),
+        )
+        appearance.add_radiobutton(
             label="Dark", value="dark", variable=self._theme_var,
-            command=lambda: self._apply_theme("dark"),
+            command=lambda: self._set_theme("dark"),
         )
         appearance.add_radiobutton(
             label="Light", value="light", variable=self._theme_var,
-            command=lambda: self._apply_theme("light"),
+            command=lambda: self._set_theme("light"),
         )
 
         # -- Tools --------------------------------------------------------
@@ -2135,8 +2167,8 @@ class DashboardApp(tk.Tk):
             dialog.result.get("remove_config_default", True)
         )
         self.settings.save()
-        if theme != self.palette.key:
-            self._apply_theme(theme)
+        if theme != self.settings.theme:
+            self._set_theme(theme)
         else:
             self._theme_var.set(theme)
             self.toast.show("Settings saved", tone="success")
