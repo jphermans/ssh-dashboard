@@ -1,0 +1,51 @@
+name: Build Windows executable
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller
+
+      - name: Run test suite
+        env:
+          SSHDASH_SKIP_UI: "1"
+        run: python -m unittest discover -s tests -v
+
+      - name: Build the executable
+        run: python -m PyInstaller --noconfirm --clean packaging/SSHDashboard.spec
+
+      - name: Smoke-test the frozen executable
+        shell: pwsh
+        run: |
+          & "dist\SSH Dashboard\SSH Dashboard.exe" --check
+          if ($LASTEXITCODE -ne 0) { throw "Frozen --check failed with $LASTEXITCODE" }
+
+      - name: Zip the build
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "dist\SSH Dashboard\*" `
+            -DestinationPath "SSH-Dashboard-1.0.0-windows-x64.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SSH-Dashboard-1.0.0-windows-x64
+          path: SSH-Dashboard-1.0.0-windows-x64.zip
+          if-no-files-found: error
