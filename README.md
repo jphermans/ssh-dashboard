@@ -104,7 +104,7 @@ when none is found.
 The bundle is ad-hoc signed and not notarized. If macOS quarantines a downloaded
 copy, right-click the app → **Open** once.
 
-### Windows (~70 KB launcher)
+### Windows (small native launcher)
 
 1. Download `SSH-Dashboard-1.0.1-windows-x64.zip` from
    [Releases](https://github.com/jphermans/ssh-dashboard/releases/latest).
@@ -231,12 +231,12 @@ The default builds are lightweight and require Python on the target machine:
 
 ```bash
 python3 packaging/build_macos_lite.py     # ~1 MB .app + zip
-./packaging/build_windows_lite.sh         # mingw cross-build, ~70 KB launcher
+./packaging/build_windows_lite.sh         # mingw cross-build, ~220 KB launcher
 packaging\build-windows.bat               # MSVC build on Windows
 ```
 
 The Windows CI workflow builds the launcher on a real Windows runner, runs the
-test suite and checks that the executable stays under 300 KB.
+test suite and checks that the executable stays under 300 KB (currently ~218 KB).
 
 A fully self-contained PyInstaller build is still available for machines without
 Python (much larger, ~30 MB):
