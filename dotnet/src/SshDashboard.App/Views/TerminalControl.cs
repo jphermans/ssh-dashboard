@@ -210,9 +210,18 @@ public sealed class TerminalControl : Control
             return;
         }
 
+        var shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        var alt = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
+        if (shift && e.Key == Key.Tab)
+        {
+            Send("\u001b[Z");
+            e.Handled = true;
+            return;
+        }
+
         string? sequence = e.Key switch
         {
-            Key.Enter => "\r",
+            Key.Enter => alt ? "\u001b\r" : "\r",
             Key.Back => "\u007f",
             Key.Tab => "\t",
             Key.Escape => "\u001b",
@@ -229,6 +238,14 @@ public sealed class TerminalControl : Control
             Key.F2 => "\u001bOQ",
             Key.F3 => "\u001bOR",
             Key.F4 => "\u001bOS",
+            Key.F5 => "\u001b[15~",
+            Key.F6 => "\u001b[17~",
+            Key.F7 => "\u001b[18~",
+            Key.F8 => "\u001b[19~",
+            Key.F9 => "\u001b[20~",
+            Key.F10 => "\u001b[21~",
+            Key.F11 => "\u001b[23~",
+            Key.F12 => "\u001b[24~",
             _ => null,
         };
 
@@ -248,6 +265,12 @@ public sealed class TerminalControl : Control
         if (ctrl && e.Key == Key.Space)
         {
             Send("\0");
+            e.Handled = true;
+            return;
+        }
+        if (alt && e.Key is >= Key.A and <= Key.Z)
+        {
+            Send("\u001b" + (char)('a' + (e.Key - Key.A)));
             e.Handled = true;
         }
     }

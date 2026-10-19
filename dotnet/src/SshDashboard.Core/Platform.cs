@@ -270,6 +270,10 @@ public sealed class Settings
     public string LastView { get; set; } = "hosts";
     public bool ConfirmDelete { get; set; } = true;
     public bool RemoveConfigDefault { get; set; } = true;
+    public double WindowWidth { get; set; }
+    public double WindowHeight { get; set; }
+    public int WindowX { get; set; } = int.MinValue;
+    public int WindowY { get; set; } = int.MinValue;
 
     public static Settings Load()
     {

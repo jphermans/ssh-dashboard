@@ -50,9 +50,35 @@ public partial class MainWindow : Window
         };
 
         _vm.Load();
+        RestoreGeometry(vm.Settings);
+        Closing += (_, _) => SaveGeometry(vm.Settings);
         ShowView(_vm.ActiveView, syncNav: true);
         _themeTimer.Start();
         AddHandler(KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
+    }
+
+    private void RestoreGeometry(Settings settings)
+    {
+        if (settings.WindowWidth >= MinWidth && settings.WindowHeight >= MinHeight)
+        {
+            Width = settings.WindowWidth;
+            Height = settings.WindowHeight;
+        }
+        if (settings.WindowX != int.MinValue && settings.WindowY != int.MinValue)
+        {
+            var point = new PixelPoint(settings.WindowX, settings.WindowY);
+            if (Screens.ScreenFromPoint(point) is not null) Position = point;
+        }
+    }
+
+    private void SaveGeometry(Settings settings)
+    {
+        if (WindowState != WindowState.Normal) return;
+        settings.WindowWidth = Width;
+        settings.WindowHeight = Height;
+        settings.WindowX = Position.X;
+        settings.WindowY = Position.Y;
+        settings.Save();
     }
 
     public void ShowViewForCapture(string key) => ShowView(key, syncNav: true);

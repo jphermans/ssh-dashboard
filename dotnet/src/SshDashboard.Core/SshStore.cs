@@ -24,6 +24,7 @@ public sealed class SshStore
 
     public Snapshot Load()
     {
+        PruneBackups();
         var snapshot = new Snapshot();
         snapshot.KnownHosts.AddRange(KnownHostsParser.ParseFile(KnownHostsPath));
         snapshot.Blocks.AddRange(ConfigParser.ParseFile(ConfigPath, followIncludes: true).Blocks);
@@ -281,6 +282,25 @@ public sealed class SshStore
         }
         if (restored > 0) _log.Append("undo", $"{restored} file(s)");
         return restored;
+    }
+
+    /// <summary>Keeps the backup folder bounded: 30 days and at most 200 files.</summary>
+    public void PruneBackups()
+    {
+        try
+        {
+            if (!Directory.Exists(BackupsDir)) return;
+            var files = new DirectoryInfo(BackupsDir).GetFiles()
+                .OrderByDescending(f => f.LastWriteTimeUtc)
+                .ToList();
+            var cutoff = DateTime.UtcNow.AddDays(-30);
+            for (var i = 0; i < files.Count; i++)
+            {
+                if (i < 200 && files[i].LastWriteTimeUtc >= cutoff) continue;
+                try { files[i].Delete(); } catch { }
+            }
+        }
+        catch { }
     }
 
     public void RestoreBackup(string backupPath)
