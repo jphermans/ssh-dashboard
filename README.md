@@ -75,7 +75,8 @@ All builds are self-contained — no .NET runtime required on the target.
 | Platform | File |
 | --- | --- |
 | macOS 12+ (Apple Silicon + Intel) | [`SSH-Dashboard-2.1.4-macOS-universal.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SSH-Dashboard-2.1.4-macOS-universal.dmg) |
-| Windows 10/11 x64 | [`SSH-Dashboard-2.1.4-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SSH-Dashboard-2.1.4-windows-x64.zip) |
+| Windows 10/11 x64 — installer | [`SSH-Dashboard-2.1.4-Setup.exe`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SSH-Dashboard-2.1.4-Setup.exe) |
+| Windows 10/11 x64 — portable | [`SSH-Dashboard-2.1.4-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SSH-Dashboard-2.1.4-windows-x64.zip) |
 | Linux x64 | [`SSH-Dashboard-2.1.4-linux-x64.tar.gz`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SSH-Dashboard-2.1.4-linux-x64.tar.gz) |
 
 Checksums: [`SHA256SUMS-2.1.4.txt`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SHA256SUMS-2.1.4.txt).
