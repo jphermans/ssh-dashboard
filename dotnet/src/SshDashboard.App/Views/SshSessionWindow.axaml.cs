@@ -141,6 +141,7 @@ public partial class SshSessionWindow : Window
             ? "Session ended."
             : $"ssh exited with code {code}.");
         CleanupKey();
+        if (code != 0) return; // keep the window so the error stays readable
         DispatcherTimer.RunOnce(() =>
         {
             if (IsVisible) Close();

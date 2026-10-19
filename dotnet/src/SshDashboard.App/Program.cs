@@ -28,6 +28,14 @@ internal static class Program
             LogCrash(e.Exception);
             e.SetObserved();
         };
+        PpkFile.CleanupTemporaryKeys();
+        if (args.Length == 0)
+        {
+            using var single = new Mutex(true, "SshDashboard.SingleInstance", out var first);
+            if (!first) return;
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            return;
+        }
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 

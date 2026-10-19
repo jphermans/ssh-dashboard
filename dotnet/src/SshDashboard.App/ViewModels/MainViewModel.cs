@@ -95,7 +95,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public string DetailBody { get => _detailBody; private set { _detailBody = value; Raise(); } }
     public string DetailKind { get => _detailKind; private set { _detailKind = value; Raise(); } }
 
-    public bool ShowTestAction => DetailKind == "host";
+    public bool ShowTestAction => DetailKind == "host" && SelectedHost is { IsHashed: false };
     public bool ShowEditAction => DetailKind == "config";
     public bool ShowRevealAction => DetailKind == "key";
 
@@ -231,6 +231,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
             };
             if (SelectedHost.ConfigStarts.Count > 0)
                 lines.Add($"Config     {SelectedHost.ConfigStarts.Count} matching Host block(s)");
+            if (SelectedHost.IsHashed)
+            {
+                lines.Insert(0, "Hashed known_hosts entry");
+                lines.Add("The hostname cannot be resolved from a hash.");
+                lines.Add("Delete removes the whole line.");
+            }
             DetailBody = string.Join("\n", lines);
         }
         else if (SelectedBlock is not null)

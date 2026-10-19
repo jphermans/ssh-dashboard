@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace SshDashboard.Core;
@@ -52,24 +53,37 @@ public static partial class KnownHostsParser
 
     public static int RemoveLines(string path, ISet<string> tokens)
     {
-        var text = TextIO.ReadText(path);
-        var newline = TextIO.Newline(text);
-        var entries = Parse(text);
-        var remove = entries
+        // Byte-level rewrite: lines that are kept keep their exact bytes, so a
+        // non-UTF-8 comment or key is never replaced or corrupted.
+        var bytes = File.ReadAllBytes(path);
+        var segments = new List<(int Start, int Length)>();
+        var start = 0;
+        for (var i = 0; i < bytes.Length; i++)
+        {
+            if (bytes[i] != (byte)'\n') continue;
+            segments.Add((start, i - start));
+            start = i + 1;
+        }
+        if (start < bytes.Length) segments.Add((start, bytes.Length - start));
+
+        var text = Encoding.UTF8.GetString(bytes);
+        var remove = Parse(text)
             .Where(e => e.Tokens.Any(tokens.Contains))
             .Select(e => e.Index)
             .ToHashSet();
         if (remove.Count == 0) return 0;
 
-        var lines = TextIO.SplitLines(text);
-        var kept = new List<string>();
-        for (var i = 0; i < lines.Count; i++)
-            if (!remove.Contains(i)) kept.Add(lines[i]);
-
-        var joined = TextIO.JoinLines(kept, newline);
-        if (text.EndsWith(newline, StringComparison.Ordinal) && !joined.EndsWith(newline, StringComparison.Ordinal))
-            joined += newline;
-        File.WriteAllText(path, joined);
+        using var output = new MemoryStream();
+        var first = true;
+        for (var i = 0; i < segments.Count; i++)
+        {
+            if (remove.Contains(i)) continue;
+            if (!first) output.WriteByte((byte)'\n');
+            output.Write(bytes, segments[i].Start, segments[i].Length);
+            first = false;
+        }
+        if (!first && bytes.Length > 0 && bytes[^1] == (byte)'\n') output.WriteByte((byte)'\n');
+        File.WriteAllBytes(path, output.ToArray());
         return remove.Count;
     }
 }
@@ -77,6 +91,7 @@ public static partial class KnownHostsParser
 public sealed class ConfigParseResult
 {
     public List<ConfigBlock> Blocks { get; } = new();
+    public List<string> Includes { get; } = new();
     public bool HasInclude { get; set; }
 }
 
@@ -85,7 +100,7 @@ public static partial class ConfigParser
     [GeneratedRegex(@"^\s*(host|match|include)\b", RegexOptions.IgnoreCase)]
     private static partial Regex BlockStartRegex();
 
-    public static ConfigParseResult Parse(string text)
+    public static ConfigParseResult Parse(string text, string sourceFile = "", bool included = false)
     {
         var result = new ConfigParseResult();
         var lines = TextIO.SplitLines(text);
@@ -96,7 +111,7 @@ public static partial class ConfigParser
         void Close(int end)
         {
             if (start < 0) return;
-            result.Blocks.Add(Build(lines, start, end, header, isMatch));
+            result.Blocks.Add(Build(lines, start, end, header, isMatch, sourceFile, included));
             start = -1;
         }
 
@@ -110,6 +125,8 @@ public static partial class ConfigParser
                 if (keyword == "include")
                 {
                     result.HasInclude = true;
+                    var tail = trimmed.Length > 7 ? trimmed[7..].Trim() : "";
+                    result.Includes.AddRange(tail.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
                     Close(i - 1);
                     continue;
                 }
@@ -129,7 +146,8 @@ public static partial class ConfigParser
         return result;
     }
 
-    private static ConfigBlock Build(List<string> lines, int start, int end, string header, bool isMatch)
+    private static ConfigBlock Build(List<string> lines, int start, int end, string header, bool isMatch,
+        string sourceFile, bool included)
     {
         var patterns = new List<string>();
         var headerText = lines[start].Trim();
@@ -172,9 +190,80 @@ public static partial class ConfigParser
             Options = options,
             IsMatch = isMatch,
             IsGlobal = isGlobal,
+            SourceFile = sourceFile,
+            IsIncluded = included,
         };
     }
 
-    public static ConfigParseResult ParseFile(string path) =>
-        Parse(TextIO.ReadText(path));
+    public static ConfigParseResult ParseFile(string path, bool followIncludes = false)
+    {
+        var result = Parse(TextIO.ReadText(path), path, included: false);
+        if (!followIncludes) return result;
+        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { Path.GetFullPath(path) };
+        LoadIncludes(result, Path.GetDirectoryName(path) ?? PlatformInfo.SshDir, 0, visited);
+        return result;
+    }
+
+    private static void LoadIncludes(ConfigParseResult result, string baseDirectory, int depth,
+        HashSet<string> visited)
+    {
+        if (depth > 4) return;
+        var patterns = result.Includes.ToList();
+        result.Includes.Clear();
+        foreach (var pattern in patterns)
+        {
+            foreach (var file in ExpandInclude(baseDirectory, pattern))
+            {
+                string full;
+                try { full = Path.GetFullPath(file); } catch { continue; }
+                if (!visited.Add(full) || !File.Exists(full)) continue;
+                var included = ParseFile(full, followIncludes: false);
+                foreach (var block in included.Blocks)
+                {
+                    result.Blocks.Add(new ConfigBlock
+                    {
+                        StartLine = block.StartLine,
+                        EndLine = block.EndLine,
+                        Header = block.Header,
+                        Patterns = block.Patterns,
+                        Options = block.Options,
+                        IsMatch = block.IsMatch,
+                        IsGlobal = block.IsGlobal,
+                        SourceFile = full,
+                        IsIncluded = true,
+                    });
+                }
+                result.HasInclude = true;
+                var nested = included.Includes.ToList();
+                if (nested.Count > 0)
+                {
+                    var child = new ConfigParseResult();
+                    child.Includes.AddRange(nested);
+                    LoadIncludes(child, Path.GetDirectoryName(full) ?? baseDirectory, depth + 1, visited);
+                    result.Blocks.AddRange(child.Blocks);
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<string> ExpandInclude(string baseDirectory, string pattern)
+    {
+        var value = pattern.Trim().Trim('"');
+        if (value.StartsWith("~/", StringComparison.Ordinal))
+            value = Path.Combine(PlatformInfo.Home, value[2..]);
+        else if (!Path.IsPathRooted(value))
+            value = Path.Combine(baseDirectory, value);
+
+        var directory = Path.GetDirectoryName(value);
+        var filePattern = Path.GetFileName(value);
+        if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory)) yield break;
+        if (filePattern.IndexOfAny(new[] { '*', '?' }) >= 0)
+        {
+            foreach (var match in Directory.EnumerateFiles(directory, filePattern)) yield return match;
+        }
+        else if (File.Exists(value))
+        {
+            yield return value;
+        }
+    }
 }

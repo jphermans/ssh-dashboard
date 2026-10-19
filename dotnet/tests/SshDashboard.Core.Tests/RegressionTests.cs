@@ -1,0 +1,92 @@
+using SshDashboard.Core;
+using Xunit;
+
+namespace SshDashboard.Core.Tests;
+
+public class RegressionTests : IDisposable
+{
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), "sshdash-reg-" + Guid.NewGuid().ToString("N"));
+
+    public RegressionTests() => Directory.CreateDirectory(_dir);
+
+    public void Dispose()
+    {
+        try { Directory.Delete(_dir, true); } catch { }
+    }
+
+    private SshStore Store() => new(_dir);
+
+    [Fact]
+    public void HashedKnownHostEntryIsListedAndRemovable()
+    {
+        var line = "|1|c2FsdA==|aGFzaA== ssh-ed25519 AAAAC3Nza";
+        File.WriteAllText(Path.Combine(_dir, "known_hosts"), line + "\n");
+        var store = Store();
+        var snapshot = store.Load();
+
+        var row = Assert.Single(snapshot.Hosts);
+        Assert.True(row.IsHashed);
+        Assert.Equal("known_hosts", row.Source);
+        Assert.Equal(line.Split(' ')[0], Assert.Single(row.KnownTokens));
+
+        store.DeleteHosts(new[] { row }, removeConfig: false);
+        Assert.Equal("", File.ReadAllText(Path.Combine(_dir, "known_hosts")));
+    }
+
+    [Fact]
+    public void IncludedConfigIsParsedReadOnly()
+    {
+        Directory.CreateDirectory(Path.Combine(_dir, "config.d"));
+        File.WriteAllText(Path.Combine(_dir, "config"),
+            "Include config.d/*.conf\n\nHost main\n  HostName 192.0.2.1\n");
+        File.WriteAllText(Path.Combine(_dir, "config.d", "lab.conf"),
+            "Host lab\n  HostName 192.0.2.50\n  User jean\n");
+
+        var snapshot = Store().Load();
+        var included = snapshot.Blocks.Single(b => b.Label == "lab");
+        Assert.True(included.IsIncluded);
+        Assert.False(included.IsEditable);
+        var row = snapshot.Hosts.Single(h => h.Address == "192.0.2.50");
+        Assert.Equal("lab", row.Label);
+        Assert.Equal("jean", row.User);
+    }
+
+    [Fact]
+    public void UndoRestoresEveryFileTouchedByOneAction()
+    {
+        var known = Path.Combine(_dir, "known_hosts");
+        var config = Path.Combine(_dir, "config");
+        File.WriteAllText(known, "192.0.2.10 ssh-ed25519 AAAAC3Nza\n");
+        File.WriteAllText(config, "Host lab\n  HostName 192.0.2.10\n");
+
+        var store = Store();
+        var row = store.Load().Hosts.Single(h => h.Address == "192.0.2.10");
+        var result = store.DeleteHosts(new[] { row }, removeConfig: true);
+        Assert.Equal(2, result.Backups.Count);
+        Assert.DoesNotContain("192.0.2.10", File.ReadAllText(known));
+        Assert.DoesNotContain("Host lab", File.ReadAllText(config));
+
+        Assert.Equal(2, store.UndoLast());
+        Assert.Contains("192.0.2.10", File.ReadAllText(known));
+        Assert.Contains("Host lab", File.ReadAllText(config));
+    }
+
+    [Fact]
+    public void RemovingALinePreservesInvalidBytesElsewhere()
+    {
+        var path = Path.Combine(_dir, "known_hosts");
+        var bytes = new List<byte>();
+        bytes.AddRange(System.Text.Encoding.ASCII.GetBytes("# caf"));
+        bytes.Add(0xE9); // not valid UTF-8
+        bytes.AddRange(System.Text.Encoding.ASCII.GetBytes(" comment\n192.0.2.20 ssh-ed25519 AAAAC3Nza\n"));
+        File.WriteAllBytes(path, bytes.ToArray());
+
+        var removed = KnownHostsParser.RemoveLines(path,
+            new HashSet<string> { "192.0.2.20" });
+
+        Assert.Equal(1, removed);
+        var after = File.ReadAllBytes(path);
+        Assert.Contains((byte)0xE9, after);
+        Assert.DoesNotContain("192.0.2.20", System.Text.Encoding.ASCII.GetString(after));
+    }
+}

@@ -78,10 +78,12 @@ public sealed class ConfigBlock
     public IReadOnlyList<ConfigOption> Options { get; init; } = Array.Empty<ConfigOption>();
     public bool IsMatch { get; init; }
     public bool IsGlobal { get; init; }
+    public string SourceFile { get; init; } = "";
+    public bool IsIncluded { get; init; }
 
     public string Label => Patterns.Count == 0 ? Header : string.Join(" ", Patterns);
-    public bool IsEditable => !IsMatch && !IsGlobal && Patterns.Count > 0;
-    public string State => IsMatch ? "Match" : IsGlobal ? "Default" : "Editable";
+    public bool IsEditable => !IsIncluded && !IsMatch && !IsGlobal && Patterns.Count > 0;
+    public string State => IsIncluded ? "Included" : IsMatch ? "Match" : IsGlobal ? "Default" : "Editable";
 
     public string? Option(string key) =>
         Options.FirstOrDefault(o => o.Key.Equals(key, StringComparison.OrdinalIgnoreCase))?.Value;
@@ -131,6 +133,7 @@ public sealed class HostRow : System.ComponentModel.INotifyPropertyChanged
     public string IdentityFile { get; set; } = "";
     public string Source { get; set; } = "";
     public bool InKnownHosts { get; set; }
+    public bool IsHashed { get; set; }
     public bool InConfig { get; set; }
     public List<string> KnownTokens { get; } = new();
     public List<int> ConfigStarts { get; } = new();

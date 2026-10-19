@@ -32,6 +32,19 @@ public sealed class PpkFile
     public string Access => IsEncrypted ? "PPK · passphrase" : "PPK · unencrypted";
     public string Fingerprint => KeyScanner.Fingerprint(Convert.ToBase64String(PublicBlob));
 
+    /// <summary>Removes temporary OpenSSH keys left behind by an earlier run.</summary>
+    public static int CleanupTemporaryKeys()
+    {
+        var directory = System.IO.Path.Combine(PlatformInfo.SupportDir, "keys");
+        if (!Directory.Exists(directory)) return 0;
+        var removed = 0;
+        foreach (var file in Directory.EnumerateFiles(directory, "ppk-*"))
+        {
+            try { File.Delete(file); removed++; } catch { }
+        }
+        return removed;
+    }
+
     public static bool LooksLikePpk(string path) =>
         path.EndsWith(".ppk", StringComparison.OrdinalIgnoreCase) && File.Exists(path);
 

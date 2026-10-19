@@ -19,11 +19,14 @@ public sealed class SshStore
     public string ConfigPath => Path.Combine(SshDir, "config");
     public string BackupsDir => Path.Combine(SshDir, ".sshdashboard", "backups");
 
+    /// <summary>Backups created by the most recent mutating action.</summary>
+    public IReadOnlyList<string> LastActionBackups { get; private set; } = Array.Empty<string>();
+
     public Snapshot Load()
     {
         var snapshot = new Snapshot();
         snapshot.KnownHosts.AddRange(KnownHostsParser.ParseFile(KnownHostsPath));
-        snapshot.Blocks.AddRange(ConfigParser.ParseFile(ConfigPath).Blocks);
+        snapshot.Blocks.AddRange(ConfigParser.ParseFile(ConfigPath, followIncludes: true).Blocks);
         snapshot.Keys.AddRange(KeyScanner.Scan(SshDir));
         snapshot.Hosts.AddRange(MergeHosts(snapshot));
         snapshot.BackupCount = ListBackups().Count;
@@ -38,7 +41,29 @@ public sealed class SshStore
 
         foreach (var line in snapshot.KnownHosts)
         {
-            if (line.IsMarker || line.IsHashed) continue;
+            if (line.IsMarker) continue;
+            if (line.IsHashed)
+            {
+                var token = line.Tokens.FirstOrDefault();
+                if (token is null) continue;
+                var hashedKey = "hashed:" + token;
+                if (!rows.TryGetValue(hashedKey, out var hashedRow))
+                {
+                    hashedRow = new HostRow
+                    {
+                        Label = "hashed · " + (token.Length > 16 ? token[..16] + "…" : token),
+                        Address = "hashed host",
+                        Port = 22,
+                        IsHashed = true,
+                        InKnownHosts = true,
+                        Source = "known_hosts",
+                    };
+                    rows[hashedKey] = hashedRow;
+                }
+                hashedRow.KnownTokens.Add(token);
+                hashedRow.KeyTypes = line.KeyType;
+                continue;
+            }
             foreach (var token in line.Tokens)
             {
                 var address = token;
@@ -121,6 +146,7 @@ public sealed class SshStore
 
         _log.Append("delete-hosts",
             $"{removedLines} known_hosts line(s), {removedBlocks} config block(s)");
+        LastActionBackups = backups;
         return new DeleteResult(removedLines, removedBlocks, backups);
     }
 
@@ -131,6 +157,7 @@ public sealed class SshStore
         var backup = Backup(ConfigPath);
         var removed = RemoveConfigBlocks(set);
         _log.Append("delete-config", $"{removed} block(s)");
+        LastActionBackups = new[] { backup };
         return new DeleteResult(0, removed, new[] { backup });
     }
 
@@ -201,7 +228,7 @@ public sealed class SshStore
         }
 
         output.AddRange(lines.Skip(block.EndLine + 1));
-        Backup(ConfigPath);
+        LastActionBackups = new[] { Backup(ConfigPath) };
         WriteAtomic(ConfigPath, TextIO.JoinLines(output, newline) +
             (text.EndsWith(newline, StringComparison.Ordinal) ? newline : ""));
         _log.Append("edit-config", "Host " + string.Join(" ", patterns));
@@ -235,6 +262,25 @@ public sealed class SshStore
         return Directory.EnumerateFiles(BackupsDir)
             .OrderByDescending(File.GetLastWriteTimeUtc)
             .ToList();
+    }
+
+    /// <summary>Restores every file touched by the last action, newest first.</summary>
+    public int UndoLast()
+    {
+        var backups = LastActionBackups;
+        LastActionBackups = Array.Empty<string>();
+        var restored = 0;
+        foreach (var backup in backups.Reverse())
+        {
+            try
+            {
+                RestoreBackup(backup);
+                restored++;
+            }
+            catch { }
+        }
+        if (restored > 0) _log.Append("undo", $"{restored} file(s)");
+        return restored;
     }
 
     public void RestoreBackup(string backupPath)

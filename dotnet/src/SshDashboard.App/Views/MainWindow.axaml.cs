@@ -121,7 +121,7 @@ public partial class MainWindow : Window
         var keys = _vm.ActiveView == "keys";
 
         DeleteSelectedButton.IsVisible = hosts && _vm.HasSelection;
-        OpenSessionButton.IsVisible = hosts && _vm.SelectedHost is not null;
+        OpenSessionButton.IsVisible = hosts && _vm.SelectedHost is { IsHashed: false };
         EditBlockButton.IsVisible = config && _vm.CanEditBlock;
         DeleteBlockButton.IsVisible = config && _vm.SelectedBlock?.IsEditable == true;
         RevealKeyButton.IsVisible = keys && _vm.SelectedKey is not null;
@@ -151,7 +151,7 @@ public partial class MainWindow : Window
 
     private void Hosts_DoubleTapped(object? sender, RoutedEventArgs e)
     {
-        if (_vm.SelectedHost is { } host) SshLauncher.OpenTerminal(host);
+        if (_vm.SelectedHost is { IsHashed: false } host) SshLauncher.OpenTerminal(host);
     }
 
     private async void Config_DoubleTapped(object? sender, RoutedEventArgs e) =>
@@ -283,23 +283,22 @@ public partial class MainWindow : Window
 
     private async void Undo_Click(object? sender, RoutedEventArgs e)
     {
-        var backups = _vm.Store.ListBackups();
+        var backups = _vm.Store.LastActionBackups;
         if (backups.Count == 0)
         {
-            ShowToast("No backups yet");
+            ShowToast("Nothing to undo in this session");
             return;
         }
-        var latest = backups[0];
-        var ok = await Dialogs.ConfirmAsync(this, "Restore backup",
-            "Restore the latest backup?",
-            "This copies the backup over the current file. The current file is not backed up again.",
-            Path.GetFileName(latest), "Restore", danger: true);
+        var ok = await Dialogs.ConfirmAsync(this, "Undo last change",
+            backups.Count == 1 ? "Restore the last change?" : $"Restore {backups.Count} files?",
+            "Every file touched by the last action is restored from its backup.",
+            string.Join("\n", backups.Select(Path.GetFileName)), "Restore", danger: true);
         if (!ok) return;
         try
         {
-            _vm.Store.RestoreBackup(latest);
+            var restored = _vm.Store.UndoLast();
             _vm.Load();
-            ShowToast("Restored " + Path.GetFileName(latest));
+            ShowToast($"Restored {restored} file(s)");
         }
         catch (Exception ex)
         {
@@ -360,11 +359,12 @@ public partial class MainWindow : Window
 
     private void Ssh_Click(object? sender, RoutedEventArgs e)
     {
-        if (_vm.SelectedHost is { } host)
+        if (_vm.SelectedHost is { IsHashed: false } host)
         {
             SshLauncher.OpenTerminal(host);
             ShowToast("Opening SSH session");
         }
+        else if (_vm.SelectedHost is { IsHashed: true }) ShowToast("Hashed known_hosts entry — no address to connect to");
         else ShowToast("Select a host first");
     }
 
@@ -396,16 +396,28 @@ public partial class MainWindow : Window
                 destination = Path.Combine(sshDir,
                     Path.GetFileNameWithoutExtension(name) + $"-{i}.ppk");
 
-            await using (var input = await files[0].OpenReadAsync())
-            await using (var output = File.Create(destination))
-                await input.CopyToAsync(output);
+            var incoming = destination + ".import";
+            PpkFile info;
+            try
+            {
+                await using (var input = await files[0].OpenReadAsync())
+                await using (var output = File.Create(incoming))
+                    await input.CopyToAsync(output);
+                info = PpkFile.Load(incoming);
+            }
+            catch (Exception ex)
+            {
+                try { File.Delete(incoming); } catch { }
+                throw new InvalidOperationException("Not a readable PuTTY key: " + ex.Message, ex);
+            }
+            File.Move(incoming, destination, true);
             if (!OperatingSystem.IsWindows())
                 File.SetUnixFileMode(destination,
                     UnixFileMode.UserRead | UnixFileMode.UserWrite);
-            new ActivityLog().Append("import-ppk", destination);
+            new ActivityLog().Append("import-ppk", $"{destination} · {info.Kind} · {info.Fingerprint}");
             _vm.Load();
             ShowView("keys", true);
-            ShowToast($"Imported {Path.GetFileName(destination)} into ~/.ssh");
+            ShowToast($"Imported {Path.GetFileName(destination)} · {info.Fingerprint}");
         }
         catch (Exception ex)
         {
