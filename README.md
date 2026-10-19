@@ -15,7 +15,7 @@ Built with **.NET 10** and **Avalonia** for macOS, Windows and Linux.
 ![Avalonia](https://img.shields.io/badge/Avalonia-11.3-8B44AC)
 ![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Windows%20%7C%20Linux-11171F)
 ![Tests](https://img.shields.io/badge/tests-13%20passing-3FCF8E)
-![Version](https://img.shields.io/badge/version-2.1.3-4C8DFF)
+![Version](https://img.shields.io/badge/version-2.1.4-4C8DFF)
 
 ![Hosts view](docs/screenshots/hosts-dark.png)
 
@@ -72,11 +72,11 @@ All builds are self-contained — no .NET runtime required on the target.
 
 | Platform | File |
 | --- | --- |
-| macOS 12+ (Apple Silicon + Intel) | [`SSH-Dashboard-2.1.3-macOS-universal.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.3/SSH-Dashboard-2.1.3-macOS-universal.dmg) |
-| Windows 10/11 x64 | [`SSH-Dashboard-2.1.3-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.3/SSH-Dashboard-2.1.3-windows-x64.zip) |
-| Linux x64 | [`SSH-Dashboard-2.1.3-linux-x64.tar.gz`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.3/SSH-Dashboard-2.1.3-linux-x64.tar.gz) |
+| macOS 12+ (Apple Silicon + Intel) | [`SSH-Dashboard-2.1.4-macOS-universal.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SSH-Dashboard-2.1.4-macOS-universal.dmg) |
+| Windows 10/11 x64 | [`SSH-Dashboard-2.1.4-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SSH-Dashboard-2.1.4-windows-x64.zip) |
+| Linux x64 | [`SSH-Dashboard-2.1.4-linux-x64.tar.gz`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SSH-Dashboard-2.1.4-linux-x64.tar.gz) |
 
-Checksums: [`SHA256SUMS-2.1.3.txt`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.3/SHA256SUMS-2.1.3.txt).
+Checksums: [`SHA256SUMS-2.1.4.txt`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SHA256SUMS-2.1.4.txt).
 
 ### macOS
 

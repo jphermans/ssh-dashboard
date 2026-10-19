@@ -53,10 +53,9 @@
                        Text="macOS · Windows · Linux" />
           </Grid>
           <Grid ColumnDefinitions="120,*">
-            <TextBlock Text="SSH folder" FontSize="12" Foreground="{DynamicResource TextFaint}" />
-            <TextBlock x:Name="SshFolderValue" Grid.Column="1" FontSize="12"
-                       FontFamily="SF Mono, Menlo, monospace"
-                       Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap" />
+            <TextBlock Text="Data" FontSize="12" Foreground="{DynamicResource TextFaint}" />
+            <TextBlock Grid.Column="1" FontSize="12.5" Foreground="{DynamicResource TextPrimary}"
+                       Text="Local ~/.ssh folder only" />
           </Grid>
           <Grid ColumnDefinitions="120,*">
             <TextBlock Text="License" FontSize="12" Foreground="{DynamicResource TextFaint}" />

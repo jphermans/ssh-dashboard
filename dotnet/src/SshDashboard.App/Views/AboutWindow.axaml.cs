@@ -6,12 +6,11 @@ namespace SshDashboard.App.Views;
 
 public partial class AboutWindow : Window
 {
-    public AboutWindow(string version, string sshFolder)
+    public AboutWindow(string version)
     {
         InitializeComponent();
         VersionBadge.Text = "Version " + version;
         VersionValue.Text = version;
-        SshFolderValue.Text = sshFolder;
     }
 
     private void Close_Click(object? sender, RoutedEventArgs e) => Close();
