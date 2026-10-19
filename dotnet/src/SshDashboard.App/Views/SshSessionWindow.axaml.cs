@@ -32,7 +32,7 @@ public partial class SshSessionWindow : Window
         Closing += (_, _) => Stop();
     }
 
-    private void Start()
+    private async void Start()
     {
         try
         {
@@ -52,7 +52,22 @@ public partial class SshSessionWindow : Window
                 try
                 {
                     var ppk = PpkFile.Load(ppkPath);
-                    _tempKey = ppk.WriteTemporaryOpenSsh();
+                    if (ppk.IsEncrypted)
+                    {
+                        var passphrase = await new PassphraseWindow(Path.GetFileName(ppkPath))
+                            .ShowDialog<string?>(this);
+                        if (string.IsNullOrEmpty(passphrase))
+                        {
+                            SetStatus("Cancelled", false);
+                            Terminal.WriteSystem("Passphrase required — session cancelled.");
+                            return;
+                        }
+                        _tempKey = ppk.ConvertWithPuttygen(passphrase);
+                    }
+                    else
+                    {
+                        _tempKey = ppk.WriteTemporaryOpenSsh();
+                    }
                     psi.ArgumentList.Add("-i");
                     psi.ArgumentList.Add(_tempKey);
                     Terminal.WriteSystem($"Using PuTTY key {Path.GetFileName(ppkPath)} ({ppk.Kind}).");

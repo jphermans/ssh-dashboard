@@ -15,6 +15,7 @@
         <MenuItem Header="Rescan" Click="Refresh_Click" />
         <Separator />
         <MenuItem Header="Open SSH Folder" Click="OpenSshFolder_Click" />
+        <MenuItem Header="Backups…" Click="Backups_Click" />
         <MenuItem Header="Open Backups Folder" Click="OpenBackupsFolder_Click" />
         <Separator />
         <MenuItem Header="Export Current View to CSV…" Click="Export_Click" />

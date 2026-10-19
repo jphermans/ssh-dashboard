@@ -126,6 +126,7 @@ public sealed class SshStore
     public DeleteResult DeleteHosts(IReadOnlyList<HostRow> rows, bool removeConfig)
     {
         if (rows.Count == 0) return new DeleteResult(0, 0, Array.Empty<string>());
+        using var gate = AcquireWriteLock();
 
         var tokens = rows.SelectMany(r => r.KnownTokens).ToHashSet(StringComparer.Ordinal);
         var backups = new List<string>();
@@ -153,6 +154,7 @@ public sealed class SshStore
 
     public DeleteResult DeleteConfigBlocks(IEnumerable<int> starts)
     {
+        using var gate = AcquireWriteLock();
         var set = starts.ToHashSet();
         if (set.Count == 0 || !File.Exists(ConfigPath)) return new DeleteResult(0, 0, Array.Empty<string>());
         var backup = Backup(ConfigPath);
@@ -181,6 +183,7 @@ public sealed class SshStore
     public void UpdateBlock(ConfigBlock block, IReadOnlyList<string> patterns,
         IReadOnlyDictionary<string, string> values)
     {
+        using var gate = AcquireWriteLock();
         if (!block.IsEditable) throw new StoreException("This block cannot be edited.");
         if (patterns.Count == 0) throw new StoreException("A Host block needs at least one pattern.");
         if (!File.Exists(ConfigPath)) throw new StoreException("ssh_config was not found.");
@@ -282,6 +285,21 @@ public sealed class SshStore
         }
         if (restored > 0) _log.Append("undo", $"{restored} file(s)");
         return restored;
+    }
+
+    private FileStream AcquireWriteLock()
+    {
+        var directory = Path.Combine(SshDir, ".sshdashboard");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            return new FileStream(Path.Combine(directory, "write.lock"), FileMode.OpenOrCreate,
+                FileAccess.ReadWrite, FileShare.None);
+        }
+        catch (IOException)
+        {
+            throw new IOException("Another process is writing to ~/.ssh. Close it and try again.");
+        }
     }
 
     /// <summary>Keeps the backup folder bounded: 30 days and at most 200 files.</summary>

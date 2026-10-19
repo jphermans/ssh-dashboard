@@ -161,6 +161,86 @@ public sealed class PpkFile
         return text.ToString();
     }
 
+    /// <summary>Converts an encrypted PPK through PuTTYgen, when it is installed.</summary>
+    public string ConvertWithPuttygen(string passphrase)
+    {
+        var tool = FindPuttygen() ?? throw new InvalidOperationException(
+            "puttygen was not found. Install PuTTY or convert the key manually.");
+        var directory = System.IO.Path.Combine(PlatformInfo.SupportDir, "keys");
+        Directory.CreateDirectory(directory);
+        var output = System.IO.Path.Combine(directory, "ppk-" + Guid.NewGuid().ToString("N") + ".key");
+        var passFile = System.IO.Path.Combine(directory, "pass-" + Guid.NewGuid().ToString("N") + ".txt");
+        try
+        {
+            File.WriteAllText(passFile, passphrase);
+            if (!OperatingSystem.IsWindows())
+                File.SetUnixFileMode(passFile, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+
+            var psi = new System.Diagnostics.ProcessStartInfo(tool)
+            {
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
+            psi.ArgumentList.Add(Path);
+            psi.ArgumentList.Add("-O");
+            psi.ArgumentList.Add("private-openssh");
+            psi.ArgumentList.Add("-o");
+            psi.ArgumentList.Add(output);
+            psi.ArgumentList.Add("--old-passphrase");
+            psi.ArgumentList.Add(passFile);
+            using var process = System.Diagnostics.Process.Start(psi)
+                ?? throw new InvalidOperationException("Could not start puttygen.");
+            if (!process.WaitForExit(20000))
+            {
+                try { process.Kill(true); } catch { }
+                throw new InvalidOperationException("puttygen timed out.");
+            }
+            var error = process.StandardError.ReadToEnd();
+            if (process.ExitCode != 0 || !File.Exists(output))
+                throw new InvalidOperationException("puttygen failed: " +
+                    (string.IsNullOrWhiteSpace(error) ? "wrong passphrase or unsupported key" : error.Trim()));
+            if (!OperatingSystem.IsWindows())
+                File.SetUnixFileMode(output, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+            return output;
+        }
+        catch
+        {
+            try { File.Delete(output); } catch { }
+            throw;
+        }
+        finally
+        {
+            try { File.Delete(passFile); } catch { }
+        }
+    }
+
+    private static string? FindPuttygen()
+    {
+        var candidates = OperatingSystem.IsWindows()
+            ? new[]
+            {
+                System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                    "PuTTY", "puttygen.exe"),
+                "puttygen.exe",
+            }
+            : new[] { "/opt/homebrew/bin/puttygen", "/usr/local/bin/puttygen", "/usr/bin/puttygen" };
+        foreach (var candidate in candidates)
+        {
+            if (System.IO.Path.IsPathRooted(candidate) ? File.Exists(candidate) : OnPath(candidate))
+                return candidate;
+        }
+        return null;
+    }
+
+    private static bool OnPath(string name)
+    {
+        var path = Environment.GetEnvironmentVariable("PATH") ?? "";
+        return path.Split(System.IO.Path.PathSeparator)
+            .Any(dir => File.Exists(System.IO.Path.Combine(dir, name)));
+    }
+
     public string WriteTemporaryOpenSsh()
     {
         var directory = System.IO.Path.Combine(PlatformInfo.SupportDir, "keys");

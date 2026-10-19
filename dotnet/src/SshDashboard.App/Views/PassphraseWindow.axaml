@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SshDashboard.App.Views.PassphraseWindow"
+        Title="PuTTY key passphrase"
+        Width="430" Height="250" CanResize="False"
+        Background="{DynamicResource AppBg}"
+        WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="*,Auto" Margin="24,20,24,0">
+    <StackPanel Grid.Row="0" Spacing="10">
+      <TextBlock Text="Passphrase required" FontSize="17" FontWeight="SemiBold"
+                 Foreground="{DynamicResource TextPrimary}" />
+      <TextBlock x:Name="DetailText" FontSize="12.5" TextWrapping="Wrap" LineHeight="19"
+                 Foreground="{DynamicResource TextMuted}" />
+      <TextBox x:Name="PassphraseBox" Height="34" Watermark="Passphrase"
+               PasswordChar="●"
+               AutomationProperties.Name="PuTTY key passphrase" />
+      <TextBlock Text="The passphrase is only used to convert the key for this session."
+                 FontSize="11" Foreground="{DynamicResource TextFaint}" TextWrapping="Wrap" />
+    </StackPanel>
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                Spacing="8" Margin="0,14,0,16">
+      <Button Content="Cancel" Click="Cancel_Click" Classes="ghost" />
+      <Button Content="Unlock" Click="Unlock_Click" Classes="primary" IsDefault="True" />
+    </StackPanel>
+  </Grid>
+</Window>

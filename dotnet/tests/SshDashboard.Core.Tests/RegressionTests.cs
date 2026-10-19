@@ -72,6 +72,45 @@ public class RegressionTests : IDisposable
     }
 
     [Fact]
+    public void EncryptedPpkConvertsThroughPuttygenWhenInstalled()
+    {
+        var tool = new[] { "/opt/homebrew/bin/puttygen", "/usr/local/bin/puttygen", "/usr/bin/puttygen" }
+            .FirstOrDefault(File.Exists);
+        if (tool is null) return; // optional tool on CI
+
+        var plain = Path.Combine(_dir, "plain.ppk");
+        var encrypted = Path.Combine(_dir, "encrypted.ppk");
+        var empty = Path.Combine(_dir, "empty.txt");
+        var secret = Path.Combine(_dir, "secret.txt");
+        File.WriteAllText(empty, "");
+        File.WriteAllText(secret, "correct horse");
+
+        static void Run(string tool, params string[] args)
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo(tool)
+            { RedirectStandardError = true, UseShellExecute = false };
+            foreach (var arg in args) psi.ArgumentList.Add(arg);
+            using var process = System.Diagnostics.Process.Start(psi)!;
+            process.WaitForExit();
+            Assert.Equal(0, process.ExitCode);
+        }
+
+        Run(tool, "-t", "ed25519", "-o", plain, "--new-passphrase", empty);
+        Run(tool, plain, "-P", "--old-passphrase", empty,
+            "--new-passphrase", secret, "-o", encrypted);
+
+        var ppk = PpkFile.Load(encrypted);
+        Assert.True(ppk.IsEncrypted);
+        var converted = ppk.ConvertWithPuttygen("correct horse");
+        try
+        {
+            Assert.True(File.Exists(converted));
+            Assert.Contains("OPENSSH PRIVATE KEY", File.ReadAllText(converted));
+        }
+        finally { try { File.Delete(converted); } catch { } }
+    }
+
+    [Fact]
     public void RemovingALinePreservesInvalidBytesElsewhere()
     {
         var path = Path.Combine(_dir, "known_hosts");

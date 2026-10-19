@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SshDashboard.App.Views.BackupsWindow"
+        Title="Backups"
+        Width="620" Height="520" MinWidth="480" MinHeight="360"
+        Background="{DynamicResource AppBg}"
+        WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Border Grid.Row="0" Background="{DynamicResource PanelBg}" Padding="22,16"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,0,0,1">
+      <StackPanel Spacing="3">
+        <TextBlock Text="Backups" FontSize="18" FontWeight="SemiBold"
+                   Foreground="{DynamicResource TextPrimary}" />
+        <TextBlock x:Name="SummaryText" FontSize="12"
+                   Foreground="{DynamicResource TextMuted}" />
+      </StackPanel>
+    </Border>
+
+    <ListBox Grid.Row="1" x:Name="FilesList" Margin="16,12"
+             Background="Transparent" BorderThickness="0">
+      <ListBox.ItemTemplate>
+        <DataTemplate>
+          <Grid ColumnDefinitions="*,Auto" Margin="6,7">
+            <StackPanel Spacing="2">
+              <TextBlock Text="{Binding Name}" FontSize="12.5"
+                         FontFamily="SF Mono, Menlo, monospace"
+                         Foreground="{DynamicResource TextPrimary}" />
+              <TextBlock Text="{Binding When}" FontSize="11"
+                         Foreground="{DynamicResource TextMuted}" />
+            </StackPanel>
+            <TextBlock Grid.Column="1" Text="{Binding Size}" FontSize="11"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource TextFaint}" />
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+
+    <Border Grid.Row="2" Background="{DynamicResource PanelBg}" Padding="18,12"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,1,0,0">
+      <Grid ColumnDefinitions="*,Auto,Auto">
+        <TextBlock x:Name="StatusText" FontSize="11.5" VerticalAlignment="Center"
+                   Foreground="{DynamicResource TextMuted}"
+                   Text="Select a backup to restore it over the current file." />
+        <Button Grid.Column="1" Content="Restore selected" Click="Restore_Click"
+                Classes="primary" Margin="0,0,8,0" />
+        <Button Grid.Column="2" Content="Close" Click="Close_Click" Classes="ghost" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

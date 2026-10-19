@@ -197,6 +197,9 @@ public partial class MainWindow : Window
     private void OpenSshFolder_Click(object? sender, RoutedEventArgs e) =>
         PlatformInfo.Reveal(_vm.Store.SshDir);
 
+    private void Backups_Click(object? sender, RoutedEventArgs e) =>
+        new BackupsWindow(_vm.Store, () => _vm.Load()).Show(this);
+
     private void OpenBackupsFolder_Click(object? sender, RoutedEventArgs e) =>
         PlatformInfo.Reveal(_vm.Store.BackupsDir);
 
