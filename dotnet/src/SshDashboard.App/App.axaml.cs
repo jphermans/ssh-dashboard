@@ -15,6 +15,17 @@ public partial class App : Application
 {
     public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
+    private void AboutMenuItem_OnClick(object? sender, EventArgs e)
+    {
+        var version = typeof(App).Assembly.GetName().Version?.ToString(3) ?? "2.1.3";
+        var window = new AboutWindow(version, PlatformInfo.SshDir);
+        if (ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime
+            { MainWindow: { IsVisible: true } owner })
+            window.Show(owner);
+        else
+            window.Show();
+    }
+
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

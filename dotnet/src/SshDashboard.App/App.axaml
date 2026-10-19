@@ -3,6 +3,11 @@
              x:Class="SshDashboard.App.App"
              Name="SSH Dashboard"
              RequestedThemeVariant="Dark">
+  <NativeMenu.Menu>
+    <NativeMenu>
+      <NativeMenuItem Header="About SSH Dashboard" Click="AboutMenuItem_OnClick" />
+    </NativeMenu>
+  </NativeMenu.Menu>
   <Application.Resources>
     <ResourceDictionary>
       <ResourceDictionary.ThemeDictionaries>

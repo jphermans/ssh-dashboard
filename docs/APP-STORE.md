@@ -61,9 +61,9 @@ codesign --force --deep --options runtime --timestamp \
 codesign --verify --deep --strict --verbose=2 "$APP"
 
 # Re-create the DMG from the signed app, then:
-xcrun notarytool submit "SSH-Dashboard-2.1.2-macOS-universal.dmg" \
+xcrun notarytool submit "SSH-Dashboard-2.1.3-macOS-universal.dmg" \
   --keychain-profile "ssh-dashboard-notary" --wait
-xcrun stapler staple "SSH-Dashboard-2.1.2-macOS-universal.dmg"
+xcrun stapler staple "SSH-Dashboard-2.1.3-macOS-universal.dmg"
 spctl -a -vvv -t install "SSH Dashboard.app"
 ```
 
@@ -134,6 +134,6 @@ flow. The current Avalonia desktop code does not port to iOS as-is.
 
 ## Recommendation
 
-Ship 2.1.2 as a **notarized Developer ID download** once the Developer ID
+Ship 2.1.3 as a **notarized Developer ID download** once the Developer ID
 certificate is available. Keep the App Store as a possible future product with
 an in-app SSH engine, not as a repackaging of this build.
