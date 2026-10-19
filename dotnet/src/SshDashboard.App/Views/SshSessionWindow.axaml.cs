@@ -12,6 +12,8 @@ public partial class SshSessionWindow : Window
     private readonly HostRow _host;
     private readonly CancellationTokenSource _cts = new();
     private Process? _process;
+    private PtySession? _pty;
+    private readonly Decoder _ptyDecoder = Encoding.UTF8.GetDecoder();
     private string? _tempKey;
 
     public SshSessionWindow(HostRow host)
@@ -86,8 +88,34 @@ public partial class SshSessionWindow : Window
             psi.Environment["TERM"] = "xterm-256color";
             psi.Environment["LANG"] = Environment.GetEnvironmentVariable("LANG") ?? "en_US.UTF-8";
 
+            if (PtySession.Supported)
+            {
+                var pty = new PtySession("/usr/bin/ssh", psi.ArgumentList.ToList(),
+                    Terminal.Columns, Terminal.Rows);
+                _pty = pty;
+                pty.Output += bytes =>
+                {
+                    var chars = new char[bytes.Length];
+                    var count = _ptyDecoder.GetChars(bytes, 0, bytes.Length, chars, 0);
+                    if (count > 0)
+                    {
+                        var text = new string(chars, 0, count);
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            if (StatusText.Text == "Connecting…") SetStatus("Connected", true);
+                            Terminal.Feed(text);
+                        });
+                    }
+                };
+                pty.Exited += code => Dispatcher.UIThread.Post(() => OnExited(code));
+                Terminal.Resized += (cols, rows) => pty.Resize(cols, rows);
+                Terminal.WriteSystem($"Connecting to {SubtitleText.Text} …");
+                return;
+            }
+
             _process = new Process { StartInfo = psi, EnableRaisingEvents = true };
-            _process.Exited += (_, _) => Dispatcher.UIThread.Post(OnExited);
+            _process.Exited += (_, _) => Dispatcher.UIThread.Post(() =>
+                OnExited(_process?.ExitCode ?? -1));
             _process.Start();
 
             Terminal.WriteSystem($"Connecting to {SubtitleText.Text} …");
@@ -131,6 +159,11 @@ public partial class SshSessionWindow : Window
 
     private void SendInput(byte[] data)
     {
+        if (_pty is not null)
+        {
+            _pty.Write(data);
+            return;
+        }
         try
         {
             if (_process is not { HasExited: false } process) return;
@@ -147,10 +180,8 @@ public partial class SshSessionWindow : Window
         _tempKey = null;
     }
 
-    private void OnExited()
+    private void OnExited(int code)
     {
-        var code = -1;
-        try { code = _process?.ExitCode ?? -1; } catch { }
         SetStatus(code == 0 ? "Disconnected" : $"Disconnected (exit {code})", false);
         Terminal.WriteSystem(code == 0
             ? "Session ended."
@@ -175,6 +206,7 @@ public partial class SshSessionWindow : Window
     {
         CleanupKey();
         _cts.Cancel();
+        _pty?.Dispose();
         try
         {
             if (_process is { HasExited: false })

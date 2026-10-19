@@ -58,77 +58,6 @@ public static class Dialogs
         return await dialog.ShowDialog<Settings?>(owner);
     }
 
-    private static async Task<Settings?> LegacySettingsAsync(Window owner, Settings current,
-        Action<string>? previewTheme = null)
-    {
-        var window = Shell(owner, "Settings", 560, 470);
-        var root = new StackPanel { Spacing = 16, Margin = new Avalonia.Thickness(26) };
-        root.Children.Add(Text("Settings", 20, FontWeight.SemiBold));
-        root.Children.Add(Text("Preferences for this Mac. Files in ~/.ssh are never changed by these options.",
-            12.5, FontWeight.Normal, "TextMuted"));
-
-        root.Children.Add(Label("APPEARANCE"));
-        var themes = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        var group = "theme-" + Guid.NewGuid().ToString("N");
-        var choices = new (string Key, string Label)[]
-        {
-            ("system", "System"), ("dark", "Dark"), ("light", "Light"),
-        };
-        var radios = new List<RadioButton>();
-        foreach (var (key, label) in choices)
-        {
-            var radio = new RadioButton
-            {
-                Content = label,
-                GroupName = group,
-                Padding = new Avalonia.Thickness(12, 7),
-            };
-            radio.Tag = key;
-            radio.Checked += (_, _) => previewTheme?.Invoke(key);
-            radio.IsChecked = current.Theme == key;
-            radios.Add(radio);
-            themes.Children.Add(radio);
-        }
-        root.Children.Add(themes);
-        root.Children.Add(Text("System follows the OS appearance.", 11.5, FontWeight.Normal, "TextFaint"));
-
-        root.Children.Add(Label("REMOVAL"));
-        var confirm = new CheckBox { Content = "Ask for confirmation before removing entries", IsChecked = current.ConfirmDelete };
-        var config = new CheckBox { Content = "Also remove matching ssh_config Host blocks by default", IsChecked = current.RemoveConfigDefault };
-        confirm.FontSize = 13;
-        config.FontSize = 13;
-        root.Children.Add(confirm);
-        root.Children.Add(config);
-        root.Children.Add(Text("A timestamped backup is written before every change.", 11.5, FontWeight.Normal, "TextFaint"));
-
-        var buttons = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            Spacing = 10,
-            Margin = new Avalonia.Thickness(0, 8, 0, 0),
-        };
-        var cancel = Button("Cancel", "ghost");
-        cancel.Click += (_, _) => window.Close(null);
-        var save = Button("Save changes", "primary");
-        save.Click += (_, _) =>
-        {
-            var result = new Settings
-            {
-                Theme = radios.FirstOrDefault(r => r.IsChecked == true)?.Tag as string ?? "system",
-                ConfirmDelete = confirm.IsChecked == true,
-                RemoveConfigDefault = config.IsChecked == true,
-                LastView = current.LastView,
-            };
-            window.Close(result);
-        };
-        buttons.Children.Add(cancel);
-        buttons.Children.Add(save);
-        root.Children.Add(buttons);
-
-        window.Content = root;
-        return await window.ShowDialog<Settings?>(owner);
-    }
 
     public static async Task<BlockEditResult?> EditBlockAsync(Window owner, ConfigBlock block)
     {
@@ -184,43 +113,6 @@ public static class Dialogs
         return await window.ShowDialog<BlockEditResult?>(owner);
     }
 
-    public static async Task AboutAsync(Window owner, string version, string sshDir)
-    {
-        var window = Shell(owner, "About SSH Dashboard", 480, 360);
-        var root = new StackPanel { Spacing = 10, Margin = new Avalonia.Thickness(28) };
-        root.Children.Add(new TextBlock
-        {
-            Text = "SSH Dashboard",
-            FontSize = 24,
-            FontWeight = FontWeight.SemiBold,
-            Foreground = Brush("TextPrimary"),
-        });
-        root.Children.Add(Text($"Version {version}", 12.5, FontWeight.Normal, "TextMuted"));
-        root.Children.Add(Text(
-            "A careful desktop dashboard for ~/.ssh. Reads known_hosts, ssh_config and key pairs, " +
-            "removes entries with timestamped backups, and never writes outside the SSH folder.",
-            12.5, FontWeight.Normal, "TextMuted"));
-        root.Children.Add(Text("SSH folder  " + sshDir, 11.5, FontWeight.Normal, "TextFaint", monospace: true));
-        root.Children.Add(Text("Built with .NET and Avalonia. © 2026 JPHsystems.", 11.5, FontWeight.Normal, "TextFaint"));
-
-        var buttons = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            Spacing = 10,
-            Margin = new Avalonia.Thickness(0, 12, 0, 0),
-        };
-        var repo = Button("Open repository", "ghost");
-        repo.Click += (_, _) => Process.Start(new ProcessStartInfo(
-            "https://github.com/jphermans/ssh-dashboard") { UseShellExecute = true });
-        var close = Button("Close", "primary");
-        close.Click += (_, _) => window.Close();
-        buttons.Children.Add(repo);
-        buttons.Children.Add(close);
-        root.Children.Add(buttons);
-        window.Content = root;
-        await window.ShowDialog(owner);
-    }
 
     private static Window Shell(Window owner, string title, double width, double height) => new()
     {

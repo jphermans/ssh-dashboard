@@ -145,6 +145,7 @@
           </StackPanel>
           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
             <TextBox x:Name="SearchBox" Width="230" MinWidth="160" Watermark="Search hosts, users, keys…"
+                     AutomationProperties.Name="Search hosts, configuration blocks and keys"
                      TextChanged="Search_Changed" />
             <Button x:Name="ImportPpkButton" Content="Import .ppk" Click="ImportPpk_Click" IsVisible="False" />
             <Button Content="Rescan" Click="Refresh_Click" />
@@ -161,6 +162,7 @@
               <!-- Hosts -->
               <Grid x:Name="HostsView">
                 <DataGrid x:Name="HostsGrid" ItemsSource="{Binding FilteredHosts}"
+                          AutomationProperties.Name="Known hosts and ssh_config aliases"
                           SelectedItem="{Binding SelectedHost}" IsReadOnly="True"
                           AutoGenerateColumns="False" CanUserReorderColumns="False"
                           SelectionChanged="Hosts_SelectionChanged"

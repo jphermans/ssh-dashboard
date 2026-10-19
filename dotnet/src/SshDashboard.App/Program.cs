@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Threading;
+using SshDashboard.App.Views;
 using SshDashboard.Core;
 
 namespace SshDashboard.App;
@@ -9,6 +10,12 @@ internal static class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        if (args.Contains("--pty-probe"))
+        {
+            RunPtyProbe();
+            return;
+        }
+
         if (args.Contains("--check"))
         {
             var store = new SshStore();
@@ -37,6 +44,21 @@ internal static class Program
             return;
         }
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+    }
+
+    private static void RunPtyProbe()
+    {
+        var text = new System.Text.StringBuilder();
+        using var done = new ManualResetEventSlim();
+        using var pty = new PtySession("/bin/sh",
+            new[] { "-c", "echo START $(stty size); sleep 0.7; echo END $(stty size)" },
+            80, 24);
+        pty.Output += bytes => text.Append(System.Text.Encoding.UTF8.GetString(bytes));
+        pty.Exited += _ => done.Set();
+        _ = Task.Run(async () => { await Task.Delay(300); pty.Resize(100, 40); });
+        var finished = done.Wait(TimeSpan.FromSeconds(5));
+        Console.WriteLine("pty=" + finished + " exit=" + pty.GetType().Name);
+        Console.WriteLine(text.ToString().Trim());
     }
 
     private static void LogCrash(Exception? ex)

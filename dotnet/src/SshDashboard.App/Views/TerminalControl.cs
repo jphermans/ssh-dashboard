@@ -29,6 +29,12 @@ public sealed class TerminalControl : Control
     private bool _cursorOn = true;
     private double _charWidth = 8;
     private double _lineHeight = 17;
+    private (int Row, int Col)? _selStart;
+    private (int Row, int Col)? _selEnd;
+    private bool _selecting;
+    private int _mouseMode;
+    private int _mouseButton = -1;
+    private bool _bracketedPaste;
 
     public TerminalControl()
     {
@@ -42,6 +48,7 @@ public sealed class TerminalControl : Control
     }
 
     public event Action<byte[]>? Input;
+    public event Action<int, int>? Resized;
 
     public int Columns => _terminal.VisibleColumns;
     public int Rows => _terminal.VisibleRows;
@@ -50,6 +57,12 @@ public sealed class TerminalControl : Control
     public void Feed(string text)
     {
         if (string.IsNullOrEmpty(text)) return;
+        if (text.Contains("\u001b[?1000h") || text.Contains("\u001b[?1002h") || text.Contains("\u001b[?1003h"))
+            _mouseMode = text.Contains("1003h") ? 1003 : text.Contains("1002h") ? 1002 : 1000;
+        if (text.Contains("\u001b[?1000l") || text.Contains("\u001b[?1002l") || text.Contains("\u001b[?1003l"))
+            _mouseMode = 0;
+        if (text.Contains("\u001b[?2004h")) _bracketedPaste = true;
+        if (text.Contains("\u001b[?2004l")) _bracketedPaste = false;
         try
         {
             _consumer.Push(Encoding.UTF8.GetBytes(text));
@@ -95,6 +108,7 @@ public sealed class TerminalControl : Control
         {
             _terminal.VisibleColumns = cols;
             _terminal.VisibleRows = rows;
+            Resized?.Invoke(cols, rows);
         }
         InvalidateVisual();
     }
@@ -154,6 +168,23 @@ public sealed class TerminalControl : Control
             }
         }
 
+        if (_selStart is { } anchor && _selEnd is { } cursorEnd)
+        {
+            var (r1, c1) = anchor;
+            var (r2, c2) = cursorEnd;
+            if (r1 > r2 || (r1 == r2 && c1 > c2)) { (r1, r2) = (r2, r1); (c1, c2) = (c2, c1); }
+            r1 = Math.Clamp(r1, 0, _terminal.VisibleRows - 1);
+            r2 = Math.Clamp(r2, 0, _terminal.VisibleRows - 1);
+            for (var row = r1; row <= r2; row++)
+            {
+                var from = row == r1 ? Math.Clamp(c1, 0, columns - 1) : 0;
+                var to = row == r2 ? Math.Clamp(c2, 0, columns - 1) : columns - 1;
+                if (to < from) continue;
+                context.FillRectangle(new SolidColorBrush(Color.FromArgb(80, 76, 141, 255)),
+                    new Rect(from * _charWidth, row * _lineHeight, (to - from + 1) * _charWidth, _lineHeight));
+            }
+        }
+
         if (_cursorOn && IsFocused && _terminal.CursorState.ShowCursor)
         {
             var position = _terminal.ViewPort.ScreenCursorPosition;
@@ -181,7 +212,105 @@ public sealed class TerminalControl : Control
     {
         base.OnPointerPressed(e);
         Focus();
+        if (_mouseMode > 0 && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        {
+            _mouseButton = e.GetCurrentPoint(this).Properties.PointerUpdateKind switch
+            {
+                PointerUpdateKind.RightButtonPressed => 2,
+                PointerUpdateKind.MiddleButtonPressed => 1,
+                _ => 0,
+            };
+            SendMouse(_mouseButton, false, e.GetPosition(this), e.KeyModifiers);
+            e.Handled = true;
+            return;
+        }
+        var cell = CellAt(e.GetPosition(this));
+        _selStart = cell;
+        _selEnd = cell;
+        _selecting = true;
+        e.Pointer.Capture(this);
+        InvalidateVisual();
         e.Handled = true;
+    }
+
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
+        base.OnPointerMoved(e);
+        if (_mouseMode is 1002 or 1003)
+        {
+            var button = _mouseMode == 1003 ? 35 : Math.Max(0, _mouseButton) + 32;
+            SendMouse(button, false, e.GetPosition(this), e.KeyModifiers);
+            return;
+        }
+        if (!_selecting) return;
+        _selEnd = CellAt(e.GetPosition(this));
+        InvalidateVisual();
+    }
+
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    {
+        base.OnPointerReleased(e);
+        if (_mouseMode > 0 && _mouseButton >= 0)
+        {
+            SendMouse(_mouseButton, true, e.GetPosition(this), e.KeyModifiers);
+            _mouseButton = -1;
+            e.Handled = true;
+            return;
+        }
+        if (_selecting)
+        {
+            _selEnd = CellAt(e.GetPosition(this));
+            _selecting = false;
+            e.Pointer.Capture(null);
+            InvalidateVisual();
+        }
+    }
+
+    protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+    {
+        base.OnPointerWheelChanged(e);
+        if (_mouseMode <= 0) return;
+        var button = e.Delta.Y >= 0 ? 64 : 65;
+        SendMouse(button, false, e.GetPosition(this), e.KeyModifiers);
+        e.Handled = true;
+    }
+
+    private void SendMouse(int button, bool release, Point point, KeyModifiers modifiers)
+    {
+        var (row, col) = CellAt(point);
+        var code = button;
+        if (modifiers.HasFlag(KeyModifiers.Shift)) code += 4;
+        if (modifiers.HasFlag(KeyModifiers.Alt)) code += 8;
+        if (modifiers.HasFlag(KeyModifiers.Control)) code += 16;
+        Send($"\u001b[<{code};{col + 1};{row + 1}{(release ? 'm' : 'M')}");
+    }
+
+    private (int Row, int Col) CellAt(Point point)
+    {
+        var row = Math.Clamp((int)(point.Y / Math.Max(1, _lineHeight)), 0, Math.Max(0, _terminal.VisibleRows - 1));
+        var col = Math.Clamp((int)(point.X / Math.Max(1, _charWidth)), 0, Math.Max(0, _terminal.VisibleColumns - 1));
+        return (row, col);
+    }
+
+    private string SelectedText()
+    {
+        if (_selStart is not { } anchor || _selEnd is not { } end) return "";
+        var (r1, c1) = anchor;
+        var (r2, c2) = end;
+        if (r1 > r2 || (r1 == r2 && c1 > c2)) { (r1, r2) = (r2, r1); (c1, c2) = (c2, c1); }
+        if (r1 == r2 && c1 == c2) return "";
+        var lines = new List<string>();
+        for (var row = r1; row <= r2; row++)
+        {
+            var line = _terminal.ViewPort.GetVisibleLine(row);
+            if (line is null) { lines.Add(""); continue; }
+            var from = row == r1 ? c1 : 0;
+            var to = row == r2 ? c2 : Math.Min(line.Count - 1, _terminal.VisibleColumns - 1);
+            var builder = new StringBuilder();
+            for (var col = from; col <= to && col < line.Count; col++) builder.Append(line[col]?.Char ?? ' ');
+            lines.Add(builder.ToString().TrimEnd());
+        }
+        return string.Join("\n", lines).TrimEnd();
     }
 
     protected override void OnTextInput(TextInputEventArgs e)
@@ -198,13 +327,26 @@ public sealed class TerminalControl : Control
         var ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
         var meta = e.KeyModifiers.HasFlag(KeyModifiers.Meta);
 
+        if ((meta || (ctrl && e.KeyModifiers.HasFlag(KeyModifiers.Shift))) && e.Key == Key.C)
+        {
+            var selected = SelectedText();
+            if (selected.Length > 0)
+            {
+                var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+                if (clipboard is not null) await clipboard.SetTextAsync(selected);
+                e.Handled = true;
+                return;
+            }
+        }
+
         if (meta && e.Key == Key.V)
         {
             var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
             if (clipboard is not null)
             {
                 var text = await clipboard.GetTextAsync();
-                if (!string.IsNullOrEmpty(text)) Send(text);
+                if (!string.IsNullOrEmpty(text))
+                    Send(_bracketedPaste ? "\u001b[200~" + text + "\u001b[201~" : text);
             }
             e.Handled = true;
             return;
