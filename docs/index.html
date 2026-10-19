@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SSH Dashboard — a careful desktop dashboard for ~/.ssh</title>
+<meta name="description" content="A professional desktop dashboard for known_hosts, ssh_config and SSH keys, with safe edits, backups and an in-app terminal. For macOS, Windows and Linux.">
+<link rel="icon" href="assets/appicon.png">
+<style>
+  :root {
+    --bg: #0b1118;
+    --bg-2: #101924;
+    --panel: #151f2b;
+    --panel-2: #1a2634;
+    --line: #263445;
+    --line-soft: #1d2937;
+    --text: #e9eff7;
+    --muted: #9aabbf;
+    --faint: #6c7f95;
+    --accent: #4c8dff;
+    --accent-2: #7aa8ff;
+    --success: #3fcf8e;
+    --mono: "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--text);
+    background:
+      radial-gradient(900px 500px at 78% -8%, rgba(76,141,255,.16), transparent 60%),
+      radial-gradient(700px 420px at 8% 8%, rgba(76,141,255,.07), transparent 55%),
+      var(--bg);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { width: min(1160px, calc(100% - 48px)); margin: 0 auto; }
+  .nav {
+    display: flex; align-items: center; gap: 14px;
+    padding: 22px 0; border-bottom: 1px solid var(--line-soft);
+  }
+  .nav img { width: 30px; height: 30px; border-radius: 7px; }
+  .nav .name { font-weight: 650; letter-spacing: -.01em; }
+  .nav .spacer { flex: 1; }
+  .nav a.link { color: var(--muted); font-size: 13.5px; padding: 6px 8px; border-radius: 6px; }
+  .nav a.link:hover { color: var(--text); background: rgba(255,255,255,.045); }
+  .nav a.ghost {
+    border: 1px solid var(--line); padding: 7px 12px; border-radius: 8px;
+    font-size: 13px; color: var(--text); background: rgba(255,255,255,.02);
+  }
+  .nav a.ghost:hover { border-color: #3a4f68; background: rgba(255,255,255,.05); }
+  .hero { display: grid; grid-template-columns: 1.02fr .98fr; gap: 54px; align-items: center; padding: 76px 0 58px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 9px;
+    font: 600 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent-2); margin-bottom: 22px;
+  }
+  .eyebrow::before { content: ""; width: 24px; height: 1px; background: var(--accent); }
+  h1 { font-size: clamp(44px, 5.4vw, 72px); line-height: .98; letter-spacing: -.045em; margin: 0 0 20px; font-weight: 680; }
+  h1 .accent { color: var(--accent-2); }
+  .lede { font-size: 17px; color: var(--muted); max-width: 520px; margin: 0 0 28px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 11px 16px; border-radius: 9px; font-size: 13.5px; font-weight: 600;
+    border: 1px solid transparent; transition: transform .15s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.primary { background: var(--accent); color: #07101e; box-shadow: 0 10px 30px rgba(76,141,255,.22); }
+  .btn.primary:hover { background: #65a0ff; }
+  .btn.secondary { background: rgba(255,255,255,.035); border-color: var(--line); color: var(--text); }
+  .btn.secondary:hover { border-color: #3a4f68; background: rgba(255,255,255,.06); }
+  .btn .small { font-weight: 500; opacity: .72; font-size: 12px; }
+  .fine { font-size: 12px; color: var(--faint); }
+  .fine a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+  .meta { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line-soft); }
+  .meta div { font-size: 11.5px; color: var(--faint); }
+  .meta strong { display: block; color: var(--muted); font-size: 12.5px; font-weight: 600; margin-bottom: 2px; }
+  .shot { position: relative; }
+  .shot::before {
+    content: ""; position: absolute; inset: -22px -18px -30px -18px;
+    background: radial-gradient(closest-side, rgba(76,141,255,.17), transparent 70%);
+    filter: blur(14px); z-index: -1;
+  }
+  .window {
+    border: 1px solid #2c3d52; border-radius: 13px; overflow: hidden;
+    background: #0b1016; box-shadow: 0 30px 80px rgba(0,0,0,.52), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .titlebar { height: 33px; display: flex; align-items: center; gap: 6px; padding: 0 12px; background: #121c27; border-bottom: 1px solid #223141; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #3d4c5d; }
+  .dot:nth-child(1) { background: #ff6b6b; } .dot:nth-child(2) { background: #ffc457; } .dot:nth-child(3) { background: #3fcf8e; }
+  .titlebar span { margin-left: 8px; font: 500 10.5px var(--mono); color: #7d8fa5; }
+  .window img { display: block; width: 100%; height: auto; }
+  section { padding: 66px 0; border-top: 1px solid var(--line-soft); }
+  .section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
+  h2 { font-size: 30px; letter-spacing: -.025em; margin: 0; font-weight: 650; }
+  .section-head p { margin: 0; color: var(--muted); font-size: 14px; max-width: 420px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,.028), rgba(255,255,255,.012));
+    border: 1px solid var(--line); border-radius: 12px; padding: 20px;
+  }
+  .card .icon { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; background: rgba(76,141,255,.12); color: var(--accent-2); margin-bottom: 13px; font: 700 13px var(--mono); }
+  .card h3 { margin: 0 0 6px; font-size: 14.5px; font-weight: 620; letter-spacing: -.005em; }
+  .card p { margin: 0; font-size: 12.8px; color: var(--muted); }
+  .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .gallery figure { margin: 0; }
+  .gallery .window { border-radius: 10px; }
+  .gallery figcaption { margin-top: 9px; font-size: 11.5px; color: var(--faint); }
+  .split { display: grid; grid-template-columns: .9fr 1.1fr; gap: 44px; align-items: start; }
+  .prose h2 { margin-bottom: 14px; }
+  .prose p { color: var(--muted); font-size: 14px; margin: 0 0 13px; }
+  .prose code { font: 12px var(--mono); color: var(--accent-2); background: rgba(76,141,255,.08); padding: 2px 5px; border-radius: 4px; }
+  .checks { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 10px; }
+  .checks li { display: flex; gap: 9px; align-items: start; font-size: 13px; color: var(--muted); }
+  .checks li::before { content: "✓"; color: var(--success); font-weight: 700; font-size: 12px; margin-top: 2px; }
+  .downloads { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .dl { display: flex; flex-direction: column; gap: 7px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 19px; }
+  .dl .os { font: 600 10.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-2); }
+  .dl strong { font-size: 15px; font-weight: 620; }
+  .dl span { font-size: 12px; color: var(--faint); }
+  .dl a { margin-top: 9px; font-size: 12.5px; font-weight: 600; color: var(--text); border-bottom: 1px solid #35506f; padding-bottom: 2px; width: fit-content; }
+  .dl a:hover { color: var(--accent-2); border-color: var(--accent); }
+  .note {
+    margin-top: 16px; border: 1px solid #364a60; background: rgba(76,141,255,.045);
+    border-radius: 10px; padding: 13px 15px; font-size: 12.2px; color: var(--muted);
+  }
+  .note strong { color: var(--text); font-weight: 600; }
+  footer { border-top: 1px solid var(--line-soft); padding: 28px 0 40px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  footer img { width: 20px; height: 20px; border-radius: 5px; opacity: .9; }
+  footer span { color: var(--faint); font-size: 12px; }
+  footer .spacer { flex: 1; }
+  footer a { color: var(--muted); font-size: 12px; margin-left: 14px; }
+  footer a:hover { color: var(--text); }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 34px; padding-top: 48px; }
+    .shot { order: -1; }
+    .grid, .downloads { grid-template-columns: 1fr 1fr; }
+    .split { grid-template-columns: 1fr; gap: 26px; }
+    .gallery { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 620px) {
+    .wrap { width: calc(100% - 30px); }
+    .nav .link { display: none; }
+    .grid, .downloads { grid-template-columns: 1fr; }
+    .section-head { display: block; }
+    .section-head p { margin-top: 8px; }
+    h1 { font-size: 46px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <img src="assets/appicon.png" alt="">
+      <span class="name">SSH Dashboard</span>
+      <span class="spacer"></span>
+      <a class="link" href="#features">Features</a>
+      <a class="link" href="#safety">Safety</a>
+      <a class="link" href="#download">Download</a>
+      <a class="ghost" href="https://github.com/jphermans/ssh-dashboard">GitHub ↗</a>
+    </nav>
+
+    <header class="hero">
+      <div>
+        <div class="eyebrow">JPHsystems · Desktop for ~/.ssh</div>
+        <h1>Your SSH world,<br><span class="accent">without the guesswork.</span></h1>
+        <p class="lede">A careful dashboard for <strong>known_hosts</strong>, <strong>ssh_config</strong> and every key pair beside them. Inspect, edit, remove — with backups and a real terminal built in.</p>
+        <div class="actions">
+          <a class="btn primary" href="https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SSH-Dashboard-2.1.4-macOS-universal.dmg">Download for macOS <span class="small">Apple Silicon + Intel</span></a>
+          <a class="btn secondary" href="https://github.com/jphermans/ssh-dashboard/releases/latest/download/SSH-Dashboard-2.1.4-Setup.exe">Windows installer <span class="small">EXE</span></a>
+          <a class="btn secondary" href="https://github.com/jphermans/ssh-dashboard/releases/latest">All downloads ↗</a>
+        </div>
+        <p class="fine">macOS 12+ · Windows 10/11 x64 · Linux x64 &nbsp;·&nbsp; <a href="https://github.com/jphermans/ssh-dashboard/releases/tag/v2.1.4">Version 2.1.4</a></p>
+        <div class="meta">
+          <div><strong>Native terminal</strong>k9s, vim, htop</div>
+          <div><strong>Safe writes</strong>backups + undo</div>
+          <div><strong>Open source</strong>MIT components</div>
+        </div>
+      </div>
+      <div class="shot">
+        <div class="window">
+          <div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>SSH Dashboard — Hosts</span></div>
+          <img src="screenshots/hosts-dark.png" alt="SSH Dashboard hosts view">
+        </div>
+      </div>
+    </header>
+
+    <section id="features">
+      <div class="section-head">
+        <h2>Everything in one clear view.</h2>
+        <p>No more guessing which key belongs to which host, or which file a delete will touch.</p>
+      </div>
+      <div class="grid">
+        <div class="card"><div class="icon">⌘</div><h3>Hosts that make sense</h3><p>Merges known_hosts and ssh_config, including Include files and hashed entries. Address, user, port, key type and source in one table.</p></div>
+        <div class="card"><div class="icon">⌁</div><h3>A real terminal</h3><p>SSH sessions run in a proper PTY inside the app. Resize the window and k9s, vim and htop follow. Copy, paste and mouse reporting work.</p></div>
+        <div class="card"><div class="icon">◇</div><h3>Keys, understood</h3><p>Private and public keys, SHA-256 fingerprints, permissions and PuTTY .ppk import — including passphrase-protected keys.</p></div>
+        <div class="card"><div class="icon">↺</div><h3>Backups and undo</h3><p>Every write is preceded by a timestamped backup. Undo restores every file touched by the last action, not just one.</p></div>
+        <div class="card"><div class="icon">☾</div><h3>Made for the desktop</h3><p>System, dark and light themes. Resizable sidebar, table and details rail. Native macOS menu, Windows installer and Linux build.</p></div>
+        <div class="card"><div class="icon">⌗</div><h3>Activity you can audit</h3><p>A local journal of every removal, edit, import, undo and restore. No cloud, no telemetry, no account.</p></div>
+      </div>
+    </section>
+
+    <section id="safety">
+      <div class="split">
+        <div class="prose">
+          <div class="eyebrow">Safety model</div>
+          <h2>Careful by default.</h2>
+          <p>SSH Dashboard is a tool for files that matter. It writes only inside <code>~/.ssh</code>, and only after taking a backup.</p>
+          <ul class="checks">
+            <li>Atomic replacement with original permissions preserved.</li>
+            <li>Deletion re-reads the file and removes only entries that still match.</li>
+            <li>Include files, Match blocks and <code>Host *</code> are read-only.</li>
+            <li>An exclusive write lock prevents two writers from colliding.</li>
+            <li>No telemetry, no credentials stored, no network account.</li>
+          </ul>
+        </div>
+        <div class="gallery">
+          <figure><div class="window"><div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Hosts — dark</span></div><img src="screenshots/hosts-dark.png" alt="Hosts view in dark theme"></div><figcaption>One table for every host and alias.</figcaption></figure>
+          <figure><div class="window"><div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Keys — light</span></div><img src="screenshots/keys-light.png" alt="Keys view in light theme"></div><figcaption>Fingerprints and permissions at a glance.</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="download">
+      <div class="section-head">
+        <h2>Download.</h2>
+        <p>Self-contained builds. No .NET runtime, no package manager, no account.</p>
+      </div>
+      <div class="downloads">
+        <div class="dl"><span class="os">macOS 12+</span><strong>Universal DMG</strong><span>Apple Silicon + Intel · 90 MB</span><a href="https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SSH-Dashboard-2.1.4-macOS-universal.dmg">Download .dmg →</a></div>
+        <div class="dl"><span class="os">Windows 10/11</span><strong>Installer</strong><span>x64 · per-user · no admin prompt</span><a href="https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SSH-Dashboard-2.1.4-Setup.exe">Download .exe →</a></div>
+        <div class="dl"><span class="os">Linux</span><strong>Portable archive</strong><span>x64 · tar.gz</span><a href="https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.4/SSH-Dashboard-2.1.4-linux-x64.tar.gz">Download .tar.gz →</a></div>
+      </div>
+      <div class="note"><strong>macOS note:</strong> the DMG is ad-hoc signed and not notarized. On first launch use <em>System Settings → Privacy &amp; Security → Open Anyway</em>. A notarized build requires a Developer ID certificate. <a href="https://github.com/jphermans/ssh-dashboard/blob/main/docs/APP-STORE.md" style="color:var(--accent-2)">Read the distribution notes →</a></div>
+    </section>
+
+    <footer>
+      <img src="assets/appicon.png" alt="">
+      <span>SSH Dashboard · Built by JPHsystems · © 2026</span>
+      <span class="spacer"></span>
+      <a href="https://github.com/jphermans/ssh-dashboard">GitHub</a>
+      <a href="https://github.com/jphermans/ssh-dashboard/issues">Issues</a>
+      <a href="https://github.com/jphermans/ssh-dashboard/blob/main/README.md">README</a>
+    </footer>
+  </div>
+</body>
+</html>

@@ -10,7 +10,7 @@ on:
         default: "2.1.4"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-installer:
@@ -44,6 +44,24 @@ jobs:
           & $iscc "installer\SSH-Dashboard.iss" "/DMyAppVersion=${{ inputs.version }}"
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
           Get-ChildItem "installer\dist" | Format-Table Name, Length
+
+      - name: Publish GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          $tag = "v$env:VERSION"
+          $asset = "installer/dist/SSH-Dashboard-$env:VERSION-Setup.exe"
+          if (-not (Test-Path $asset)) { throw "Installer not found: $asset" }
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag $asset --clobber --repo $env:GITHUB_REPOSITORY
+          } else {
+            gh release create $tag $asset --repo $env:GITHUB_REPOSITORY `
+              --title "SSH Dashboard $env:VERSION" `
+              --notes "Windows installer for SSH Dashboard $env:VERSION. Per-user install, no administrator prompt. macOS and Linux builds are attached to the main release."
+          }
 
       - uses: actions/upload-artifact@v4
         with:
