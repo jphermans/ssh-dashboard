@@ -1,0 +1,53 @@
+name: windows-installer
+
+# Manual only: this workflow is never started by a push.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version shown in the installer (for example 2.1.4)"
+        required: true
+        default: "2.1.4"
+
+permissions:
+  contents: read
+
+jobs:
+  build-installer:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Test core
+        run: dotnet test dotnet/tests/SshDashboard.Core.Tests/SshDashboard.Core.Tests.csproj -c Release --nologo
+
+      - name: Publish Windows app
+        run: >
+          dotnet publish dotnet/src/SshDashboard.App/SshDashboard.App.csproj
+          -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:DebugType=None -o dotnet/dist/win
+
+      - name: Install Inno Setup
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { throw "ISCC.exe not found at $iscc" }
+          & $iscc "installer\SSH-Dashboard.iss" "/DMyAppVersion=${{ inputs.version }}"
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
+          Get-ChildItem "installer\dist" | Format-Table Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SSH-Dashboard-${{ inputs.version }}-windows-installer
+          path: installer/dist/SSH-Dashboard-${{ inputs.version }}-Setup.exe
+          if-no-files-found: error
+          retention-days: 30
