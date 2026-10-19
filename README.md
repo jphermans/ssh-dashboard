@@ -9,6 +9,8 @@ activity journal.
 
 Built with **.NET 10** and **Avalonia** for macOS, Windows and Linux.
 
+**[Website and downloads →](https://jphermans.github.io/ssh-dashboard/)**
+
 <br clear="left">
 
 ![.NET](https://img.shields.io/badge/.NET-10-512BD4)
