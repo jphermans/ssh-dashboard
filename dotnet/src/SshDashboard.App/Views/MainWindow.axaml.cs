@@ -146,7 +146,7 @@ public partial class MainWindow : Window
         var config = _vm.ActiveView == "config";
         var keys = _vm.ActiveView == "keys";
 
-        DeleteSelectedButton.IsVisible = hosts && _vm.HasSelection;
+        DeleteSelectedButton.IsVisible = hosts && (_vm.HasSelection || _vm.SelectedHost is not null);
         OpenSessionButton.IsVisible = hosts && _vm.SelectedHost is { IsHashed: false };
         EditBlockButton.IsVisible = config && _vm.CanEditBlock;
         DeleteBlockButton.IsVisible = config && _vm.SelectedBlock?.IsEditable == true;
@@ -212,9 +212,15 @@ public partial class MainWindow : Window
         }
 
         var rows = _vm.FilteredHosts.Where(r => r.IsSelected).ToList();
+        if (rows.Count == 0 && _vm.SelectedHost is { InKnownHosts: true } selected)
+        {
+            // Clicking a known_hosts row and pressing Delete should work too;
+            // the confirmation below still protects the destructive action.
+            rows.Add(selected);
+        }
         if (rows.Count == 0)
         {
-            ShowToast("Select one or more hosts first");
+            ShowToast("Select a host first");
             return;
         }
 

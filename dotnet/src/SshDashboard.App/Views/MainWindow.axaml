@@ -163,18 +163,26 @@
               <Grid x:Name="HostsView">
                 <DataGrid x:Name="HostsGrid" ItemsSource="{Binding FilteredHosts}"
                           AutomationProperties.Name="Known hosts and ssh_config aliases"
-                          SelectedItem="{Binding SelectedHost}" IsReadOnly="True"
+                          SelectedItem="{Binding SelectedHost}" IsReadOnly="False"
                           AutoGenerateColumns="False" CanUserReorderColumns="False"
                           SelectionChanged="Hosts_SelectionChanged"
                           DoubleTapped="Hosts_DoubleTapped">
                   <DataGrid.Columns>
-                    <DataGridCheckBoxColumn Width="44" Binding="{Binding IsSelected, Mode=TwoWay}" />
-                    <DataGridTextColumn Header="Host" Width="1.3*" Binding="{Binding Label}" />
-                    <DataGridTextColumn Header="Address" Width="1.4*" Binding="{Binding Address}" />
-                    <DataGridTextColumn Header="User" Width="0.9*" Binding="{Binding User}" />
-                    <DataGridTextColumn Header="Port" Width="80" Binding="{Binding PortText}" />
-                    <DataGridTextColumn Header="Keys" Width="1.1*" Binding="{Binding KeyTypes}" />
-                    <DataGridTextColumn Header="Source" Width="1.2*" Binding="{Binding Source}" />
+                    <DataGridTemplateColumn Width="44">
+                      <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                          <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    AutomationProperties.Name="Select this host" />
+                        </DataTemplate>
+                      </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Host" Width="1.3*" Binding="{Binding Label}" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Address" Width="1.4*" Binding="{Binding Address}" IsReadOnly="True" />
+                    <DataGridTextColumn Header="User" Width="0.9*" Binding="{Binding User}" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Port" Width="80" Binding="{Binding PortText}" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Keys" Width="1.1*" Binding="{Binding KeyTypes}" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Source" Width="1.2*" Binding="{Binding Source}" IsReadOnly="True" />
                   </DataGrid.Columns>
                 </DataGrid>
               </Grid>

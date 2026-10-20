@@ -114,7 +114,10 @@ public sealed class SshStore
             row.Source = row.InKnownHosts ? "both" : "config";
             if (string.IsNullOrWhiteSpace(row.User)) row.User = block.User;
             if (string.IsNullOrWhiteSpace(row.IdentityFile)) row.IdentityFile = block.IdentityFile;
-            if (!row.ConfigStarts.Contains(block.StartLine)) row.ConfigStarts.Add(block.StartLine);
+            // Never delete blocks that live in Include'd files; their line
+            // numbers belong to another file and must stay read-only.
+            if (!block.IsIncluded && !row.ConfigStarts.Contains(block.StartLine))
+                row.ConfigStarts.Add(block.StartLine);
         }
 
         return rows.Values

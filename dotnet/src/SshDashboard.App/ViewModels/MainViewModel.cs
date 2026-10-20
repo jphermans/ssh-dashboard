@@ -115,7 +115,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             if (ActiveView == "hosts")
             {
-                if (SelectedCount == 0) return $"{_allHosts.Count} hosts · select rows to remove them";
+                if (SelectedCount == 0) return $"{_allHosts.Count} hosts · tick or select a row to remove it";
                 return SelectedCount == 1
                     ? $"1 of {_allHosts.Count} selected"
                     : $"{SelectedCount} of {_allHosts.Count} selected";

@@ -49,6 +49,7 @@ public class RegressionTests : IDisposable
         var row = snapshot.Hosts.Single(h => h.Address == "192.0.2.50");
         Assert.Equal("lab", row.Label);
         Assert.Equal("jean", row.User);
+        Assert.Empty(row.ConfigStarts);
     }
 
     [Fact]
