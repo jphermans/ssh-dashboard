@@ -98,7 +98,7 @@
   .section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
   h2 { font-size: 30px; letter-spacing: -.025em; margin: 0; font-weight: 650; }
   .section-head p { margin: 0; color: var(--muted); font-size: 14px; max-width: 420px; }
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .card {
     background: linear-gradient(180deg, rgba(255,255,255,.028), rgba(255,255,255,.012));
     border: 1px solid var(--line); border-radius: 12px; padding: 20px;
@@ -168,7 +168,7 @@
       <div>
         <div class="eyebrow">JPHsystems · Desktop for ~/.ssh</div>
         <h1>Your SSH world,<br><span class="accent">without the guesswork.</span></h1>
-        <p class="lede">A careful dashboard for <strong>known_hosts</strong>, <strong>ssh_config</strong> and every key pair beside them. Inspect, edit, remove — with backups and a real terminal built in.</p>
+        <p class="lede">A careful dashboard for <strong>known_hosts</strong>, <strong>ssh_config</strong> and every key pair beside them. Inspect, add, edit, remove — with backups and a real terminal built in.</p>
         <div class="actions">
           <a class="btn primary" href="https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.6/SSH-Dashboard-2.1.6-macOS-universal.dmg">Download for macOS <span class="small">Apple Silicon + Intel</span></a>
           <a class="btn secondary" href="https://github.com/jphermans/ssh-dashboard/releases/latest/download/SSH-Dashboard-2.1.6-Setup.exe">Windows installer <span class="small">EXE</span></a>
@@ -196,11 +196,13 @@
       </div>
       <div class="grid">
         <div class="card"><div class="icon">⌘</div><h3>Hosts that make sense</h3><p>Merges known_hosts and ssh_config, including Include files and hashed entries. Address, user, port, key type and source in one table.</p></div>
+        <div class="card"><div class="icon">＋</div><h3>Add a Host block</h3><p>Create a new ssh_config entry from the Configuration view, Tools menu or Cmd/Ctrl+N. Patterns, HostName, User, Port and IdentityFile — with a backup first.</p></div>
         <div class="card"><div class="icon">⌁</div><h3>A real terminal</h3><p>SSH sessions run in a proper PTY inside the app. Resize the window and k9s, vim and htop follow. Copy, paste and mouse reporting work.</p></div>
         <div class="card"><div class="icon">◇</div><h3>Keys, understood</h3><p>Private and public keys, SHA-256 fingerprints, permissions and PuTTY .ppk import — including passphrase-protected keys.</p></div>
         <div class="card"><div class="icon">↺</div><h3>Backups and undo</h3><p>Every write is preceded by a timestamped backup. Undo restores every file touched by the last action, not just one.</p></div>
         <div class="card"><div class="icon">☾</div><h3>Made for the desktop</h3><p>System, dark and light themes. Resizable sidebar, table and details rail. Native macOS menu, Windows installer and Linux build.</p></div>
         <div class="card"><div class="icon">⌗</div><h3>Activity you can audit</h3><p>A local journal of every removal, edit, import, undo and restore. No cloud, no telemetry, no account.</p></div>
+        <div class="card"><div class="icon">↗</div><h3>Export when you need it</h3><p>Send hosts, config blocks or keys to CSV. Useful for an inventory, a migration checklist or a second pair of eyes.</p></div>
       </div>
     </section>
 
