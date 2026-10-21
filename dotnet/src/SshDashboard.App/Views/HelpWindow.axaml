@@ -44,7 +44,7 @@
             <Run Text=" and the key files beside them. Nothing outside that folder is modified, and every write is preceded by a timestamped backup." />
           </TextBlock>
 
-          <Grid ColumnDefinitions="34,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="12" Margin="0,4,0,0">
+          <Grid ColumnDefinitions="34,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="12" Margin="0,4,0,0">
             <Border Grid.Row="0" Width="24" Height="24" CornerRadius="12"
                     Background="{DynamicResource AccentSoft}" VerticalAlignment="Top">
               <TextBlock Text="1" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center"
@@ -69,6 +69,14 @@
             <TextBlock Grid.Row="2" Grid.Column="1" FontSize="13" LineHeight="20" TextWrapping="Wrap"
                        Foreground="{DynamicResource TextMuted}"
                        Text="Select a host to see its details on the right, test the port, or open an SSH session." />
+            <Border Grid.Row="3" Width="24" Height="24" CornerRadius="12"
+                    Background="{DynamicResource AccentSoft}" VerticalAlignment="Top">
+              <TextBlock Text="4" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center"
+                         VerticalAlignment="Center" Foreground="{DynamicResource AccentBrush}" />
+            </Border>
+            <TextBlock Grid.Row="3" Grid.Column="1" FontSize="13" LineHeight="20" TextWrapping="Wrap"
+                       Foreground="{DynamicResource TextMuted}"
+                       Text="To add a new entry, open Configuration and choose Add block, or press Cmd/Ctrl+N." />
           </Grid>
         </StackPanel>
 
@@ -117,6 +125,31 @@
               </Grid>
             </StackPanel>
           </Border>
+        </StackPanel>
+
+        <StackPanel Spacing="10">
+          <TextBlock Text="Adding a Host block" FontSize="18" FontWeight="SemiBold"
+                     Foreground="{DynamicResource TextPrimary}" />
+          <Border Height="1" Background="{DynamicResource BorderSoft}" />
+          <TextBlock FontSize="13.5" LineHeight="22" TextWrapping="Wrap"
+                     Foreground="{DynamicResource TextMuted}"
+                     Text="Open the Configuration view and choose Add block in the footer. The same command is under Tools → Add Host Block and on Cmd/Ctrl+N." />
+          <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
+            <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
+            <Run Text="Patterns are space-separated aliases, for example " />
+            <Run Text="nas  nas.example.com" FontFamily="SF Mono, Menlo, monospace" Foreground="{DynamicResource AccentBrush}" />
+            <Run Text=". HostName, User, Port and IdentityFile are optional." />
+          </TextBlock>
+          <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
+            <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
+            <Run Text="The block is appended to the main ~/.ssh/config with a timestamped backup first. Existing blocks, comments and Include files are untouched." />
+          </TextBlock>
+          <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
+            <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
+            <Run Text="A global " />
+            <Run Text="Host *" FontFamily="SF Mono, Menlo, monospace" Foreground="{DynamicResource AccentBrush}" />
+            <Run Text=" block is refused; use a specific alias or pattern." />
+          </TextBlock>
         </StackPanel>
 
         <StackPanel Spacing="10">
