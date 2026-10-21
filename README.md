@@ -17,7 +17,7 @@ Built with **.NET 10** and **Avalonia** for macOS, Windows and Linux.
 ![Avalonia](https://img.shields.io/badge/Avalonia-11.3-8B44AC)
 ![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Windows%20%7C%20Linux-11171F)
 ![Tests](https://img.shields.io/badge/tests-13%20passing-3FCF8E)
-![Version](https://img.shields.io/badge/version-2.1.5-4C8DFF)
+![Version](https://img.shields.io/badge/version-2.1.6-4C8DFF)
 
 ![Hosts view](docs/screenshots/hosts-dark.png)
 
@@ -34,8 +34,9 @@ Built with **.NET 10** and **Avalonia** for macOS, Windows and Linux.
   and ports behave exactly as on the command line; otherwise
   `ssh user@address -p port`. The session opens in an in-app terminal window.
 - **Configuration** — every `Host` block with HostName, User, Port and
-  IdentityFile. Double-click to edit patterns and options; comments and unknown
-  options are preserved. `Match` and `Host *` blocks are read-only.
+  IdentityFile. Add a new block from the footer, Tools menu or `Cmd/Ctrl+N`;
+  double-click to edit patterns and options. Comments and unknown options are
+  preserved. `Match` and `Host *` blocks are read-only.
 - **PuTTY keys** — import `.ppk` files with a file dialog (validated, copied into `~/.ssh`, named after the selected host) or drop them there directly. `.ppk` v2/v3 files are recognised with their fingerprint. Unencrypted RSA/Ed25519 PPKs are converted to a temporary OpenSSH key for sessions, then deleted; passphrase-protected PPKs prompt once and convert through `puttygen` when installed.
 - **Keys** — private and public key files with type, SHA256 fingerprint, size
   and file permissions.
@@ -74,12 +75,12 @@ All builds are self-contained — no .NET runtime required on the target.
 
 | Platform | File |
 | --- | --- |
-| macOS 12+ (Apple Silicon + Intel) | [`SSH-Dashboard-2.1.5-macOS-universal.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.5/SSH-Dashboard-2.1.5-macOS-universal.dmg) |
-| Windows 10/11 x64 — installer | [`SSH-Dashboard-2.1.5-Setup.exe`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.5/SSH-Dashboard-2.1.5-Setup.exe) |
-| Windows 10/11 x64 — portable | [`SSH-Dashboard-2.1.5-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.5/SSH-Dashboard-2.1.5-windows-x64.zip) |
-| Linux x64 | [`SSH-Dashboard-2.1.5-linux-x64.tar.gz`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.5/SSH-Dashboard-2.1.5-linux-x64.tar.gz) |
+| macOS 12+ (Apple Silicon + Intel) | [`SSH-Dashboard-2.1.6-macOS-universal.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.6/SSH-Dashboard-2.1.6-macOS-universal.dmg) |
+| Windows 10/11 x64 — installer | [`SSH-Dashboard-2.1.6-Setup.exe`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.6/SSH-Dashboard-2.1.6-Setup.exe) |
+| Windows 10/11 x64 — portable | [`SSH-Dashboard-2.1.6-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.6/SSH-Dashboard-2.1.6-windows-x64.zip) |
+| Linux x64 | [`SSH-Dashboard-2.1.6-linux-x64.tar.gz`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.6/SSH-Dashboard-2.1.6-linux-x64.tar.gz) |
 
-Checksums: [`SHA256SUMS-2.1.5.txt`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.5/SHA256SUMS-2.1.5.txt).
+Checksums: [`SHA256SUMS-2.1.6.txt`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.6/SHA256SUMS-2.1.6.txt).
 
 ### macOS
 
@@ -105,7 +106,7 @@ assessment (the current sandbox-dependent design is not App Store-ready).
 A branded EXE installer is built **manually**, never on a push:
 
 1. Open **Actions → windows-installer → Run workflow**.
-2. Enter the version (for example `2.1.5`) and run it.
+2. Enter the version (for example `2.1.6`) and run it.
 3. The run attaches `SSH-Dashboard-<version>-Setup.exe` to the matching GitHub
    release, and also uploads it as a workflow artifact.
 
@@ -158,6 +159,7 @@ dotnet run --project src/SshDashboard.App -- --check
 | `Delete` | Remove the selected rows or block |
 | `Cmd/Ctrl + A` | Select all hosts |
 | `Cmd/Ctrl + E` | Export the current view |
+| `Cmd/Ctrl + N` | Add a Host block |
 | `Cmd/Ctrl + ,` | Settings |
 | `Cmd/Ctrl + Z` | Undo the last change, restoring every file it touched |
 | `Cmd/Ctrl + 1…4` | Hosts, Configuration, Keys, Activity |

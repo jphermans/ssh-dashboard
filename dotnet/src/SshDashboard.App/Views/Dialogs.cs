@@ -59,6 +59,66 @@ public static class Dialogs
     }
 
 
+    public static async Task<BlockEditResult?> AddBlockAsync(Window owner)
+    {
+        var window = Shell(owner, "Add Host block", 560, 540);
+        var root = new StackPanel { Spacing = 12, Margin = new Avalonia.Thickness(26) };
+        root.Children.Add(Text("Add a Host block", 20, FontWeight.SemiBold));
+        root.Children.Add(Text("Appended to ~/.ssh/config with a timestamped backup. Existing blocks are not changed.",
+            12.5, FontWeight.Normal, "TextMuted"));
+
+        var patterns = Input("Patterns (space separated)", "", root);
+        patterns.Watermark = "myserver  myserver.example.com";
+        var hostname = Input("HostName", "", root);
+        hostname.Watermark = "192.0.2.10 or server.example.com";
+        var user = Input("User", "", root);
+        user.Watermark = "optional";
+        var port = Input("Port", "", root);
+        port.Watermark = "22";
+        var identity = Input("IdentityFile", "", root);
+        identity.Watermark = "~/.ssh/id_ed25519";
+
+        var buttons = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            Spacing = 10,
+            Margin = new Avalonia.Thickness(0, 12, 0, 0),
+        };
+        var cancel = Button("Cancel", "ghost");
+        cancel.Click += (_, _) => window.Close(null);
+        var save = Button("Add block", "primary");
+        save.Click += (_, _) =>
+        {
+            var list = (patterns.Text ?? "").Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).ToList();
+            if (list.Count == 0)
+            {
+                patterns.BorderBrush = Brush("DangerBrush");
+                return;
+            }
+            if (!string.IsNullOrWhiteSpace(port.Text) &&
+                (!int.TryParse(port.Text, out var number) || number is < 1 or > 65535))
+            {
+                port.BorderBrush = Brush("DangerBrush");
+                return;
+            }
+            var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["hostname"] = hostname.Text ?? "",
+                ["user"] = user.Text ?? "",
+                ["port"] = port.Text ?? "",
+                ["identityfile"] = identity.Text ?? "",
+            };
+            window.Close(new BlockEditResult(list, values));
+        };
+        buttons.Children.Add(cancel);
+        buttons.Children.Add(save);
+        root.Children.Add(buttons);
+
+        window.Content = root;
+        return await window.ShowDialog<BlockEditResult?>(owner);
+    }
+
     public static async Task<BlockEditResult?> EditBlockAsync(Window owner, ConfigBlock block)
     {
         var window = Shell(owner, "Edit Host block", 560, 470);

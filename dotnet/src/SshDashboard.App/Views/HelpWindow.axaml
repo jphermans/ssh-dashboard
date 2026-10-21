@@ -98,7 +98,7 @@
                 <TextBlock Text="Configuration" FontSize="13" FontWeight="SemiBold" Foreground="#BB9AF7" />
                 <TextBlock Grid.Column="1" FontSize="12.5" LineHeight="19" TextWrapping="Wrap"
                            Foreground="{DynamicResource TextMuted}"
-                           Text="Every Host block. Double-click to edit patterns, HostName, User, Port and IdentityFile; comments and unknown options are preserved." />
+                           Text="Every Host block. Add a new block, or double-click one to edit patterns, HostName, User, Port and IdentityFile; comments and unknown options are preserved." />
               </Grid>
               <Border Height="1" Background="{DynamicResource BorderSoft}" Margin="16,0" />
               <Grid ColumnDefinitions="150,*" Margin="16,12">
@@ -190,6 +190,15 @@
                 </Border>
                 <Border Grid.Column="2" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3" HorizontalAlignment="Center">
                   <TextBlock Text="F5" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5" Foreground="{DynamicResource TextPrimary}" />
+                </Border>
+              </Grid>
+              <Grid ColumnDefinitions="*,120,120" Margin="16,9">
+                <TextBlock Text="Add Host block" FontSize="12.5" Foreground="{DynamicResource TextMuted}" />
+                <Border Grid.Column="1" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3" HorizontalAlignment="Center">
+                  <TextBlock Text="⌘N" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5" Foreground="{DynamicResource TextPrimary}" />
+                </Border>
+                <Border Grid.Column="2" Background="{DynamicResource ElevatedBg}" CornerRadius="5" Padding="7,3" HorizontalAlignment="Center">
+                  <TextBlock Text="Ctrl+N" FontFamily="SF Mono, Menlo, monospace" FontSize="11.5" Foreground="{DynamicResource TextPrimary}" />
                 </Border>
               </Grid>
               <Grid ColumnDefinitions="*,120,120" Margin="16,9">

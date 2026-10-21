@@ -17,6 +17,40 @@ public class RegressionTests : IDisposable
     private SshStore Store() => new(_dir);
 
     [Fact]
+    public void AddHostBlockAppendsWithBackup()
+    {
+        var config = Path.Combine(_dir, "config");
+        File.WriteAllText(config, "# keep me\nHost existing\n  HostName 192.0.2.1\n");
+
+        var store = Store();
+        store.AddHostBlock(new[] { "lab", "lab.example.com" }, new Dictionary<string, string>
+        {
+            ["hostname"] = "192.0.2.50",
+            ["user"] = "jean",
+            ["port"] = "2222",
+            ["identityfile"] = "~/.ssh/id_ed25519",
+        });
+
+        var text = File.ReadAllText(config);
+        Assert.Contains("# keep me", text);
+        Assert.Contains("Host lab lab.example.com", text);
+        Assert.Contains("  HostName 192.0.2.50", text);
+        Assert.Contains("  Port 2222", text);
+        Assert.Single(store.ListBackups());
+        var added = store.Load().Blocks.Single(b => b.Patterns.Contains("lab"));
+        Assert.True(added.IsEditable);
+        Assert.Equal("jean", added.User);
+    }
+
+    [Fact]
+    public void AddHostBlockRefusesGlobalWildcard()
+    {
+        var store = Store();
+        Assert.Throws<StoreException>(() => store.AddHostBlock(new[] { "*" },
+            new Dictionary<string, string>()));
+    }
+
+    [Fact]
     public void HashedKnownHostEntryIsListedAndRemovable()
     {
         var line = "|1|c2FsdA==|aGFzaA== ssh-ed25519 AAAAC3Nza";

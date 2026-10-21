@@ -148,6 +148,7 @@ public partial class MainWindow : Window
 
         DeleteSelectedButton.IsVisible = hosts && (_vm.HasSelection || _vm.SelectedHost is not null);
         OpenSessionButton.IsVisible = hosts && _vm.SelectedHost is { IsHashed: false };
+        AddBlockButton.IsVisible = config;
         EditBlockButton.IsVisible = config && _vm.CanEditBlock;
         DeleteBlockButton.IsVisible = config && _vm.SelectedBlock?.IsEditable == true;
         RevealKeyButton.IsVisible = keys && _vm.SelectedKey is not null;
@@ -253,6 +254,25 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             await Dialogs.ConfirmAsync(this, "Could not remove", "Nothing was changed",
+                ex.Message, "", "Close", danger: false);
+        }
+    }
+
+    private async void AddBlock_Click(object? sender, RoutedEventArgs e)
+    {
+        var result = await Dialogs.AddBlockAsync(this);
+        if (result is null) return;
+        try
+        {
+            _vm.Store.AddHostBlock(result.Patterns, result.Values);
+            _vm.Load();
+            ShowView("config", true);
+            UpdateChrome();
+            ShowToast("Host block added · backup saved");
+        }
+        catch (Exception ex)
+        {
+            await Dialogs.ConfirmAsync(this, "Could not add block", "Nothing was changed",
                 ex.Message, "", "Close", danger: false);
         }
     }
@@ -549,6 +569,7 @@ public partial class MainWindow : Window
         }
         else if (command && e.Key == Key.A) { _vm.SelectAll(); e.Handled = true; }
         else if (command && e.Key == Key.E) { Export_Click(sender, e); e.Handled = true; }
+        else if (command && e.Key == Key.N) { AddBlock_Click(sender, e); e.Handled = true; }
         else if (command && e.Key == Key.OemComma) { Settings_Click(sender, e); e.Handled = true; }
         else if (command && e.Key == Key.Z) { Undo_Click(sender, e); e.Handled = true; }
         else if (command && e.Key == Key.D1) { ShowView("hosts", true); e.Handled = true; }

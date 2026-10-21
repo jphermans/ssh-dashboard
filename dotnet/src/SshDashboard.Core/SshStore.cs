@@ -183,6 +183,61 @@ public sealed class SshStore
         return parsed.Blocks.Count(b => starts.Contains(b.StartLine));
     }
 
+    /// <summary>Appends a new Host block to the main ssh_config.</summary>
+    public void AddHostBlock(IReadOnlyList<string> patterns,
+        IReadOnlyDictionary<string, string> values)
+    {
+        using var gate = AcquireWriteLock();
+        var clean = patterns
+            .Select(p => p.Trim())
+            .Where(p => p.Length > 0)
+            .ToList();
+        if (clean.Count == 0)
+            throw new StoreException("A Host block needs at least one pattern.");
+        if (clean.Any(p => p.Contains(' ') || p.Contains('\t')))
+            throw new StoreException("Host patterns cannot contain spaces.");
+        if (clean.Contains("*"))
+            throw new StoreException("Refusing to create a global Host * block.");
+
+        var port = values.GetValueOrDefault("port", "").Trim();
+        if (port.Length > 0 && (!int.TryParse(port, out var number) || number is < 1 or > 65535))
+            throw new StoreException("Port must be a number between 1 and 65535.");
+
+        Directory.CreateDirectory(SshDir);
+        var text = File.Exists(ConfigPath) ? TextIO.ReadText(ConfigPath) : "";
+        var newline = TextIO.Newline(text);
+        var builder = new StringBuilder();
+        if (text.Length > 0)
+        {
+            builder.Append(text);
+            if (!text.EndsWith('\n')) builder.Append(newline);
+            if (!text.EndsWith(newline + newline, StringComparison.Ordinal))
+                builder.Append(newline);
+        }
+
+        builder.Append("Host ").Append(string.Join(" ", clean)).Append(newline);
+        AddOption(builder, newline, "HostName", values.GetValueOrDefault("hostname", ""));
+        AddOption(builder, newline, "User", values.GetValueOrDefault("user", ""));
+        AddOption(builder, newline, "Port", port);
+        AddOption(builder, newline, "IdentityFile", values.GetValueOrDefault("identityfile", ""));
+        builder.Append(newline);
+
+        var backups = new List<string>();
+        if (File.Exists(ConfigPath)) backups.Add(Backup(ConfigPath));
+        WriteAtomic(ConfigPath, builder.ToString());
+        LastActionBackups = backups;
+        _log.Append("add-config", "Host " + string.Join(" ", clean));
+    }
+
+    private static void AddOption(StringBuilder builder, string newline, string key, string value)
+    {
+        value = value.Trim();
+        if (value.Length == 0) return;
+        if (value.Contains('\n') || value.Contains('\r'))
+            throw new StoreException(key + " cannot contain a newline.");
+        builder.Append("  ").Append(key).Append(' ').Append(value).Append(newline);
+    }
+
     public void UpdateBlock(ConfigBlock block, IReadOnlyList<string> patterns,
         IReadOnlyDictionary<string, string> values)
     {

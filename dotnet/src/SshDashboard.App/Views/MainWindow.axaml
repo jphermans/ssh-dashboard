@@ -43,6 +43,7 @@
         <MenuItem Header="Open SSH Session" Click="Ssh_Click" />
         <MenuItem Header="Import PuTTY Key…" Click="ImportPpk_Click" />
         <MenuItem Header="Test Connection" Click="Test_Click" />
+        <MenuItem Header="Add Host Block…" Click="AddBlock_Click" />
         <MenuItem Header="Edit Selected Block…" Click="EditBlock_Click" />
         <Separator />
         <MenuItem Header="Settings…" Click="Settings_Click" />
@@ -305,6 +306,8 @@
                       IsVisible="False" Classes="primary" />
               <Button x:Name="RevealKeyButton" Content="Reveal key" Click="RevealKey_Click"
                       IsVisible="False" Classes="ghost" />
+              <Button x:Name="AddBlockButton" Content="Add block" Click="AddBlock_Click"
+                      IsVisible="False" Classes="primary" />
               <Button x:Name="EditBlockButton" Content="Edit block" Click="EditBlock_Click"
                       IsVisible="False" Classes="ghost" />
               <Button x:Name="DeleteBlockButton" Content="Delete block" Click="DeleteBlock_Click"
