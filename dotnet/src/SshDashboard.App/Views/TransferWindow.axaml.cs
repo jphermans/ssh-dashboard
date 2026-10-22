@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using SshDashboard.Core;
@@ -26,6 +27,10 @@ public partial class TransferWindow : Window
         SourcesList.ItemsSource = _sources;
         UploadRadio.IsCheckedChanged += (_, _) => UpdateMode();
         DownloadRadio.IsCheckedChanged += (_, _) => UpdateMode();
+        DragDrop.SetAllowDrop(this, true);
+        AddHandler(DragDrop.DragOverEvent, OnDragOver);
+        AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
+        AddHandler(DragDrop.DropEvent, OnDrop);
         Closing += (_, _) => CancelProcess();
         UpdateMode();
     }
@@ -53,6 +58,41 @@ public partial class TransferWindow : Window
         DownloadPanel.IsVisible = !upload;
         FooterHint.Text = upload ? "Copy local files or folders to the instance" :
             "Copy a remote file or folder to this Mac";
+    }
+
+    private void OnDragOver(object? sender, DragEventArgs e)
+    {
+        var accepts = UploadRadio.IsChecked == true && e.DataTransfer.Contains(DataFormat.File);
+        e.DragEffects = accepts ? DragDropEffects.Copy : DragDropEffects.None;
+        SetDropActive(accepts);
+        e.Handled = true;
+    }
+
+    private void OnDragLeave(object? sender, DragEventArgs e)
+    {
+        SetDropActive(false);
+        e.Handled = true;
+    }
+
+    private void OnDrop(object? sender, DragEventArgs e)
+    {
+        SetDropActive(false);
+        e.Handled = true;
+        if (UploadRadio.IsChecked != true || !e.DataTransfer.Contains(DataFormat.File)) return;
+
+        var files = e.DataTransfer.TryGetFiles();
+        if (files is null) return;
+        foreach (var item in files)
+        {
+            var path = item.TryGetLocalPath();
+            if (!string.IsNullOrWhiteSpace(path)) AddSource(path);
+        }
+    }
+
+    private void SetDropActive(bool active)
+    {
+        if (active) DropZone.Classes.Add("drop-active");
+        else DropZone.Classes.Remove("drop-active");
     }
 
     private async void PickFiles_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -179,6 +219,12 @@ public partial class TransferWindow : Window
                 Progress.Value = 100;
                 ProgressText.Text = "100%";
                 Progress.IsVisible = true;
+                if (upload)
+                {
+                    _sources.Clear();
+                    StatusText.Text = "Transfer complete · source list cleared";
+                    FooterHint.Text = "Source list cleared — choose files again to copy";
+                }
             }
             else
             {

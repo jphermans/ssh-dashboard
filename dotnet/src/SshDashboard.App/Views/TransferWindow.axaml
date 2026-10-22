@@ -2,9 +2,21 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="SshDashboard.App.Views.TransferWindow"
         Title="Transfer files"
-        Width="760" Height="700" MinWidth="640" MinHeight="560"
+        Width="760" Height="760" MinWidth="640" MinHeight="600"
         Background="{DynamicResource AppBg}"
         WindowStartupLocation="CenterOwner">
+  <Window.Styles>
+    <Style Selector="Border.drop-zone">
+      <Setter Property="Background" Value="{DynamicResource InputBg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderSoft}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+    </Style>
+    <Style Selector="Border.drop-zone.drop-active">
+      <Setter Property="Background" Value="{DynamicResource AccentSoft}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    </Style>
+  </Window.Styles>
   <Grid RowDefinitions="Auto,*,Auto">
     <Border Grid.Row="0" Background="{DynamicResource PanelBg}" Padding="24,18"
             BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,0,0,1">
@@ -28,6 +40,14 @@
         <StackPanel x:Name="UploadPanel" Spacing="10">
           <TextBlock Text="From this Mac" FontSize="12" FontWeight="SemiBold"
                      Foreground="{DynamicResource TextFaint}" />
+          <Border x:Name="DropZone" Classes="drop-zone" Padding="14,11" DragDrop.AllowDrop="True">
+            <StackPanel Spacing="3">
+              <TextBlock Text="Drop files or folders here" FontSize="13"
+                         FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
+              <TextBlock Text="or use the pickers below — folders are copied recursively"
+                         FontSize="11.5" Foreground="{DynamicResource TextFaint}" />
+            </StackPanel>
+          </Border>
           <StackPanel Orientation="Horizontal" Spacing="8">
             <Button Content="Choose files…" Click="PickFiles_Click" Classes="ghost" Padding="11,6"
                     Background="{DynamicResource ElevatedBg}" BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" />

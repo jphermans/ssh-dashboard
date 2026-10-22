@@ -181,10 +181,10 @@
           <Border Height="1" Background="{DynamicResource BorderSoft}" />
           <TextBlock FontSize="13.5" LineHeight="22" TextWrapping="Wrap"
                      Foreground="{DynamicResource TextMuted}"
-                     Text="Open an SSH session and choose Files… in its header to copy files or folders in either direction." />
+                     Text="Open an SSH session and choose Files… in its header to copy files or folders in either direction. Drop files or folders onto the window, or use the pickers." />
           <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
             <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
-            <Run Text="Upload: choose one or more local files or folders, then enter the remote destination directory or filename." />
+            <Run Text="Upload: drop files or folders onto the window, or choose them with the pickers, then enter the remote destination directory or filename." />
           </TextBlock>
           <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
             <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
@@ -196,7 +196,7 @@
           </TextBlock>
           <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
             <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
-            <Run Text="The transfer log shows scp output. Close the window or press Cancel to stop an active transfer." />
+            <Run Text="After a successful upload the source list is cleared, so the same files are not copied again by accident. The transfer log shows progress; Close or Cancel stops an active transfer." />
           </TextBlock>
         </StackPanel>
 

@@ -17,7 +17,7 @@ Built with **.NET 10** and **Avalonia** for macOS, Windows and Linux.
 ![Avalonia](https://img.shields.io/badge/Avalonia-11.3-8B44AC)
 ![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Windows%20%7C%20Linux-11171F)
 ![Tests](https://img.shields.io/badge/tests-15%20passing-3FCF8E)
-![Version](https://img.shields.io/badge/version-2.1.8-4C8DFF)
+![Version](https://img.shields.io/badge/version-2.1.9-4C8DFF)
 
 ![Hosts view](docs/screenshots/hosts-dark.png)
 
@@ -47,9 +47,11 @@ Built with **.NET 10** and **Avalonia** for macOS, Windows and Linux.
   preserved. `Match` and `Host *` blocks are read-only.
 - **File transfer** — open **Files…** in an SSH session to upload files or folders
   to the instance, or download a remote file or folder to a local folder. Both
-  directions use native file/folder pickers and `rsync` with a live progress bar
-  (falling back to `scp`) with your SSH config, key and agent. Password-only
-  hosts need an SSH key or agent because transfers run without a terminal.
+  directions use native file/folder pickers or drag and drop, and `rsync` with a
+  live progress bar (falling back to `scp`) with your SSH config, key and agent.
+  A successful upload clears the source list so it cannot be copied twice by
+  accident. Password-only hosts need an SSH key or agent because transfers run
+  without a terminal.
 - **PuTTY keys** — import `.ppk` files with a file dialog (validated, copied into `~/.ssh`, named after the selected host) or drop them there directly. `.ppk` v2/v3 files are recognised with their fingerprint. Unencrypted RSA/Ed25519 PPKs are converted to a temporary OpenSSH key for sessions, then deleted; passphrase-protected PPKs prompt once and convert through `puttygen` when installed.
 - **Keys** — private and public key files with type, SHA256 fingerprint, size
   and file permissions.
@@ -88,12 +90,12 @@ All builds are self-contained — no .NET runtime required on the target.
 
 | Platform | File |
 | --- | --- |
-| macOS 12+ (Apple silicon) | [`SSH-Dashboard-2.1.8-macOS-arm64.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.8/SSH-Dashboard-2.1.8-macOS-arm64.dmg) |
-| Windows 10/11 x64 — installer | [`SSH-Dashboard-2.1.8-Setup.exe`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.8/SSH-Dashboard-2.1.8-Setup.exe) |
-| Windows 10/11 x64 — portable | [`SSH-Dashboard-2.1.8-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.8/SSH-Dashboard-2.1.8-windows-x64.zip) |
-| Linux x64 | [`SSH-Dashboard-2.1.8-linux-x64.tar.gz`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.8/SSH-Dashboard-2.1.8-linux-x64.tar.gz) |
+| macOS 12+ (Apple silicon) | [`SSH-Dashboard-2.1.9-macOS-arm64.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.9/SSH-Dashboard-2.1.9-macOS-arm64.dmg) |
+| Windows 10/11 x64 — installer | [`SSH-Dashboard-2.1.9-Setup.exe`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.9/SSH-Dashboard-2.1.9-Setup.exe) |
+| Windows 10/11 x64 — portable | [`SSH-Dashboard-2.1.9-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.9/SSH-Dashboard-2.1.9-windows-x64.zip) |
+| Linux x64 | [`SSH-Dashboard-2.1.9-linux-x64.tar.gz`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.9/SSH-Dashboard-2.1.9-linux-x64.tar.gz) |
 
-Checksums: [`SHA256SUMS-2.1.8.txt`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.8/SHA256SUMS-2.1.8.txt).
+Checksums: [`SHA256SUMS-2.1.9.txt`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.9/SHA256SUMS-2.1.9.txt).
 
 ### macOS
 
@@ -119,7 +121,7 @@ assessment (the current sandbox-dependent design is not App Store-ready).
 A branded EXE installer is built **manually**, never on a push:
 
 1. Open **Actions → windows-installer → Run workflow**.
-2. Enter the version (for example `2.1.8`) and run it.
+2. Enter the version (for example `2.1.9`) and run it.
 3. The run attaches `SSH-Dashboard-<version>-Setup.exe` to the matching GitHub
    release, and also uploads it as a workflow artifact.
 
