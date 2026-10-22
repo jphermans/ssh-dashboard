@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using SshDashboard.Core;
@@ -200,7 +201,10 @@ public partial class SshSessionWindow : Window
         StatusDot.Fill = new SolidColorBrush(Color.Parse(connected ? "#3FCF8E" : "#F7768E"));
     }
 
-    private void Disconnect_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => Close();
+    private void Files_Click(object? sender, RoutedEventArgs e) =>
+        new TransferWindow(_host).Show(this);
+
+    private void Disconnect_Click(object? sender, RoutedEventArgs e) => Close();
 
     private void Stop()
     {

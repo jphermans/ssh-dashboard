@@ -21,6 +21,8 @@
             <TextBlock x:Name="StatusText" Text="Connecting…" FontSize="11.5"
                        Foreground="#93A4B8" VerticalAlignment="Center" />
           </StackPanel>
+          <Button Content="Files…" Click="Files_Click" Padding="12,6" FontSize="12"
+                  Background="#1E2835" Foreground="#E9EFF7" BorderBrush="#26313F" BorderThickness="1" />
           <Button Content="Disconnect" Click="Disconnect_Click" Padding="12,6" FontSize="12"
                   Background="#1E2835" Foreground="#E9EFF7" BorderBrush="#26313F" BorderThickness="1" />
         </StackPanel>

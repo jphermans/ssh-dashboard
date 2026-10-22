@@ -3,7 +3,7 @@
 ## Short answer
 
 **This build is ready for direct download, not for the Mac App Store.** The app is
-a universal macOS 12+ bundle signed ad-hoc. It runs immediately on the machine
+an Apple silicon macOS 12+ bundle signed ad-hoc. It runs immediately on the machine
 that builds it, but a downloaded copy is quarantined by Gatekeeper because it is
 not notarized.
 
@@ -50,7 +50,7 @@ xcrun notarytool store-credentials "ssh-dashboard-notary" \
 
 ### Sign, notarize, staple
 
-Run after building the universal `.app` and before distributing the DMG:
+Run after building the Apple silicon `.app` and before distributing the DMG:
 
 ```sh
 APP="dotnet/dist/SSH Dashboard.app"
@@ -61,9 +61,9 @@ codesign --force --deep --options runtime --timestamp \
 codesign --verify --deep --strict --verbose=2 "$APP"
 
 # Re-create the DMG from the signed app, then:
-xcrun notarytool submit "SSH-Dashboard-2.1.7-macOS-universal.dmg" \
+xcrun notarytool submit "SSH-Dashboard-2.1.8-macOS-arm64.dmg" \
   --keychain-profile "ssh-dashboard-notary" --wait
-xcrun stapler staple "SSH-Dashboard-2.1.7-macOS-universal.dmg"
+xcrun stapler staple "SSH-Dashboard-2.1.8-macOS-arm64.dmg"
 spctl -a -vvv -t install "SSH Dashboard.app"
 ```
 
@@ -134,6 +134,6 @@ flow. The current Avalonia desktop code does not port to iOS as-is.
 
 ## Recommendation
 
-Ship 2.1.7 as a **notarized Developer ID download** once the Developer ID
+Ship 2.1.8 as a **notarized Developer ID download** once the Developer ID
 certificate is available. Keep the App Store as a possible future product with
 an in-app SSH engine, not as a repackaging of this build.

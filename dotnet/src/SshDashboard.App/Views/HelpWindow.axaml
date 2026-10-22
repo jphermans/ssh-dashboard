@@ -176,6 +176,31 @@
         </StackPanel>
 
         <StackPanel Spacing="10">
+          <TextBlock Text="Copying files" FontSize="18" FontWeight="SemiBold"
+                     Foreground="{DynamicResource TextPrimary}" />
+          <Border Height="1" Background="{DynamicResource BorderSoft}" />
+          <TextBlock FontSize="13.5" LineHeight="22" TextWrapping="Wrap"
+                     Foreground="{DynamicResource TextMuted}"
+                     Text="Open an SSH session and choose Files… in its header to copy files or folders in either direction." />
+          <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
+            <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
+            <Run Text="Upload: choose one or more local files or folders, then enter the remote destination directory or filename." />
+          </TextBlock>
+          <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
+            <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
+            <Run Text="Download: enter the remote file or folder, then choose the local destination folder." />
+          </TextBlock>
+          <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
+            <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
+            <Run Text="Folders are recursive. Transfers use rsync with a live progress bar when available, falling back to scp; both use your SSH config, key and agent. They run without a terminal, so password-only hosts need a key or agent." />
+          </TextBlock>
+          <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
+            <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
+            <Run Text="The transfer log shows scp output. Close the window or press Cancel to stop an active transfer." />
+          </TextBlock>
+        </StackPanel>
+
+        <StackPanel Spacing="10">
           <TextBlock Text="Safety and backups" FontSize="18" FontWeight="SemiBold"
                      Foreground="{DynamicResource TextPrimary}" />
           <Border Height="1" Background="{DynamicResource BorderSoft}" />

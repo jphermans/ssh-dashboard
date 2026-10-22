@@ -1,0 +1,115 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SshDashboard.App.Views.TransferWindow"
+        Title="Transfer files"
+        Width="760" Height="700" MinWidth="640" MinHeight="560"
+        Background="{DynamicResource AppBg}"
+        WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Border Grid.Row="0" Background="{DynamicResource PanelBg}" Padding="24,18"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,0,0,1">
+      <StackPanel Spacing="4">
+        <TextBlock Text="Transfer files" FontSize="20" FontWeight="SemiBold"
+                   Foreground="{DynamicResource TextPrimary}" />
+        <TextBlock x:Name="TargetText" FontSize="12.5"
+                   Foreground="{DynamicResource TextMuted}" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer Grid.Row="1">
+      <StackPanel Margin="24" Spacing="14">
+        <StackPanel Orientation="Horizontal" Spacing="18">
+          <RadioButton x:Name="UploadRadio" Content="Upload to instance" IsChecked="True"
+                       GroupName="Direction" FontSize="13" />
+          <RadioButton x:Name="DownloadRadio" Content="Download from instance"
+                       GroupName="Direction" FontSize="13" />
+        </StackPanel>
+
+        <StackPanel x:Name="UploadPanel" Spacing="10">
+          <TextBlock Text="From this Mac" FontSize="12" FontWeight="SemiBold"
+                     Foreground="{DynamicResource TextFaint}" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Content="Choose files…" Click="PickFiles_Click" Classes="ghost" Padding="11,6"
+                    Background="{DynamicResource ElevatedBg}" BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" />
+            <Button Content="Choose folder…" Click="PickFolder_Click" Classes="ghost" Padding="11,6"
+                    Background="{DynamicResource ElevatedBg}" BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" />
+            <Button Content="Clear" Click="ClearSources_Click" Classes="ghost" Padding="11,6"
+                    Background="{DynamicResource ElevatedBg}" BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" />
+          </StackPanel>
+          <Border Background="{DynamicResource InputBg}" BorderBrush="{DynamicResource BorderSoft}"
+                  BorderThickness="1" CornerRadius="8" Padding="4" MinHeight="104">
+            <ListBox x:Name="SourcesList" Background="Transparent" BorderThickness="0"
+                     MaxHeight="170">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding}" FontFamily="SF Mono, Menlo, monospace"
+                             FontSize="11.5" Foreground="{DynamicResource TextMuted}"
+                             TextTrimming="CharacterEllipsis" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </Border>
+          <TextBlock Text="Remote destination" FontSize="12" FontWeight="SemiBold"
+                     Foreground="{DynamicResource TextFaint}" />
+          <TextBox x:Name="RemoteDestination" Text="~" FontFamily="SF Mono, Menlo, monospace"
+                   FontSize="12.5" />
+          <TextBlock Text="A file or a directory. Folders are copied recursively; an existing remote directory keeps its contents."
+                     FontSize="11.5" Foreground="{DynamicResource TextFaint}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <StackPanel x:Name="DownloadPanel" Spacing="10" IsVisible="False">
+          <TextBlock Text="Remote source" FontSize="12" FontWeight="SemiBold"
+                     Foreground="{DynamicResource TextFaint}" />
+          <TextBox x:Name="RemoteSource" Watermark="~/backups or /var/log/syslog"
+                   FontFamily="SF Mono, Menlo, monospace" FontSize="12.5" />
+          <TextBlock Text="Save into" FontSize="12" FontWeight="SemiBold"
+                     Foreground="{DynamicResource TextFaint}" />
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <TextBox x:Name="LocalDestination" IsReadOnly="True"
+                     Watermark="Choose a local folder"
+                     FontFamily="SF Mono, Menlo, monospace" FontSize="12.5" />
+            <Button Grid.Column="1" Content="Choose folder…" Click="PickDestination_Click"
+                    Classes="ghost" Padding="11,6" Background="{DynamicResource ElevatedBg}"
+                    BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" />
+          </Grid>
+          <TextBlock Text="Folders are copied recursively into the selected local folder."
+                     FontSize="11.5" Foreground="{DynamicResource TextFaint}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <Border Background="{DynamicResource PanelBg}" BorderBrush="{DynamicResource BorderSoft}"
+                BorderThickness="1" CornerRadius="8" Padding="12" MinHeight="90">
+          <StackPanel Spacing="8">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock x:Name="StatusText" Text="Ready" FontSize="12"
+                         Foreground="{DynamicResource TextMuted}" />
+              <TextBlock x:Name="ProgressText" Grid.Column="1" Text="" FontSize="11"
+                         FontFamily="SF Mono, Menlo, monospace"
+                         Foreground="{DynamicResource AccentBrush}" />
+            </Grid>
+            <ProgressBar x:Name="Progress" IsIndeterminate="True" IsVisible="False" Height="4" />
+            <TextBox x:Name="LogBox" IsReadOnly="True" AcceptsReturn="True"
+                     FontFamily="SF Mono, Menlo, monospace" FontSize="11"
+                     Background="Transparent" BorderThickness="0"
+                     Foreground="{DynamicResource TextMuted}" MaxHeight="160"
+                     TextWrapping="NoWrap" />
+          </StackPanel>
+        </Border>
+
+        <TextBlock Text="Transfers use rsync with a live progress bar when available, falling back to scp. They use your SSH config, key and agent; password-only hosts need a key or agent because the transfer runs without a terminal."
+                   FontSize="11" Foreground="{DynamicResource TextFaint}" TextWrapping="Wrap" />
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Background="{DynamicResource PanelBg}" Padding="24,14"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,1,0,0">
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+        <TextBlock x:Name="FooterHint" Text="Ready to copy" FontSize="11.5"
+                   Foreground="{DynamicResource TextFaint}" VerticalAlignment="Center" />
+        <Button x:Name="TransferButton" Grid.Column="1" Content="Start transfer"
+                Click="Transfer_Click" Classes="primary" />
+        <Button x:Name="CloseButton" Grid.Column="2" Content="Close" Click="Close_Click"
+                Classes="ghost" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
