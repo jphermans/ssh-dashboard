@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version shown in the installer (for example 2.1.4)"
+        description: "Version shown in the installer (for example 2.1.14)"
         required: true
-        default: "2.1.4"
+        default: "2.1.14"
 
 permissions:
   contents: write
@@ -23,8 +23,8 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      - name: Test core
-        run: dotnet test dotnet/tests/SshDashboard.Core.Tests/SshDashboard.Core.Tests.csproj -c Release --nologo
+      - name: Test
+        run: dotnet test dotnet/SshDashboard.slnx -c Release --nologo
 
       - name: Publish Windows app
         run: >
@@ -62,6 +62,19 @@ jobs:
               --title "SSH Dashboard $env:VERSION" `
               --notes "Windows installer for SSH Dashboard $env:VERSION. Per-user install, no administrator prompt. macOS and Linux builds are attached to the main release."
           }
+
+      # Stable, version-free name so /releases/latest/download/SSH-Dashboard-Setup.exe
+      # keeps working after the next release.
+      - name: Publish stable installer name
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          $tag = "v$env:VERSION"
+          $stable = "installer/dist/SSH-Dashboard-Setup.exe"
+          Copy-Item "installer/dist/SSH-Dashboard-$env:VERSION-Setup.exe" $stable -Force
+          gh release upload $tag $stable --clobber --repo $env:GITHUB_REPOSITORY
 
       - uses: actions/upload-artifact@v4
         with:

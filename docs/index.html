@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <title>SSH Dashboard — a careful desktop dashboard for ~/.ssh</title>
 <meta name="description" content="A professional desktop dashboard for known_hosts, ssh_config and SSH keys, with safe edits, backups and an in-app terminal. For macOS, Windows and Linux.">
 <link rel="icon" href="assets/appicon.png">
@@ -175,11 +177,11 @@
         <h1>Your SSH world,<br><span class="accent">without the guesswork.</span></h1>
         <p class="lede">A careful dashboard for <strong>known_hosts</strong>, <strong>ssh_config</strong> and every key pair beside them. Inspect, add, edit, remove — with backups and a real terminal built in.</p>
         <div class="actions">
-          <a class="btn primary" href="https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.14/SSH-Dashboard-2.1.14-macOS-arm64.dmg">Download for macOS <span class="small">Apple silicon</span></a>
-          <a class="btn secondary" href="https://github.com/jphermans/ssh-dashboard/releases/latest/download/SSH-Dashboard-2.1.14-Setup.exe">Windows installer <span class="small">EXE</span></a>
+          <a class="btn primary" href="https://github.com/jphermans/ssh-dashboard/releases/latest/download/SSH-Dashboard-macOS-arm64.dmg">Download for macOS <span class="small">Apple silicon</span></a>
+          <a class="btn secondary" href="https://github.com/jphermans/ssh-dashboard/releases/latest/download/SSH-Dashboard-Setup.exe">Windows installer <span class="small">EXE</span></a>
           <a class="btn secondary" href="https://github.com/jphermans/ssh-dashboard/releases/latest">All downloads ↗</a>
         </div>
-        <p class="fine">macOS 12+ · Windows 10/11 x64 · Linux x64 &nbsp;·&nbsp; <a href="https://github.com/jphermans/ssh-dashboard/releases/tag/v2.1.14">Version 2.1.14</a></p>
+        <p class="fine">macOS 12+ · Windows 10/11 x64 · Linux x64 &nbsp;·&nbsp; <a href="https://github.com/jphermans/ssh-dashboard/releases/latest">Latest release</a></p>
         <div class="meta">
           <div><strong>Native terminal</strong>k9s, vim, htop</div>
           <div><strong>Safe writes</strong>backups + undo</div>
@@ -238,12 +240,12 @@
         <p>Self-contained builds. No .NET runtime, no package manager, no account.</p>
       </div>
       <div class="downloads">
-        <div class="dl"><span class="os">macOS 12+</span><strong>Apple silicon DMG</strong><span>Apple silicon · 47 MB</span><a href="https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.14/SSH-Dashboard-2.1.14-macOS-arm64.dmg">Download .dmg →</a><div class="hash"><b>SHA-256</b>794035ee6e8049023e655e6db56ec460e216bce21dc4fe02236c29d25e3f82f5</div></div>
-        <div class="dl"><span class="os">Windows 10/11</span><strong>Installer</strong><span>x64 · per-user · no admin prompt</span><a href="https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.14/SSH-Dashboard-2.1.14-Setup.exe">Download .exe →</a><div class="hash"><b>SHA-256</b>82cf2ca210341107b0127c48321efbe997c919f197bffda6e801767ac91bcdef</div></div>
-        <div class="dl"><span class="os">Linux</span><strong>Portable archive</strong><span>x64 · tar.gz</span><a href="https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.14/SSH-Dashboard-2.1.14-linux-x64.tar.gz">Download .tar.gz →</a><div class="hash"><b>SHA-256</b>9158b481487f35168c3774c9d5d5bee4a6cbc08958660b649713bb264d73a85a</div></div>
+        <div class="dl"><span class="os">macOS 12+</span><strong>Apple silicon DMG</strong><span>Apple silicon · 47 MB</span><a href="https://github.com/jphermans/ssh-dashboard/releases/latest/download/SSH-Dashboard-macOS-arm64.dmg">Download .dmg →</a><div class="hash"><b>SHA-256 · 2.1.14</b>794035ee6e8049023e655e6db56ec460e216bce21dc4fe02236c29d25e3f82f5</div></div>
+        <div class="dl"><span class="os">Windows 10/11</span><strong>Installer</strong><span>x64 · per-user · no admin prompt</span><a href="https://github.com/jphermans/ssh-dashboard/releases/latest/download/SSH-Dashboard-Setup.exe">Download .exe →</a><div class="hash"><b>SHA-256 · 2.1.14</b>82cf2ca210341107b0127c48321efbe997c919f197bffda6e801767ac91bcdef</div></div>
+        <div class="dl"><span class="os">Linux</span><strong>Portable archive</strong><span>x64 · tar.gz</span><a href="https://github.com/jphermans/ssh-dashboard/releases/latest/download/SSH-Dashboard-linux-x64.tar.gz">Download .tar.gz →</a><div class="hash"><b>SHA-256 · 2.1.14</b>9158b481487f35168c3774c9d5d5bee4a6cbc08958660b649713bb264d73a85a</div></div>
       </div>
       <div class="note"><strong>macOS note:</strong> the DMG is ad-hoc signed and not notarized. On first launch use <em>System Settings → Privacy &amp; Security → Open Anyway</em>. A notarized build requires a Developer ID certificate. <a href="https://github.com/jphermans/ssh-dashboard/blob/main/internal/APP-STORE.md" style="color:var(--accent-2)">Read the distribution notes →</a></div>
-      <div class="note"><strong>Verify your download:</strong> the SHA-256 above is the only integrity check these builds have — the DMG is ad-hoc signed, the Windows installer is unsigned. Compare it against <a href="https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.14/SHA256SUMS-2.1.14.txt" style="color:var(--accent-2)">SHA256SUMS-2.1.14.txt</a> with <code>shasum -a 256 &lt;file&gt;</code> on macOS, <code>sha256sum &lt;file&gt;</code> on Linux, or <code>certutil -hashfile &lt;file&gt; SHA256</code> on Windows.</div>
+      <div class="note"><strong>Verify your download:</strong> the SHA-256 above is the only integrity check these builds have — the DMG is ad-hoc signed, the Windows installer is unsigned. Compare it against <a href="https://github.com/jphermans/ssh-dashboard/releases/latest/download/SHA256SUMS.txt" style="color:var(--accent-2)">SHA256SUMS.txt</a> with <code>shasum -a 256 &lt;file&gt;</code> on macOS, <code>sha256sum &lt;file&gt;</code> on Linux, or <code>certutil -hashfile &lt;file&gt; SHA256</code> on Windows.</div>
     </section>
 
     <footer>
