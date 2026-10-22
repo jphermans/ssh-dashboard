@@ -9,7 +9,7 @@ all with timestamped backups and a local activity journal.
 
 Built with **.NET 10** and **Avalonia** for macOS, Windows and Linux.
 
-**[Website and downloads →](https://jphermans.github.io/ssh-dashboard/)**
+**[Website and downloads →](https://jphermans.github.io/ssh-dashboard/)** · **[Support →](https://jphermans.github.io/ssh-dashboard/support.html)**
 
 <br clear="left">
 
