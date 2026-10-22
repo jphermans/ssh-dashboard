@@ -181,14 +181,14 @@
           <Border Height="1" Background="{DynamicResource BorderSoft}" />
           <TextBlock FontSize="13.5" LineHeight="22" TextWrapping="Wrap"
                      Foreground="{DynamicResource TextMuted}"
-                     Text="Open an SSH session and choose Files… in its header to copy files or folders in either direction. Drop files or folders onto the window, or use the pickers." />
+                     Text="Open an SSH session and choose Files… in its header to copy files or folders in either direction. Drop files or folders onto the window, use the local pickers, or use Browse… to open the remote file list." />
           <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
             <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
-            <Run Text="Upload: drop files or folders onto the window, or choose them with the pickers, then enter the remote destination directory or filename." />
+            <Run Text="Upload: drop files or folders onto the window, choose them with the pickers, then use Browse… to pick the remote destination folder." />
           </TextBlock>
           <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
             <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
-            <Run Text="Download: enter the remote file or folder, then choose the local destination. It defaults to your Downloads folder." />
+            <Run Text="Download: use Browse… to select the remote file or folder, then choose the local destination. It defaults to your Downloads folder." />
           </TextBlock>
           <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
             <Run Text="• " Foreground="{DynamicResource AccentBrush}" />

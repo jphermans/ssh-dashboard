@@ -71,8 +71,13 @@
           </Border>
           <TextBlock Text="Remote destination" FontSize="12" FontWeight="SemiBold"
                      Foreground="{DynamicResource TextFaint}" />
-          <TextBox x:Name="RemoteDestination" Text="~" FontFamily="SF Mono, Menlo, monospace"
-                   FontSize="12.5" />
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <TextBox x:Name="RemoteDestination" Text="~" FontFamily="SF Mono, Menlo, monospace"
+                     FontSize="12.5" />
+            <Button Grid.Column="1" Content="Browse…" Click="BrowseUploadDestination_Click"
+                    Classes="ghost" Padding="11,6" Background="{DynamicResource ElevatedBg}"
+                    BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" />
+          </Grid>
           <TextBlock Text="A file or a directory. Folders are copied recursively; an existing remote directory keeps its contents."
                      FontSize="11.5" Foreground="{DynamicResource TextFaint}" TextWrapping="Wrap" />
         </StackPanel>
@@ -80,8 +85,13 @@
         <StackPanel x:Name="DownloadPanel" Spacing="10" IsVisible="False">
           <TextBlock Text="Remote source" FontSize="12" FontWeight="SemiBold"
                      Foreground="{DynamicResource TextFaint}" />
-          <TextBox x:Name="RemoteSource" Watermark="~/backups or /var/log/syslog"
-                   FontFamily="SF Mono, Menlo, monospace" FontSize="12.5" />
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <TextBox x:Name="RemoteSource" Watermark="~/backups or /var/log/syslog"
+                     FontFamily="SF Mono, Menlo, monospace" FontSize="12.5" />
+            <Button Grid.Column="1" Content="Browse…" Click="BrowseRemoteSource_Click"
+                    Classes="ghost" Padding="11,6" Background="{DynamicResource ElevatedBg}"
+                    BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" />
+          </Grid>
           <TextBlock Text="Save into" FontSize="12" FontWeight="SemiBold"
                      Foreground="{DynamicResource TextFaint}" />
           <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">

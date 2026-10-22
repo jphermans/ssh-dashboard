@@ -144,6 +144,20 @@ public partial class TransferWindow : Window
         StatusText.Text = "Ready";
     }
 
+    private async void BrowseUploadDestination_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var result = await new RemoteBrowserWindow(_host, RemoteBrowseMode.UploadDestination)
+            .ShowDialog<RemoteBrowseResult?>(this);
+        if (result is not null) RemoteDestination.Text = result.Path;
+    }
+
+    private async void BrowseRemoteSource_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        var result = await new RemoteBrowserWindow(_host, RemoteBrowseMode.Download)
+            .ShowDialog<RemoteBrowseResult?>(this);
+        if (result is not null) RemoteSource.Text = result.Path;
+    }
+
     private async void PickDestination_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions

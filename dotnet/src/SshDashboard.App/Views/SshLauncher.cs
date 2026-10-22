@@ -78,6 +78,36 @@ public static class SshLauncher
         return args;
     }
 
+    /// <summary>Arguments for a non-interactive remote command over SSH.</summary>
+    public static List<string> BuildSshCommandArguments(HostRow host, string command)
+    {
+        var args = new List<string> { "-o", "BatchMode=yes", "-o", "ConnectTimeout=8" };
+        if (UsesConfigAlias(host))
+        {
+            args.Add(host.Label);
+        }
+        else
+        {
+            if (host.Port != 22)
+            {
+                args.Add("-p");
+                args.Add(host.Port.ToString());
+            }
+            var identity = ResolveIdentityPath(host);
+            if (identity is not null)
+            {
+                args.Add("-i");
+                args.Add(identity);
+            }
+            var address = host.Address.Contains(':') && !host.Address.StartsWith('[')
+                ? $"[{host.Address}]"
+                : host.Address;
+            args.Add(string.IsNullOrWhiteSpace(host.User) ? address : $"{host.User}@{address}");
+        }
+        args.Add(command);
+        return args;
+    }
+
     public static bool HasRsync =>
         File.Exists("/usr/bin/rsync") ||
         (Environment.GetEnvironmentVariable("PATH") ?? "")

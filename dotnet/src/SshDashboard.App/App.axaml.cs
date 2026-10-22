@@ -124,6 +124,34 @@ public partial class App : Application
                 }, TimeSpan.FromSeconds(2));
             }
 
+            var remoteShot = Array.IndexOf(args, "--remote-shot");
+            if (remoteShot >= 0 && remoteShot + 1 < args.Length)
+            {
+                var target = args[remoteShot + 1];
+                var demo = new HostRow
+                {
+                    Label = "lab-server",
+                    Address = "192.0.2.50",
+                    User = "jean",
+                    Port = 22,
+                };
+                var dialog = new RemoteBrowserWindow(demo, RemoteBrowseMode.Download);
+                dialog.Show();
+                DispatcherTimer.RunOnce(() =>
+                {
+                    try
+                    {
+                        var bitmap = new RenderTargetBitmap(
+                            new PixelSize((int)dialog.Width, (int)dialog.Height), new Vector(96, 96));
+                        bitmap.Render(dialog);
+                        bitmap.Save(target);
+                        Console.WriteLine("wrote " + target);
+                    }
+                    catch (Exception ex) { Console.Error.WriteLine(ex); }
+                    desktop.Shutdown();
+                }, TimeSpan.FromSeconds(2));
+            }
+
             var settingsShot = Array.IndexOf(args, "--settings-shot");
             if (settingsShot >= 0 && settingsShot + 1 < args.Length && main is not null)
             {

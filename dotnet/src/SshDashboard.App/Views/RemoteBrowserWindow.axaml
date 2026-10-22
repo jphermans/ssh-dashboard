@@ -1,0 +1,70 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SshDashboard.App.Views.RemoteBrowserWindow"
+        Title="Remote files"
+        Width="760" Height="640" MinWidth="640" MinHeight="520"
+        Background="{DynamicResource AppBg}"
+        WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <Border Grid.Row="0" Background="{DynamicResource PanelBg}" Padding="24,18"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,0,0,1">
+      <StackPanel Spacing="4">
+        <TextBlock x:Name="HeadingText" Text="Choose a remote folder" FontSize="20"
+                   FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" />
+        <TextBlock x:Name="TargetText" FontSize="12.5"
+                   Foreground="{DynamicResource TextMuted}" />
+      </StackPanel>
+    </Border>
+
+    <Border Grid.Row="1" Padding="24,14,24,10">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+        <Button Content="↑" Click="Up_Click" Classes="ghost" Padding="10,6"
+                Background="{DynamicResource ElevatedBg}" BorderBrush="{DynamicResource BorderSoft}"
+                BorderThickness="1" ToolTip.Tip="Parent folder" />
+        <TextBox x:Name="PathBox" Grid.Column="1" Text="~" FontFamily="SF Mono, Menlo, monospace"
+                 FontSize="12.5" KeyDown="PathBox_KeyDown" />
+        <Button Grid.Column="2" Content="Go" Click="Go_Click" Classes="ghost" Padding="11,6"
+                Background="{DynamicResource ElevatedBg}" BorderBrush="{DynamicResource BorderSoft}"
+                BorderThickness="1" />
+        <Button Grid.Column="3" Content="Refresh" Click="Refresh_Click" Classes="ghost" Padding="11,6"
+                Background="{DynamicResource ElevatedBg}" BorderBrush="{DynamicResource BorderSoft}"
+                BorderThickness="1" />
+      </Grid>
+    </Border>
+
+    <Border Grid.Row="2" Margin="24,0" Background="{DynamicResource InputBg}"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" CornerRadius="8"
+            Padding="4">
+      <ListBox x:Name="Entries" Background="Transparent" BorderThickness="0"
+               DoubleTapped="Entries_DoubleTapped" SelectionChanged="Entries_SelectionChanged">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <Grid ColumnDefinitions="28,*" Margin="4,3">
+              <TextBlock Text="{Binding Icon}" FontFamily="SF Mono, Menlo, monospace"
+                         FontSize="13" Foreground="{DynamicResource AccentBrush}"
+                         VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="13"
+                         Foreground="{DynamicResource TextPrimary}"
+                         TextTrimming="CharacterEllipsis" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Border>
+
+    <Border Grid.Row="3" Background="{DynamicResource PanelBg}" Padding="24,14"
+            BorderBrush="{DynamicResource BorderSoft}" BorderThickness="0,1,0,0">
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+        <StackPanel Spacing="2" VerticalAlignment="Center">
+          <TextBlock x:Name="StatusText" Text="Reading remote folder…" FontSize="12"
+                     Foreground="{DynamicResource TextMuted}" />
+          <TextBlock x:Name="SelectionText" Text="" FontSize="11"
+                     Foreground="{DynamicResource TextFaint}" TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+        <Button x:Name="ChooseButton" Grid.Column="1" Content="Use this folder"
+                Click="Choose_Click" Classes="primary" IsEnabled="False" />
+        <Button Grid.Column="2" Content="Cancel" Click="Cancel_Click" Classes="ghost" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
