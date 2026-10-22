@@ -199,8 +199,24 @@ public partial class TransferWindow : Window
             return;
         }
 
-        var useRsync = SshLauncher.HasRsync;
         LogBox.Text = "";
+        var ppk = await PpkTransferKey.PrepareAsync(_host, this);
+        if (ppk.Cancelled)
+        {
+            ppk.Dispose();
+            StatusText.Text = "Cancelled";
+            return;
+        }
+        if (ppk.Error is not null)
+        {
+            ppk.Dispose();
+            StatusText.Text = "PuTTY key error";
+            Append("PuTTY key: " + ppk.Error);
+            return;
+        }
+
+        using var _ppkScope = ppk;
+        var useRsync = SshLauncher.HasRsync;
         _cancelled = false;
         SetRunning(true, upload ? "Uploading…" : "Downloading…", useRsync);
 
@@ -208,8 +224,10 @@ public partial class TransferWindow : Window
         List<string> BuildArgs(bool allowPassword)
         {
             var args = useRsync
-                ? SshLauncher.BuildRsyncArguments(_host, batchMode: !allowPassword)
-                : SshLauncher.BuildScpArguments(_host, batchMode: !allowPassword);
+                ? SshLauncher.BuildRsyncArguments(_host, batchMode: !allowPassword,
+                    identityOverride: ppk.KeyPath)
+                : SshLauncher.BuildScpArguments(_host, batchMode: !allowPassword,
+                    identityOverride: ppk.KeyPath);
             if (upload)
             {
                 foreach (var source in _sources) args.Add(source);
@@ -287,18 +305,25 @@ public partial class TransferWindow : Window
         askpass?.Apply(psi);
         using var process = new Process { StartInfo = psi, EnableRaisingEvents = true };
         var error = new System.Text.StringBuilder();
-        process.OutputDataReceived += (_, data) => Append(data.Data, useRsync);
-        process.ErrorDataReceived += (_, data) =>
-        {
-            if (!string.IsNullOrWhiteSpace(data.Data)) error.AppendLine(data.Data);
-            Append(data.Data, useRsync);
-        };
         _process = process;
         process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
+        // Read both streams asynchronously. Waiting only for process exit can
+        // return before the final stderr line is delivered, which would hide
+        // an authentication failure and skip the password prompt.
+        var stdoutTask = PumpAsync(process.StandardOutput, line => Append(line, useRsync));
+        var stderrTask = PumpAsync(process.StandardError, line =>
+        {
+            if (!string.IsNullOrWhiteSpace(line)) error.AppendLine(line);
+            Append(line, useRsync);
+        });
         await process.WaitForExitAsync();
+        await Task.WhenAll(stdoutTask, stderrTask);
         return (process.ExitCode, error.ToString());
+    }
+
+    private static async Task PumpAsync(StreamReader reader, Action<string> onLine)
+    {
+        while (await reader.ReadLineAsync() is { } line) onLine(line);
     }
 
     private void Append(string? line, bool rsync = false)

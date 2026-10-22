@@ -36,7 +36,7 @@ jobs:
           dotnet-version: "10.0.x"
 
       - name: Test core
-        run: dotnet test dotnet/tests/SshDashboard.Core.Tests/SshDashboard.Core.Tests.csproj -c Release --nologo
+        run: dotnet test dotnet/SshDashboard.slnx -c Release --nologo
 
       - name: Publish
         run: >

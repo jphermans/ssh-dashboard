@@ -27,6 +27,8 @@ public partial class RemoteBrowserWindow : Window
     private readonly ObservableCollection<RemoteEntry> _entries = new();
     private int _loadVersion;
     private string? _password;
+    private Task<PreparedPpkKey>? _ppkTask;
+    private PreparedPpkKey? _ppk;
 
     public RemoteBrowserWindow(HostRow host, RemoteBrowseMode mode)
     {
@@ -44,7 +46,12 @@ public partial class RemoteBrowserWindow : Window
         ChooseButton.Content = mode == RemoteBrowseMode.UploadDestination
             ? "Use selected folder"
             : "Choose selection";
-        Closing += (_, _) => _password = null;
+        Closing += (_, _) =>
+        {
+            _password = null;
+            _ppk?.Dispose();
+            _ppk = null;
+        };
         Opened += async (_, _) => await LoadAsync("~");
     }
 
@@ -100,6 +107,20 @@ public partial class RemoteBrowserWindow : Window
     {
         path = Normalize(path);
         PathBox.Text = path;
+        _ppkTask ??= PpkTransferKey.PrepareAsync(_host, this);
+        _ppk = await _ppkTask;
+        if (_ppk.Cancelled)
+        {
+            SetBusy(false, "Cancelled");
+            return;
+        }
+        if (_ppk.Error is not null)
+        {
+            SetBusy(false, "PuTTY key error");
+            SelectionText.Text = _ppk.Error;
+            return;
+        }
+
         var version = ++_loadVersion;
         SetBusy(true, "Reading remote folder…");
         var (entries, error) = await ListWithPasswordAsync(path);
@@ -123,7 +144,7 @@ public partial class RemoteBrowserWindow : Window
         string path)
     {
         var result = _password is null
-            ? await RemoteListing.ListAsync(_host, path)
+            ? await RemoteListing.ListAsync(_host, path, identityOverride: _ppk?.KeyPath)
             : await ListWithAskPassAsync(path, _password);
         if (result.Error is null || !SshLauncher.IsPasswordFailure(255, result.Error))
             return result;
@@ -144,7 +165,8 @@ public partial class RemoteBrowserWindow : Window
         string path, string password)
     {
         using var askpass = SshAskPass.Create(password);
-        return await RemoteListing.ListAsync(_host, path, batchMode: false, askpass);
+        return await RemoteListing.ListAsync(_host, path, batchMode: false, askpass,
+            identityOverride: _ppk?.KeyPath);
     }
 
     private void SetBusy(bool busy, string status)
@@ -176,7 +198,8 @@ public partial class RemoteBrowserWindow : Window
 internal static class RemoteListing
 {
     public static async Task<(IReadOnlyList<RemoteEntry> Entries, string? Error)> ListAsync(
-        HostRow host, string path, bool batchMode = true, SshAskPass? askpass = null)
+        HostRow host, string path, bool batchMode = true, SshAskPass? askpass = null,
+        string? identityOverride = null)
     {
         try
         {
@@ -188,7 +211,8 @@ internal static class RemoteListing
                 UseShellExecute = false,
                 CreateNoWindow = true,
             };
-            foreach (var arg in SshLauncher.BuildSshCommandArguments(host, command, batchMode))
+            foreach (var arg in SshLauncher.BuildSshCommandArguments(host, command, batchMode,
+                identityOverride))
                 psi.ArgumentList.Add(arg);
             askpass?.Apply(psi);
             using var process = new Process { StartInfo = psi };

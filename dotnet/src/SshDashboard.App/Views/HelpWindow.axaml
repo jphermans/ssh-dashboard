@@ -192,11 +192,11 @@
           </TextBlock>
           <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
             <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
-            <Run Text="Folders are recursive. Transfers use rsync with a live progress bar when available, falling back to scp; both use your SSH config, key and agent. They run without a terminal, so password-only hosts need a key or agent." />
+            <Run Text="Folders are recursive. Transfers use rsync with a live progress bar when available, falling back to scp; both use your SSH config, key and agent. PuTTY keys are converted for the transfer automatically. Password-only hosts get the hidden password prompt." />
           </TextBlock>
           <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
             <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
-            <Run Text="If the host asks for a password, a hidden password prompt appears. The password is used only for that transfer and is never stored. After a successful upload the source list is cleared. The transfer log shows progress; Close or Cancel stops an active transfer." />
+            <Run Text="If the host asks for a password, a hidden password prompt appears. The password is used only for that transfer and is never stored. Encrypted PuTTY keys ask for their passphrase once and are converted to a temporary key for the transfer. After a successful upload the source list is cleared. The transfer log shows progress; Close or Cancel stops an active transfer." />
           </TextBlock>
         </StackPanel>
 

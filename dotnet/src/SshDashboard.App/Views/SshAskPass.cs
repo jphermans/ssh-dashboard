@@ -23,6 +23,9 @@ internal sealed class SshAskPass : IDisposable
         var directory = Path.Combine(Path.GetTempPath(),
             "sshdashboard-askpass-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
+        if (!OperatingSystem.IsWindows())
+            File.SetUnixFileMode(directory,
+                UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
         var passwordFile = Path.Combine(directory, "password");
         File.WriteAllText(passwordFile, password);
 
@@ -59,13 +62,43 @@ internal sealed class SshAskPass : IDisposable
 
     public void Dispose()
     {
+        TryDelete(_directory);
+    }
+
+    /// <summary>Removes askpass helpers left behind by a previous crash.</summary>
+    public static int CleanupStale(TimeSpan? olderThan = null)
+    {
+        if (OperatingSystem.IsWindows()) return 0;
+        var cutoff = DateTime.UtcNow - (olderThan ?? TimeSpan.FromHours(1));
+        var removed = 0;
         try
         {
-            if (Directory.Exists(_directory)) Directory.Delete(_directory, recursive: true);
+            foreach (var directory in Directory.EnumerateDirectories(Path.GetTempPath(),
+                         "sshdashboard-askpass-*"))
+            {
+                try
+                {
+                    if (Directory.GetLastWriteTimeUtc(directory) < cutoff &&
+                        TryDelete(directory)) removed++;
+                }
+                catch { }
+            }
+        }
+        catch { }
+        return removed;
+    }
+
+    private static bool TryDelete(string directory)
+    {
+        try
+        {
+            if (!Directory.Exists(directory)) return false;
+            Directory.Delete(directory, recursive: true);
+            return true;
         }
         catch
         {
-            // Best effort cleanup; the directory is already private.
+            return false;
         }
     }
 }

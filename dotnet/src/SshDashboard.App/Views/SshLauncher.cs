@@ -55,7 +55,8 @@ public static class SshLauncher
         host.Label.IndexOfAny(new[] { '*', '?', ' ', '\t' }) < 0;
 
     /// <summary>Base scp arguments for a host, without the source/destination operands.</summary>
-    public static List<string> BuildScpArguments(HostRow host, bool batchMode = true)
+    public static List<string> BuildScpArguments(HostRow host, bool batchMode = true,
+        string? identityOverride = null)
     {
         var args = new List<string> { "-r", "-p" };
         AddBatchMode(args, batchMode);
@@ -64,13 +65,21 @@ public static class SshLauncher
         // same on macOS 12 and current macOS. Older scp has no -O and is
         // already legacy.
         if (SupportsLegacyScpFlag()) args.Add("-O");
-        if (UsesConfigAlias(host)) return args;
+        var identity = ResolveIdentityPath(host, identityOverride);
+        if (UsesConfigAlias(host))
+        {
+            if (identity is not null)
+            {
+                args.Add("-i");
+                args.Add(identity);
+            }
+            return args;
+        }
         if (host.Port != 22)
         {
             args.Add("-P");
             args.Add(host.Port.ToString());
         }
-        var identity = ResolveIdentityPath(host);
         if (identity is not null)
         {
             args.Add("-i");
@@ -81,13 +90,19 @@ public static class SshLauncher
 
     /// <summary>Arguments for a non-interactive remote command over SSH.</summary>
     public static List<string> BuildSshCommandArguments(HostRow host, string command,
-        bool batchMode = true)
+        bool batchMode = true, string? identityOverride = null)
     {
         var args = new List<string> { "-o", "ConnectTimeout=8" };
         AddBatchMode(args, batchMode);
+        var identity = ResolveIdentityPath(host, identityOverride);
         if (UsesConfigAlias(host))
         {
             args.Add(host.Label);
+            if (identity is not null)
+            {
+                args.Add("-i");
+                args.Add(identity);
+            }
         }
         else
         {
@@ -96,7 +111,6 @@ public static class SshLauncher
                 args.Add("-p");
                 args.Add(host.Port.ToString());
             }
-            var identity = ResolveIdentityPath(host);
             if (identity is not null)
             {
                 args.Add("-i");
@@ -117,25 +131,23 @@ public static class SshLauncher
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
             .Any(dir => File.Exists(Path.Combine(dir, "rsync")));
 
-    public static List<string> BuildRsyncArguments(HostRow host, bool batchMode = true)
+    public static List<string> BuildRsyncArguments(HostRow host, bool batchMode = true,
+        string? identityOverride = null)
     {
         var args = new List<string> { "-a", "--progress" };
         args.Add("-e");
-        args.Add(BuildRsyncShell(host, batchMode));
+        args.Add(BuildRsyncShell(host, batchMode, identityOverride));
         return args;
     }
 
-    private static string BuildRsyncShell(HostRow host, bool batchMode)
+    private static string BuildRsyncShell(HostRow host, bool batchMode, string? identityOverride = null)
     {
         var shell = batchMode
             ? "ssh -o BatchMode=yes"
             : "ssh -o BatchMode=no -o NumberOfPasswordPrompts=1";
-        if (!UsesConfigAlias(host))
-        {
-            if (host.Port != 22) shell += " -p " + host.Port;
-            var identity = ResolveIdentityPath(host);
-            if (identity is not null) shell += " -i " + ShellQuote(identity);
-        }
+        if (!UsesConfigAlias(host) && host.Port != 22) shell += " -p " + host.Port;
+        var identity = ResolveIdentityPath(host, identityOverride);
+        if (identity is not null) shell += " -i " + ShellQuote(identity);
         return shell;
     }
 
@@ -214,8 +226,11 @@ public static class SshLauncher
         }
     }
 
-    private static string? ResolveIdentityPath(HostRow host)
+    private static string? ResolveIdentityPath(HostRow host, string? identityOverride = null)
     {
+        if (!string.IsNullOrWhiteSpace(identityOverride) && File.Exists(identityOverride) &&
+            !PpkFile.LooksLikePpk(identityOverride))
+            return identityOverride;
         var identity = host.IdentityFile.Trim().Trim('"');
         if (string.IsNullOrWhiteSpace(identity)) return null;
         if (identity.StartsWith("~/", StringComparison.Ordinal))

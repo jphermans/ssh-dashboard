@@ -36,6 +36,7 @@ internal static class Program
             e.SetObserved();
         };
         PpkFile.CleanupTemporaryKeys();
+        SshAskPass.CleanupStale();
         if (args.Length == 0)
         {
             using var single = new Mutex(true, "SshDashboard.SingleInstance", out var first);

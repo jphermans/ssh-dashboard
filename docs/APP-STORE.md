@@ -50,28 +50,33 @@ xcrun notarytool store-credentials "ssh-dashboard-notary" \
 
 ### Sign, notarize, staple
 
-Run after building the Apple silicon `.app` and before distributing the DMG:
+Run after building the Apple silicon `.app` and DMG:
 
 ```sh
-APP="dotnet/dist/SSH Dashboard.app"
-IDENTITY="Developer ID Application: Jean-Pierre Hermans (TEAMID)"
-
-codesign --force --deep --options runtime --timestamp \
-  --sign "$IDENTITY" "$APP"
-codesign --verify --deep --strict --verbose=2 "$APP"
-
-# Re-create the DMG from the signed app, then:
-xcrun notarytool submit "SSH-Dashboard-2.1.12-macOS-arm64.dmg" \
-  --keychain-profile "ssh-dashboard-notary" --wait
-xcrun stapler staple "SSH-Dashboard-2.1.12-macOS-arm64.dmg"
-spctl -a -vvv -t install "SSH Dashboard.app"
+scripts/notarize-macos.sh --check
+scripts/notarize-macos.sh \
+  "dotnet/dist/SSH Dashboard.app" \
+  "dotnet/dist/SSH-Dashboard-2.1.13-macOS-arm64.dmg"
 ```
+
+The script auto-detects a **Developer ID Application** certificate, signs the
+app with the hardened runtime, signs the DMG, submits it with `notarytool`,
+staples the ticket and runs the Gatekeeper checks. It also installs a clear
+failure message if only an Apple Development certificate is available.
+
+On the build machine right now `--check` reports only:
+
+```
+Apple Development: Jean-Pierre Hermans (SRJV4E5SWD)
+notary credentials: not stored
+```
+
+That certificate cannot notarize a download, so the current release remains
+ad-hoc signed. Install a Developer ID certificate and store the notary profile
+before running the command above.
 
 `spctl` must say `accepted` and `source=Notarized Developer ID`. Only then will a
 downloaded DMG open with a normal double-click and no Privacy & Security detour.
-
-The helper `scripts/notarize-macos.sh` performs the signing, verification and
-notarization steps when the certificate and profile exist.
 
 ## Route 2 — Mac App Store
 
@@ -134,6 +139,6 @@ flow. The current Avalonia desktop code does not port to iOS as-is.
 
 ## Recommendation
 
-Ship 2.1.12 as a **notarized Developer ID download** once the Developer ID
+Ship 2.1.13 as a **notarized Developer ID download** once the Developer ID
 certificate is available. Keep the App Store as a possible future product with
 an in-app SSH engine, not as a repackaging of this build.
