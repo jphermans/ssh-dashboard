@@ -127,8 +127,10 @@ xattr -dr com.apple.quarantine "/Applications/SSH Dashboard.app"
 
 A fully double-click install needs a Developer ID certificate and Apple
 notarization. The exact commands are in
-[`docs/APP-STORE.md`](docs/APP-STORE.md), together with the Mac App Store
-assessment (the current sandbox-dependent design is not App Store-ready).
+[`internal/APP-STORE.md`](internal/APP-STORE.md), together with the Mac App Store
+assessment (the current sandbox-dependent design is not App Store-ready). That
+file lives outside `docs/` on purpose: GitHub Pages serves every file under
+`docs/` as a public URL, so build and signing notes must not go there.
 
 ### Windows installer
 
