@@ -13,12 +13,39 @@ public enum RemoteBrowseMode
     UploadDestination,
 }
 
-public sealed record RemoteEntry(string Name, string Path, bool IsDirectory)
+public sealed class RemoteEntry : System.ComponentModel.INotifyPropertyChanged
 {
+    private bool _isSelected;
+
+    public RemoteEntry(string name, string path, bool isDirectory)
+    {
+        Name = name;
+        Path = path;
+        IsDirectory = isDirectory;
+    }
+
+    public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+
+    public string Name { get; }
+    public string Path { get; }
+    public bool IsDirectory { get; }
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
+        {
+            if (_isSelected == value) return;
+            _isSelected = value;
+            PropertyChanged?.Invoke(this,
+                new System.ComponentModel.PropertyChangedEventArgs(nameof(IsSelected)));
+        }
+    }
+    public bool ShowCheckBox { get; set; }
     public string Icon => IsDirectory ? "▸" : "·";
 }
 
-public sealed record RemoteBrowseResult(string Path, bool IsDirectory);
+public sealed record RemoteBrowseResult(string Path, bool IsDirectory,
+    IReadOnlyList<string>? Paths = null);
 
 public partial class RemoteBrowserWindow : Window
 {
@@ -27,6 +54,8 @@ public partial class RemoteBrowserWindow : Window
     private readonly ObservableCollection<RemoteEntry> _entries = new();
     private int _loadVersion;
     private string? _password;
+    private bool _busy;
+    private int _captureSelectionCount;
     private Task<PreparedPpkKey>? _ppkTask;
     private PreparedPpkKey? _ppk;
 
@@ -37,7 +66,7 @@ public partial class RemoteBrowserWindow : Window
         _mode = mode;
         Title = mode == RemoteBrowseMode.UploadDestination
             ? "Choose remote folder"
-            : "Choose remote file or folder";
+            : "Choose remote files or folders";
         HeadingText.Text = Title;
         TargetText.Text = string.IsNullOrWhiteSpace(host.User)
             ? $"{host.Address}:{host.Port}"
@@ -54,6 +83,9 @@ public partial class RemoteBrowserWindow : Window
         };
         Opened += async (_, _) => await LoadAsync("~");
     }
+
+    /// <summary>Marks the first rows for README captures.</summary>
+    public void SelectForCapture(int count) => _captureSelectionCount = count;
 
     private async void Up_Click(object? sender, RoutedEventArgs e)
     {
@@ -81,24 +113,62 @@ public partial class RemoteBrowserWindow : Window
         await LoadAsync(entry.Path);
     }
 
-    private void Entries_SelectionChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        var entry = Entries.SelectedItem as RemoteEntry;
-        SelectionText.Text = entry is null
-            ? "No item selected"
-            : (entry.IsDirectory ? "Folder: " : "File: ") + entry.Path;
-        ChooseButton.IsEnabled = entry is not null ||
-            (_mode == RemoteBrowseMode.UploadDestination && _entries.Count > 0);
-    }
+    private void Entries_SelectionChanged(object? sender, SelectionChangedEventArgs e) =>
+        UpdateSelectionSummary();
+
+    private void EntryCheckBox_Click(object? sender, RoutedEventArgs e) =>
+        UpdateSelectionSummary();
 
     private void Choose_Click(object? sender, RoutedEventArgs e)
     {
         var current = Normalize(PathBox.Text);
         var selected = Entries.SelectedItem as RemoteEntry;
-        var path = _mode == RemoteBrowseMode.UploadDestination
-            ? (selected is { IsDirectory: true } ? selected.Path : current)
-            : selected?.Path ?? current;
+        if (_mode == RemoteBrowseMode.Download)
+        {
+            var checkedEntries = _entries.Where(entry => entry.IsSelected).ToList();
+            if (checkedEntries.Count > 0)
+            {
+                Close(new RemoteBrowseResult(checkedEntries[0].Path,
+                    checkedEntries[0].IsDirectory,
+                    checkedEntries.Select(entry => entry.Path).ToList()));
+                return;
+            }
+            Close(new RemoteBrowseResult(selected?.Path ?? current,
+                selected?.IsDirectory ?? true));
+            return;
+        }
+
+        var path = selected is { IsDirectory: true } ? selected.Path : current;
         Close(new RemoteBrowseResult(path, selected?.IsDirectory ?? true));
+    }
+
+    private void UpdateSelectionSummary()
+    {
+        var selected = Entries.SelectedItem as RemoteEntry;
+        var checkedEntries = _entries.Where(entry => entry.IsSelected).ToList();
+        if (_mode == RemoteBrowseMode.Download && checkedEntries.Count > 0)
+        {
+            var names = string.Join(", ", checkedEntries.Take(3).Select(entry => entry.Name));
+            SelectionText.Text = checkedEntries.Count == 1
+                ? "Selected: " + checkedEntries[0].Path
+                : $"{checkedEntries.Count} items selected · {names}" +
+                  (checkedEntries.Count > 3 ? "…" : "");
+            ChooseButton.Content = checkedEntries.Count > 1
+                ? $"Choose {checkedEntries.Count} items"
+                : "Choose selection";
+        }
+        else
+        {
+            SelectionText.Text = selected is null
+                ? "No item selected"
+                : (selected.IsDirectory ? "Folder: " : "File: ") + selected.Path;
+            ChooseButton.Content = _mode == RemoteBrowseMode.UploadDestination
+                ? "Use selected folder"
+                : "Choose selection";
+        }
+        ChooseButton.IsEnabled = !_busy &&
+            (checkedEntries.Count > 0 || selected is not null ||
+             (_mode == RemoteBrowseMode.UploadDestination && _entries.Count > 0));
     }
 
     private void Cancel_Click(object? sender, RoutedEventArgs e) => Close(null);
@@ -129,15 +199,25 @@ public partial class RemoteBrowserWindow : Window
         if (error is not null)
         {
             SetBusy(false, error);
-            ChooseButton.IsEnabled = _mode == RemoteBrowseMode.UploadDestination;
+            UpdateSelectionSummary();
             return;
         }
-        foreach (var entry in entries) _entries.Add(entry);
+        foreach (var entry in entries)
+        {
+            entry.ShowCheckBox = _mode == RemoteBrowseMode.Download;
+            if (_mode == RemoteBrowseMode.Download && _captureSelectionCount > 0)
+            {
+                entry.IsSelected = true;
+                _captureSelectionCount--;
+            }
+            entry.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(RemoteEntry.IsSelected)) UpdateSelectionSummary();
+            };
+            _entries.Add(entry);
+        }
         SetBusy(false, entries.Count == 0 ? "This folder is empty" : $"{entries.Count} item(s)");
-        ChooseButton.IsEnabled = _mode == RemoteBrowseMode.UploadDestination || _entries.Count > 0;
-        SelectionText.Text = _mode == RemoteBrowseMode.UploadDestination
-            ? "Choose the folder where the upload should land"
-            : "Choose a file or folder to download";
+        UpdateSelectionSummary();
     }
 
     private async Task<(IReadOnlyList<RemoteEntry> Entries, string? Error)> ListWithPasswordAsync(
@@ -171,9 +251,10 @@ public partial class RemoteBrowserWindow : Window
 
     private void SetBusy(bool busy, string status)
     {
+        _busy = busy;
         StatusText.Text = status;
-        ChooseButton.IsEnabled = !busy && ChooseButton.IsEnabled;
         Entries.IsEnabled = !busy;
+        UpdateSelectionSummary();
     }
 
     private static string Normalize(string? path)

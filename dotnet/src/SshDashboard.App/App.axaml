@@ -38,20 +38,22 @@
           <SolidColorBrush x:Key="AppBg" Color="#EBF0F7" />
           <SolidColorBrush x:Key="SidebarBg" Color="#F7FAFD" />
           <SolidColorBrush x:Key="PanelBg" Color="#FFFFFF" />
-          <SolidColorBrush x:Key="ElevatedBg" Color="#F2F6FB" />
+          <SolidColorBrush x:Key="ElevatedBg" Color="#EEF4FA" />
           <SolidColorBrush x:Key="CardBg" Color="#FFFFFF" />
-          <SolidColorBrush x:Key="BorderSoft" Color="#D6E0EC" />
+          <SolidColorBrush x:Key="BorderSoft" Color="#C8D6E6" />
           <SolidColorBrush x:Key="TextPrimary" Color="#16202B" />
-          <SolidColorBrush x:Key="TextMuted" Color="#5A6B7D" />
-          <SolidColorBrush x:Key="TextFaint" Color="#8092A6" />
+          <SolidColorBrush x:Key="TextMuted" Color="#435368" />
+          <SolidColorBrush x:Key="TextFaint" Color="#5B6F84" />
           <SolidColorBrush x:Key="AccentBrush" Color="#2F6FE4" />
           <SolidColorBrush x:Key="AccentSoft" Color="#DCE8FB" />
           <SolidColorBrush x:Key="DangerBrush" Color="#C93A3F" />
           <SolidColorBrush x:Key="DangerSoft" Color="#FBE3E4" />
           <SolidColorBrush x:Key="SuccessBrush" Color="#178B5C" />
-          <SolidColorBrush x:Key="HoverBg" Color="#E4EBF4" />
-          <SolidColorBrush x:Key="SelectedBg" Color="#D9E6FA" />
-          <SolidColorBrush x:Key="InputBg" Color="#F4F8FC" />
+          <SolidColorBrush x:Key="HoverBg" Color="#DCE7F3" />
+          <SolidColorBrush x:Key="SelectedBg" Color="#CFE0F8" />
+          <SolidColorBrush x:Key="InputBg" Color="#F7FAFD" />
+          <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#5B6F84" />
+          <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#435368" />
         </ResourceDictionary>
       </ResourceDictionary.ThemeDictionaries>
     </ResourceDictionary>
@@ -116,6 +118,9 @@
     </Style>
     <Style Selector="Button.ghost:pointerover /template/ ContentPresenter">
       <Setter Property="Background" Value="{DynamicResource HoverBg}" />
+    </Style>
+    <Style Selector="Button.ghost:pointerover">
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
     </Style>
 
     <Style Selector="TextBox">

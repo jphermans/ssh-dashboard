@@ -12,6 +12,7 @@ public partial class TransferWindow : Window
 {
     private readonly HostRow _host;
     private readonly ObservableCollection<string> _sources = new();
+    private readonly ObservableCollection<string> _remoteSources = new();
     private Process? _process;
     private bool _running;
     private bool _cancelled;
@@ -25,6 +26,7 @@ public partial class TransferWindow : Window
             ? $"{host.Address}:{host.Port}"
             : $"{host.User}@{host.Address}:{host.Port}";
         SourcesList.ItemsSource = _sources;
+        RemoteSourcesList.ItemsSource = _remoteSources;
         LocalDestination.Text = DefaultDownloadFolder();
         UploadRadio.IsCheckedChanged += (_, _) => UpdateMode();
         DownloadRadio.IsCheckedChanged += (_, _) => UpdateMode();
@@ -34,6 +36,25 @@ public partial class TransferWindow : Window
         AddHandler(DragDrop.DropEvent, OnDrop);
         Closing += (_, _) => CancelProcess();
         UpdateMode();
+    }
+
+    /// <summary>Fills a representative download state for README captures.</summary>
+    public void SetDownloadCaptureState()
+    {
+        DownloadRadio.IsChecked = true;
+        _remoteSources.Clear();
+        _remoteSources.Add("~/backups");
+        _remoteSources.Add("~/configs");
+        RemoteSource.Text = _remoteSources[0];
+        RemoteSourcesBox.IsVisible = true;
+        StatusText.Text = "2 remote items selected";
+        Progress.IsVisible = true;
+        Progress.IsIndeterminate = false;
+        Progress.Value = 38;
+        ProgressText.Text = "38%";
+        FooterHint.Text = "Transfer in progress…";
+        TransferButton.Content = "Cancel";
+        LogBox.Text = "backups/  38%  420MB  12.1MB/s  00:12" + Environment.NewLine;
     }
 
     /// <summary>Fills a representative state for README captures.</summary>
@@ -155,7 +176,35 @@ public partial class TransferWindow : Window
     {
         var result = await new RemoteBrowserWindow(_host, RemoteBrowseMode.Download)
             .ShowDialog<RemoteBrowseResult?>(this);
-        if (result is not null) RemoteSource.Text = result.Path;
+        if (result is null) return;
+
+        var paths = result.Paths is { Count: > 0 } ? result.Paths : new[] { result.Path };
+        _remoteSources.Clear();
+        foreach (var path in paths.Distinct(StringComparer.Ordinal)) _remoteSources.Add(path);
+        RemoteSource.Text = result.Path;
+        RemoteSourcesBox.IsVisible = _remoteSources.Count > 0;
+        StatusText.Text = _remoteSources.Count == 1
+            ? "1 remote item selected"
+            : $"{_remoteSources.Count} remote items selected";
+    }
+
+    private void RemoteSource_TextChanged(object? sender, Avalonia.Controls.TextChangedEventArgs e)
+    {
+        if (_remoteSources.Count == 0) return;
+        // TextChanged can be raised after a programmatic selection. Only clear
+        // the list when the field no longer matches the first selected path.
+        if (string.Equals(RemoteSource.Text?.Trim(), _remoteSources[0].Trim(),
+                StringComparison.Ordinal)) return;
+        _remoteSources.Clear();
+        RemoteSourcesBox.IsVisible = false;
+    }
+
+    private void ClearRemoteSources_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        _remoteSources.Clear();
+        RemoteSourcesBox.IsVisible = false;
+        RemoteSource.Text = "";
+        StatusText.Text = "Ready";
     }
 
     private async void PickDestination_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -188,9 +237,9 @@ public partial class TransferWindow : Window
             StatusText.Text = "Enter a remote destination path.";
             return;
         }
-        if (!upload && string.IsNullOrWhiteSpace(RemoteSource.Text))
+        if (!upload && _remoteSources.Count == 0 && string.IsNullOrWhiteSpace(RemoteSource.Text))
         {
-            StatusText.Text = "Enter a remote source path.";
+            StatusText.Text = "Choose at least one remote file or folder first.";
             return;
         }
         if (!upload && string.IsNullOrWhiteSpace(LocalDestination.Text))
@@ -223,21 +272,22 @@ public partial class TransferWindow : Window
         var target = SshLauncher.TransferTarget(_host);
         List<string> BuildArgs(bool allowPassword)
         {
+            if (!upload)
+            {
+                var remotePaths = _remoteSources.Count > 0
+                    ? _remoteSources.ToList()
+                    : new List<string> { RemoteSource.Text! };
+                return SshLauncher.BuildDownloadArguments(_host, useRsync, remotePaths,
+                    LocalDestination.Text!, allowPassword, ppk.KeyPath);
+            }
+
             var args = useRsync
                 ? SshLauncher.BuildRsyncArguments(_host, batchMode: !allowPassword,
                     identityOverride: ppk.KeyPath)
                 : SshLauncher.BuildScpArguments(_host, batchMode: !allowPassword,
                     identityOverride: ppk.KeyPath);
-            if (upload)
-            {
-                foreach (var source in _sources) args.Add(source);
-                args.Add($"{target}:{SshLauncher.EscapeRemotePath(RemoteDestination.Text!)}");
-            }
-            else
-            {
-                args.Add($"{target}:{SshLauncher.EscapeRemotePath(RemoteSource.Text!)}");
-                args.Add(LocalDestination.Text!);
-            }
+            foreach (var source in _sources) args.Add(source);
+            args.Add($"{target}:{SshLauncher.EscapeRemotePath(RemoteDestination.Text!)}");
             return args;
         }
 

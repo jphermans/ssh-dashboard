@@ -39,11 +39,17 @@
                DoubleTapped="Entries_DoubleTapped" SelectionChanged="Entries_SelectionChanged">
         <ListBox.ItemTemplate>
           <DataTemplate>
-            <Grid ColumnDefinitions="28,*" Margin="4,3">
-              <TextBlock Text="{Binding Icon}" FontFamily="SF Mono, Menlo, monospace"
+            <Grid ColumnDefinitions="Auto,28,*" Margin="4,3">
+              <CheckBox Grid.Column="0" IsVisible="{Binding ShowCheckBox}"
+                        IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                        Click="EntryCheckBox_Click"
+                        Padding="0" MinWidth="0" Margin="0,0,4,0"
+                        VerticalAlignment="Center"
+                        ToolTip.Tip="Select for download" />
+              <TextBlock Grid.Column="1" Text="{Binding Icon}" FontFamily="SF Mono, Menlo, monospace"
                          FontSize="13" Foreground="{DynamicResource AccentBrush}"
                          VerticalAlignment="Center" />
-              <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="13"
+              <TextBlock Grid.Column="2" Text="{Binding Name}" FontSize="13"
                          Foreground="{DynamicResource TextPrimary}"
                          TextTrimming="CharacterEllipsis" />
             </Grid>

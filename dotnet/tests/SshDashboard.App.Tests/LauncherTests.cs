@@ -75,6 +75,21 @@ public class SshLauncherTests
         }
     }
 
+    [Fact]
+    public void DownloadArgumentsKeepEveryRemoteSource()
+    {
+        var host = Host(user: "root", address: "192.0.2.50");
+        var target = SshLauncher.TransferTarget(host);
+        var args = SshLauncher.BuildDownloadArguments(host, useRsync: false,
+            new[] { "~/backups", "/var/log/app log" }, "/tmp/downloads",
+            allowPassword: true);
+
+        Assert.Contains($"{target}:~/backups", args);
+        Assert.Contains($"{target}:/var/log/app\\ log", args);
+        Assert.Equal("/tmp/downloads", args[^1]);
+        Assert.Contains("BatchMode=no", args);
+    }
+
     [Theory]
     [InlineData("a b$c", @"a\ b\$c")]
     [InlineData("folder/name", "folder/name")]

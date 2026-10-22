@@ -172,6 +172,21 @@ public static class SshLauncher
         }
     }
 
+    /// <summary>Arguments for downloading one or more remote paths into a local folder.</summary>
+    public static List<string> BuildDownloadArguments(HostRow host, bool useRsync,
+        IEnumerable<string> remotePaths, string localDestination, bool allowPassword = false,
+        string? identityOverride = null)
+    {
+        var args = useRsync
+            ? BuildRsyncArguments(host, batchMode: !allowPassword, identityOverride: identityOverride)
+            : BuildScpArguments(host, batchMode: !allowPassword, identityOverride: identityOverride);
+        var target = TransferTarget(host);
+        foreach (var remotePath in remotePaths)
+            args.Add($"{target}:{EscapeRemotePath(remotePath)}");
+        args.Add(localDestination);
+        return args;
+    }
+
     public static string TransferTarget(HostRow host)
     {
         if (UsesConfigAlias(host)) return host.Label;

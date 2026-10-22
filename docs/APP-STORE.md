@@ -56,7 +56,7 @@ Run after building the Apple silicon `.app` and DMG:
 scripts/notarize-macos.sh --check
 scripts/notarize-macos.sh \
   "dotnet/dist/SSH Dashboard.app" \
-  "dotnet/dist/SSH-Dashboard-2.1.13-macOS-arm64.dmg"
+  "dotnet/dist/SSH-Dashboard-2.1.14-macOS-arm64.dmg"
 ```
 
 The script auto-detects a **Developer ID Application** certificate, signs the
@@ -139,6 +139,6 @@ flow. The current Avalonia desktop code does not port to iOS as-is.
 
 ## Recommendation
 
-Ship 2.1.13 as a **notarized Developer ID download** once the Developer ID
+Ship 2.1.14 as a **notarized Developer ID download** once the Developer ID
 certificate is available. Keep the App Store as a possible future product with
 an in-app SSH engine, not as a repackaging of this build.

@@ -83,15 +83,38 @@
         </StackPanel>
 
         <StackPanel x:Name="DownloadPanel" Spacing="10" IsVisible="False">
-          <TextBlock Text="Remote source" FontSize="12" FontWeight="SemiBold"
+          <TextBlock Text="Remote sources" FontSize="12" FontWeight="SemiBold"
                      Foreground="{DynamicResource TextFaint}" />
           <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
             <TextBox x:Name="RemoteSource" Watermark="~/backups or /var/log/syslog"
-                     FontFamily="SF Mono, Menlo, monospace" FontSize="12.5" />
+                     FontFamily="SF Mono, Menlo, monospace" FontSize="12.5"
+                     TextChanged="RemoteSource_TextChanged" />
             <Button Grid.Column="1" Content="Browse…" Click="BrowseRemoteSource_Click"
                     Classes="ghost" Padding="11,6" Background="{DynamicResource ElevatedBg}"
                     BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" />
           </Grid>
+          <Border x:Name="RemoteSourcesBox" IsVisible="False" Background="{DynamicResource InputBg}"
+                  BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1"
+                  CornerRadius="8" Padding="4">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+              <ListBox x:Name="RemoteSourcesList" Background="Transparent" BorderThickness="0"
+                       MaxHeight="120">
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding}" FontFamily="SF Mono, Menlo, monospace"
+                               FontSize="11.5" Foreground="{DynamicResource TextMuted}"
+                               TextTrimming="CharacterEllipsis" />
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+              <Button Grid.Column="1" Content="Clear" Click="ClearRemoteSources_Click"
+                      Classes="ghost" Padding="9,5" Margin="4"
+                      Background="{DynamicResource ElevatedBg}"
+                      BorderBrush="{DynamicResource BorderSoft}" BorderThickness="1" />
+            </Grid>
+          </Border>
+          <TextBlock Text="Browse… can select several files and folders. Folders are copied recursively."
+                     FontSize="11.5" Foreground="{DynamicResource TextFaint}" TextWrapping="Wrap" />
           <TextBlock Text="Save into" FontSize="12" FontWeight="SemiBold"
                      Foreground="{DynamicResource TextFaint}" />
           <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
