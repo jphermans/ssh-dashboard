@@ -25,6 +25,7 @@ public partial class TransferWindow : Window
             ? $"{host.Address}:{host.Port}"
             : $"{host.User}@{host.Address}:{host.Port}";
         SourcesList.ItemsSource = _sources;
+        LocalDestination.Text = DefaultDownloadFolder();
         UploadRadio.IsCheckedChanged += (_, _) => UpdateMode();
         DownloadRadio.IsCheckedChanged += (_, _) => UpdateMode();
         DragDrop.SetAllowDrop(this, true);
@@ -56,8 +57,16 @@ public partial class TransferWindow : Window
         var upload = UploadRadio.IsChecked == true;
         UploadPanel.IsVisible = upload;
         DownloadPanel.IsVisible = !upload;
+        if (!upload && string.IsNullOrWhiteSpace(LocalDestination.Text))
+            LocalDestination.Text = DefaultDownloadFolder();
         FooterHint.Text = upload ? "Copy local files or folders to the instance" :
-            "Copy a remote file or folder to this Mac";
+            "Copy a remote file or folder into your Downloads folder";
+    }
+
+    private static string DefaultDownloadFolder()
+    {
+        var downloads = Path.Combine(PlatformInfo.Home, "Downloads");
+        return Directory.Exists(downloads) ? downloads : PlatformInfo.Home;
     }
 
     private void OnDragOver(object? sender, DragEventArgs e)
