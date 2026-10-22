@@ -152,6 +152,34 @@ public partial class App : Application
                 }, TimeSpan.FromSeconds(2));
             }
 
+            var passwordShot = Array.IndexOf(args, "--password-shot");
+            if (passwordShot >= 0 && passwordShot + 1 < args.Length)
+            {
+                var target = args[passwordShot + 1];
+                var demo = new HostRow
+                {
+                    Label = "root@lab-server",
+                    Address = "192.0.2.50",
+                    User = "root",
+                    Port = 2222,
+                };
+                var dialog = new SshPasswordWindow(demo);
+                dialog.Show();
+                DispatcherTimer.RunOnce(() =>
+                {
+                    try
+                    {
+                        var bitmap = new RenderTargetBitmap(
+                            new PixelSize((int)dialog.Width, (int)dialog.Height), new Vector(96, 96));
+                        bitmap.Render(dialog);
+                        bitmap.Save(target);
+                        Console.WriteLine("wrote " + target);
+                    }
+                    catch (Exception ex) { Console.Error.WriteLine(ex); }
+                    desktop.Shutdown();
+                }, TimeSpan.FromSeconds(1));
+            }
+
             var settingsShot = Array.IndexOf(args, "--settings-shot");
             if (settingsShot >= 0 && settingsShot + 1 < args.Length && main is not null)
             {

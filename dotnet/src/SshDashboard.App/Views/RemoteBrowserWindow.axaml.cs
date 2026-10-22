@@ -26,6 +26,7 @@ public partial class RemoteBrowserWindow : Window
     private readonly RemoteBrowseMode _mode;
     private readonly ObservableCollection<RemoteEntry> _entries = new();
     private int _loadVersion;
+    private string? _password;
 
     public RemoteBrowserWindow(HostRow host, RemoteBrowseMode mode)
     {
@@ -43,13 +44,14 @@ public partial class RemoteBrowserWindow : Window
         ChooseButton.Content = mode == RemoteBrowseMode.UploadDestination
             ? "Use selected folder"
             : "Choose selection";
+        Closing += (_, _) => _password = null;
         Opened += async (_, _) => await LoadAsync("~");
     }
 
     private async void Up_Click(object? sender, RoutedEventArgs e)
     {
         var current = Normalize(PathBox.Text);
-        await LoadAsync(Parent(current));
+        await LoadAsync(ParentOf(current));
     }
 
     private async void Go_Click(object? sender, RoutedEventArgs e) =>
@@ -100,7 +102,7 @@ public partial class RemoteBrowserWindow : Window
         PathBox.Text = path;
         var version = ++_loadVersion;
         SetBusy(true, "Reading remote folder…");
-        var (entries, error) = await RemoteListing.ListAsync(_host, path);
+        var (entries, error) = await ListWithPasswordAsync(path);
         if (version != _loadVersion) return;
         _entries.Clear();
         if (error is not null)
@@ -115,6 +117,34 @@ public partial class RemoteBrowserWindow : Window
         SelectionText.Text = _mode == RemoteBrowseMode.UploadDestination
             ? "Choose the folder where the upload should land"
             : "Choose a file or folder to download";
+    }
+
+    private async Task<(IReadOnlyList<RemoteEntry> Entries, string? Error)> ListWithPasswordAsync(
+        string path)
+    {
+        var result = _password is null
+            ? await RemoteListing.ListAsync(_host, path)
+            : await ListWithAskPassAsync(path, _password);
+        if (result.Error is null || !SshLauncher.IsPasswordFailure(255, result.Error))
+            return result;
+
+        if (_password is not null)
+        {
+            // A cached password was rejected; ask once more so the user can correct it.
+            _password = null;
+        }
+        var password = await new SshPasswordWindow(_host).ShowDialog<string?>(this);
+        if (string.IsNullOrEmpty(password))
+            return (Array.Empty<RemoteEntry>(), "Password required to read the remote folder.");
+        _password = password;
+        return await ListWithAskPassAsync(path, password);
+    }
+
+    private async Task<(IReadOnlyList<RemoteEntry> Entries, string? Error)> ListWithAskPassAsync(
+        string path, string password)
+    {
+        using var askpass = SshAskPass.Create(password);
+        return await RemoteListing.ListAsync(_host, path, batchMode: false, askpass);
     }
 
     private void SetBusy(bool busy, string status)
@@ -132,7 +162,7 @@ public partial class RemoteBrowserWindow : Window
         return path.Length == 0 ? "/" : path;
     }
 
-    private static string Parent(string path)
+    private static string ParentOf(string path)
     {
         if (path is "~" or "/" || path.Length == 0) return path;
         var index = path.LastIndexOf('/');
@@ -143,10 +173,10 @@ public partial class RemoteBrowserWindow : Window
     }
 }
 
-public static class RemoteListing
+internal static class RemoteListing
 {
     public static async Task<(IReadOnlyList<RemoteEntry> Entries, string? Error)> ListAsync(
-        HostRow host, string path)
+        HostRow host, string path, bool batchMode = true, SshAskPass? askpass = null)
     {
         try
         {
@@ -158,8 +188,9 @@ public static class RemoteListing
                 UseShellExecute = false,
                 CreateNoWindow = true,
             };
-            foreach (var arg in SshLauncher.BuildSshCommandArguments(host, command))
+            foreach (var arg in SshLauncher.BuildSshCommandArguments(host, command, batchMode))
                 psi.ArgumentList.Add(arg);
+            askpass?.Apply(psi);
             using var process = new Process { StartInfo = psi };
             process.Start();
             var stdoutTask = process.StandardOutput.ReadToEndAsync();

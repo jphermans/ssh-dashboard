@@ -55,9 +55,10 @@ public static class SshLauncher
         host.Label.IndexOfAny(new[] { '*', '?', ' ', '\t' }) < 0;
 
     /// <summary>Base scp arguments for a host, without the source/destination operands.</summary>
-    public static List<string> BuildScpArguments(HostRow host)
+    public static List<string> BuildScpArguments(HostRow host, bool batchMode = true)
     {
-        var args = new List<string> { "-r", "-p", "-o", "BatchMode=yes" };
+        var args = new List<string> { "-r", "-p" };
+        AddBatchMode(args, batchMode);
         // OpenSSH 9+ defaults scp to SFTP, which changes how remote paths are
         // parsed. -O keeps the legacy protocol so shell escaping behaves the
         // same on macOS 12 and current macOS. Older scp has no -O and is
@@ -79,9 +80,11 @@ public static class SshLauncher
     }
 
     /// <summary>Arguments for a non-interactive remote command over SSH.</summary>
-    public static List<string> BuildSshCommandArguments(HostRow host, string command)
+    public static List<string> BuildSshCommandArguments(HostRow host, string command,
+        bool batchMode = true)
     {
-        var args = new List<string> { "-o", "BatchMode=yes", "-o", "ConnectTimeout=8" };
+        var args = new List<string> { "-o", "ConnectTimeout=8" };
+        AddBatchMode(args, batchMode);
         if (UsesConfigAlias(host))
         {
             args.Add(host.Label);
@@ -114,17 +117,19 @@ public static class SshLauncher
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
             .Any(dir => File.Exists(Path.Combine(dir, "rsync")));
 
-    public static List<string> BuildRsyncArguments(HostRow host)
+    public static List<string> BuildRsyncArguments(HostRow host, bool batchMode = true)
     {
         var args = new List<string> { "-a", "--progress" };
         args.Add("-e");
-        args.Add(BuildRsyncShell(host));
+        args.Add(BuildRsyncShell(host, batchMode));
         return args;
     }
 
-    private static string BuildRsyncShell(HostRow host)
+    private static string BuildRsyncShell(HostRow host, bool batchMode)
     {
-        var shell = "ssh -o BatchMode=yes";
+        var shell = batchMode
+            ? "ssh -o BatchMode=yes"
+            : "ssh -o BatchMode=no -o NumberOfPasswordPrompts=1";
         if (!UsesConfigAlias(host))
         {
             if (host.Port != 22) shell += " -p " + host.Port;
@@ -132,6 +137,27 @@ public static class SshLauncher
             if (identity is not null) shell += " -i " + ShellQuote(identity);
         }
         return shell;
+    }
+
+    public static bool IsPasswordFailure(int exitCode, string? stderr) =>
+        exitCode != 0 && !string.IsNullOrWhiteSpace(stderr) &&
+        System.Text.RegularExpressions.Regex.IsMatch(stderr,
+            @"(?i)(permission denied|password|authentication failed|enter passphrase)");
+
+    private static void AddBatchMode(List<string> args, bool batchMode)
+    {
+        if (batchMode)
+        {
+            args.Add("-o");
+            args.Add("BatchMode=yes");
+        }
+        else
+        {
+            args.Add("-o");
+            args.Add("BatchMode=no");
+            args.Add("-o");
+            args.Add("NumberOfPasswordPrompts=1");
+        }
     }
 
     public static string TransferTarget(HostRow host)

@@ -132,7 +132,7 @@
         <details>
           <summary>Why does the transfer stop or ask for authentication?</summary>
           <div class="answer">
-            <p>Transfers run without a terminal, so password-only hosts need an SSH key or an unlocked ssh-agent. Check that the host has the right <code>IdentityFile</code>, or load your key with <code>ssh-add</code>.</p>
+            <p>If the host requests a password, a hidden password prompt opens. It is used only for that operation and is never saved. A key or an unlocked ssh-agent avoids the prompt. Check that the host has the right <code>IdentityFile</code>, or load your key with <code>ssh-add</code>.</p>
             <p>Progress is shown live when <code>rsync</code> is available; otherwise the app falls back to <code>scp</code> with an indeterminate bar. <strong>Cancel</strong> stops the active process.</p>
           </div>
         </details>

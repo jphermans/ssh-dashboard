@@ -200,43 +200,50 @@ public partial class TransferWindow : Window
         }
 
         var useRsync = SshLauncher.HasRsync;
-        var args = useRsync ? SshLauncher.BuildRsyncArguments(_host) : SshLauncher.BuildScpArguments(_host);
-        var target = SshLauncher.TransferTarget(_host);
-        if (upload)
-        {
-            foreach (var source in _sources) args.Add(source);
-            args.Add($"{target}:{SshLauncher.EscapeRemotePath(RemoteDestination.Text!)}");
-        }
-        else
-        {
-            args.Add($"{target}:{SshLauncher.EscapeRemotePath(RemoteSource.Text!)}");
-            args.Add(LocalDestination.Text!);
-        }
-
         LogBox.Text = "";
         _cancelled = false;
         SetRunning(true, upload ? "Uploading…" : "Downloading…", useRsync);
+
+        var target = SshLauncher.TransferTarget(_host);
+        List<string> BuildArgs(bool allowPassword)
+        {
+            var args = useRsync
+                ? SshLauncher.BuildRsyncArguments(_host, batchMode: !allowPassword)
+                : SshLauncher.BuildScpArguments(_host, batchMode: !allowPassword);
+            if (upload)
+            {
+                foreach (var source in _sources) args.Add(source);
+                args.Add($"{target}:{SshLauncher.EscapeRemotePath(RemoteDestination.Text!)}");
+            }
+            else
+            {
+                args.Add($"{target}:{SshLauncher.EscapeRemotePath(RemoteSource.Text!)}");
+                args.Add(LocalDestination.Text!);
+            }
+            return args;
+        }
+
         try
         {
-            var psi = new ProcessStartInfo(useRsync ? "rsync" : "scp")
+            var result = await RunAsync(BuildArgs(false), useRsync, null);
+            if (!_cancelled && result.Code != 0 &&
+                SshLauncher.IsPasswordFailure(result.Code, result.Error))
             {
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            };
-            foreach (var arg in args) psi.ArgumentList.Add(arg);
-            _process = new Process { StartInfo = psi, EnableRaisingEvents = true };
-            _process.OutputDataReceived += (_, data) => Append(data.Data, useRsync);
-            _process.ErrorDataReceived += (_, data) => Append(data.Data, useRsync);
-            _process.Start();
-            _process.BeginOutputReadLine();
-            _process.BeginErrorReadLine();
-            await _process.WaitForExitAsync();
-            var code = _process.ExitCode;
+                SetRunning(true, "Password required", useRsync);
+                var password = await new SshPasswordWindow(_host).ShowDialog<string?>(this);
+                if (!string.IsNullOrEmpty(password))
+                {
+                    Progress.Value = 0;
+                    ProgressText.Text = useRsync ? "0%" : "copying…";
+                    using var askpass = SshAskPass.Create(password);
+                    result = await RunAsync(BuildArgs(true), useRsync, askpass);
+                }
+            }
+
             var cancelled = _cancelled;
-            SetRunning(false, cancelled ? "Cancelled" : code == 0 ? "Transfer complete" : $"Transfer exited with code {code}");
-            if (code == 0 && !cancelled)
+            SetRunning(false, cancelled ? "Cancelled" :
+                result.Code == 0 ? "Transfer complete" : $"Transfer exited with code {result.Code}");
+            if (result.Code == 0 && !cancelled)
             {
                 Progress.IsIndeterminate = false;
                 Progress.Value = 100;
@@ -249,9 +256,9 @@ public partial class TransferWindow : Window
                     FooterHint.Text = "Source list cleared — choose files again to copy";
                 }
             }
-            else
+            else if (!cancelled)
             {
-                Append("If authentication failed, load the key in ssh-agent or use a host with key authentication.", useRsync);
+                Append("If the password or key is rejected, check the account and load the key in ssh-agent.", useRsync);
             }
         }
         catch (Exception ex)
@@ -264,6 +271,34 @@ public partial class TransferWindow : Window
             _process?.Dispose();
             _process = null;
         }
+    }
+
+    private async Task<(int Code, string Error)> RunAsync(
+        List<string> args, bool useRsync, SshAskPass? askpass)
+    {
+        var psi = new ProcessStartInfo(useRsync ? "rsync" : "scp")
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        foreach (var arg in args) psi.ArgumentList.Add(arg);
+        askpass?.Apply(psi);
+        using var process = new Process { StartInfo = psi, EnableRaisingEvents = true };
+        var error = new System.Text.StringBuilder();
+        process.OutputDataReceived += (_, data) => Append(data.Data, useRsync);
+        process.ErrorDataReceived += (_, data) =>
+        {
+            if (!string.IsNullOrWhiteSpace(data.Data)) error.AppendLine(data.Data);
+            Append(data.Data, useRsync);
+        };
+        _process = process;
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        await process.WaitForExitAsync();
+        return (process.ExitCode, error.ToString());
     }
 
     private void Append(string? line, bool rsync = false)

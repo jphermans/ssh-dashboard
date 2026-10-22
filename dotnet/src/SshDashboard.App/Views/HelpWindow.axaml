@@ -196,7 +196,7 @@
           </TextBlock>
           <TextBlock FontSize="13" LineHeight="21" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}">
             <Run Text="• " Foreground="{DynamicResource AccentBrush}" />
-            <Run Text="After a successful upload the source list is cleared, so the same files are not copied again by accident. The transfer log shows progress; Close or Cancel stops an active transfer." />
+            <Run Text="If the host asks for a password, a hidden password prompt appears. The password is used only for that transfer and is never stored. After a successful upload the source list is cleared. The transfer log shows progress; Close or Cancel stops an active transfer." />
           </TextBlock>
         </StackPanel>
 

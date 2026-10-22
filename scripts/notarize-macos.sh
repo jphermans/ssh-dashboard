@@ -7,7 +7,7 @@
 #
 # Usage:
 #   scripts/notarize-macos.sh "dotnet/dist/SSH Dashboard.app" \
-#     "dotnet/dist/SSH-Dashboard-2.1.11-macOS-arm64.dmg"
+#     "dotnet/dist/SSH-Dashboard-2.1.12-macOS-arm64.dmg"
 set -euo pipefail
 
 APP="${1:?path to .app}"
