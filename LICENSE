@@ -1,0 +1,17 @@
+SSH Dashboard
+Copyright © 2026 Jean-Pierre Hermans (JPHsystems). All rights reserved.
+
+This software is proprietary and is not licensed for redistribution, resale or
+use as the basis of a derivative work. It is provided as a download for the
+licensee's own use on their own machines.
+
+Bundled open-source components are covered by their own licenses, which take
+precedence for those components:
+
+  Avalonia UI          MIT License      https://github.com/AvaloniaUI/Avalonia
+  VtNetCore            MIT License      https://github.com/nathanaelgabriel/VtNetCore
+  .NET Runtime         MIT License      https://github.com/dotnet/runtime
+
+The system OpenSSH client (`ssh`, `scp`, `rsync`) is invoked as an external
+process and is neither bundled nor redistributed with this application; it is
+covered by its own license on your operating system.

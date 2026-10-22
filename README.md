@@ -16,8 +16,9 @@ Built with **.NET 10** and **Avalonia** for macOS, Windows and Linux.
 ![.NET](https://img.shields.io/badge/.NET-10-512BD4)
 ![Avalonia](https://img.shields.io/badge/Avalonia-11.3-8B44AC)
 ![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Windows%20%7C%20Linux-11171F)
-![Tests](https://img.shields.io/badge/tests-15%20passing-3FCF8E)
-![Version](https://img.shields.io/badge/version-2.1.14-4C8DFF)
+![Tests](https://img.shields.io/badge/tests-25%20passing-3FCF8E)
+[![build](https://github.com/jphermans/ssh-dashboard/actions/workflows/build.yml/badge.svg)](https://github.com/jphermans/ssh-dashboard/actions/workflows/build.yml)
+[![version](https://img.shields.io/github/v/release/jphermans/ssh-dashboard?color=4C8DFF&label=version)](https://github.com/jphermans/ssh-dashboard/releases/latest)
 
 ![Hosts view](docs/screenshots/hosts-dark.png)
 
@@ -104,12 +105,13 @@ All builds are self-contained — no .NET runtime required on the target.
 
 | Platform | File |
 | --- | --- |
-| macOS 12+ (Apple silicon) | [`SSH-Dashboard-2.1.14-macOS-arm64.dmg`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.14/SSH-Dashboard-2.1.14-macOS-arm64.dmg) |
-| Windows 10/11 x64 — installer | [`SSH-Dashboard-2.1.14-Setup.exe`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.14/SSH-Dashboard-2.1.14-Setup.exe) |
-| Windows 10/11 x64 — portable | [`SSH-Dashboard-2.1.14-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.14/SSH-Dashboard-2.1.14-windows-x64.zip) |
-| Linux x64 | [`SSH-Dashboard-2.1.14-linux-x64.tar.gz`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.14/SSH-Dashboard-2.1.14-linux-x64.tar.gz) |
+| macOS 12+ (Apple silicon) | [`SSH-Dashboard-macOS-arm64.dmg`](https://github.com/jphermans/ssh-dashboard/releases/latest/download/SSH-Dashboard-macOS-arm64.dmg) |
+| Windows 10/11 x64 — installer | [`SSH-Dashboard-Setup.exe`](https://github.com/jphermans/ssh-dashboard/releases/latest/download/SSH-Dashboard-Setup.exe) |
+| Windows 10/11 x64 — portable | [`SSH-Dashboard-windows-x64.zip`](https://github.com/jphermans/ssh-dashboard/releases/latest/download/SSH-Dashboard-windows-x64.zip) |
+| Linux x64 | [`SSH-Dashboard-linux-x64.tar.gz`](https://github.com/jphermans/ssh-dashboard/releases/latest/download/SSH-Dashboard-linux-x64.tar.gz) |
 
-Checksums: [`SHA256SUMS-2.1.14.txt`](https://github.com/jphermans/ssh-dashboard/releases/download/v2.1.14/SHA256SUMS-2.1.14.txt).
+These links point at the latest release, so they never go stale. Checksums:
+[`SHA256SUMS.txt`](https://github.com/jphermans/ssh-dashboard/releases/latest/download/SHA256SUMS.txt).
 
 ### macOS
 
@@ -216,18 +218,27 @@ snapshot afterwards.
 ## Testing
 
 ```sh
-dotnet test dotnet/tests/SshDashboard.Core.Tests
+dotnet test dotnet/SshDashboard.slnx
 ```
 
-Eight tests cover known_hosts parsing (shared lines, hashed hosts, ports),
-merging with `ssh_config`, safe deletion with backups, config editing with
-comment preservation, restore and CSV escaping. Tests use a temporary SSH
-folder and never touch your real `~/.ssh`.
+Twenty-five tests run against temporary folders and never touch your real
+`~/.ssh`:
+
+- **Core** — `known_hosts` parsing (shared lines, hashed hosts, ports),
+  merging with `ssh_config`, deletion with backups, config editing with comment
+  preservation, undo across several files, restore, CSV escaping, `Include`d
+  blocks read-only, and PuTTY conversion.
+- **App** — SSH command construction (aliases, IPv6, ports, keys), transfer
+  arguments, remote-path escaping, authentication-failure detection, and
+  askpass permissions and cleanup.
 
 ## License
 
-No license is granted; all rights reserved. Open an issue if you would like a
-permissive license added.
+Proprietary. Copyright © 2026 Jean-Pierre Hermans. All rights reserved.
+
+Bundled open-source components keep their own licenses: Avalonia UI (MIT),
+VtNetCore (MIT) and .NET (MIT). SSH connections use the system OpenSSH client,
+which is not distributed with this app.
 
 ---
 
