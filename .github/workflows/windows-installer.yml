@@ -76,7 +76,7 @@ jobs:
           Copy-Item "installer/dist/SSH-Dashboard-$env:VERSION-Setup.exe" $stable -Force
           gh release upload $tag $stable --clobber --repo $env:GITHUB_REPOSITORY
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: SSH-Dashboard-${{ inputs.version }}-windows-installer
           path: installer/dist/SSH-Dashboard-${{ inputs.version }}-Setup.exe
